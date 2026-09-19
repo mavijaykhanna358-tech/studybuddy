@@ -16,16 +16,11 @@ class ResendEmailBackend(BaseEmailBackend):
 
         for message in email_messages:
             try:
-                html = ""
-
-                if message.alternatives:
-                    html = message.alternatives[0][0]
-
                 resend.Emails.send({
                     "from": "onboarding@resend.dev",
                     "to": message.to,
                     "subject": message.subject,
-                    "html": html,
+                    "text": message.body,
                 })
 
                 sent += 1
