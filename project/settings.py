@@ -159,3 +159,4 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1',
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'mavijaykhanna358@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'uzmo wajd mbzr vzaj')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'mavijaykhanna358@gmail.com')
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 20))
