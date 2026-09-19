@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>Profile</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email|default:'Not provided' }}</p>
+    <p><strong>Joined:</strong> {{ user.date_joined|date:'M d, Y' }}</p>
+</div>
+{% endblock %}

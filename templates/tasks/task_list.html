@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>My Tasks</h2>
+    <div class="actions">
+        <a class="btn btn-primary" href="{% url 'task_create' %}">+ Add Task</a>
+        <a class="btn btn-warning" href="{% url 'tasks' %}?filter=upcoming">Upcoming</a>
+        <a class="btn btn-success" href="{% url 'tasks' %}?filter=completed">Completed</a>
+        <a class="btn btn-danger" href="{% url 'tasks' %}?filter=high-priority">High Priority</a>
+    </div>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Due</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td data-label="Title">{{ task.title }}</td>
+                <td data-label="Category">{{ task.category }}</td>
+                <td data-label="Priority">{{ task.priority }}</td>
+                <td data-label="Status">{{ task.status }}</td>
+                <td data-label="Due">{{ task.due_date|default:'No date' }}</td>
+                <td data-label="Actions">
+                    <div class="actions">
+                        <a class="btn btn-primary" href="{% url 'task_update' task.id %}">Edit</a>
+                        <a class="btn btn-success" href="{% url 'task_complete' task.id %}">Done</a>
+                        <a class="btn btn-danger" href="{% url 'task_delete' task.id %}">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No tasks yet. Add your first task.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #eef4ff 0%, #f8fafc 100%);
+            margin: 0;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 18px 12px 26px;
+        }
+        nav {
+            background: linear-gradient(90deg, #1d4ed8, #2563eb);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav .brand {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        nav .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            height: 32px;
+        }
+        .nav-logout-form {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            height: 32px;
+        }
+        .nav-logout {
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            width: auto;
+            height: auto;
+            line-height: 1;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+            margin: 0 auto 14px;
+            max-width: 720px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 720px;
+            margin: 0 auto 14px;
+        }
+        .stat {
+            flex: 1 1 140px;
+            max-width: 160px;
+            min-width: 120px;
+            background: #eff6ff;
+            border-radius: 10px;
+            padding: 12px 10px;
+            border: 1px solid #dbeafe;
+            text-align: center;
+        }
+        .stat h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .stat p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            margin-top: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+        form {
+            max-width: 650px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .small { font-size: 13px; color: #475569; }
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            nav .nav-links {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .container {
+                padding: 16px 12px 30px;
+            }
+            .card {
+                padding: 16px;
+                max-width: 100%;
+            }
+            .row {
+                flex-direction: column;
+                max-width: 100%;
+            }
+            .stat {
+                max-width: none;
+                width: 100%;
+            }
+            .actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead {
+                display: none;
+            }
+            tbody tr {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            td {
+                border: none;
+                padding: 8px 0;
+            }
+            td::before {
+                content: attr(data-label);
+                display: block;
+                font-weight: bold;
+                color: #475569;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand">StudyBuddy</div>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'tasks' %}">Tasks</a>
+                <a href="{% url 'profile' %}">Profile</a>
+                <form method="post" action="{% url 'logout' %}" class="nav-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-logout">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

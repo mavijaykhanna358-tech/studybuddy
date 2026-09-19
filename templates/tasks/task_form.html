@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>{% if task %}Edit Task{% else %}Add Task{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Title</label>
+        <input type="text" name="title" value="{{ task.title|default_if_none:'' }}" required>
+
+        <label>Description</label>
+        <textarea name="description" rows="4">{{ task.description|default_if_none:'' }}</textarea>
+
+        <label>Category</label>
+        <input type="text" name="category" value="{{ task.category|default_if_none:'General' }}">
+
+        <label>Priority</label>
+        <select name="priority">
+            <option value="Low" {% if task and task.priority == 'Low' %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if task and task.priority == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="High" {% if task and task.priority == 'High' %}selected{% endif %}>High</option>
+        </select>
+
+        <label>Status</label>
+        <select name="status">
+            <option value="Pending" {% if not task or task.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if task and task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Completed" {% if task and task.status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+
+        <label>Due Date</label>
+        <input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}">
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'tasks' %}" class="btn btn-warning">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
