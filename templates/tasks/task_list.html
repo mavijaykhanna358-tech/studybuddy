@@ -3,6 +3,7 @@
 {% block content %}
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
     <div>
+        <p class="text-uppercase small fw-bold text-primary mb-2">Study Planner</p>
         <h2 class="mb-1">My Tasks</h2>
         <p class="text-muted mb-0">Manage your academic workload.</p>
     </div>
@@ -13,12 +14,12 @@
     <form method="get" class="row g-2 align-items-end">
         <div class="col-12 col-md-4">
             <label class="form-label">Search</label>
-            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Task title or description">
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Title or description">
         </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-2">
             <label class="form-label">Subject</label>
             <select name="subject" class="form-select">
-                <option value="">All subjects</option>
+                <option value="">All</option>
                 {% for subject in subjects %}
                     <option value="{{ subject.id }}" {% if subject_id == subject.id|stringformat:'s' %}selected{% endif %}>{{ subject.name }}</option>
                 {% endfor %}
@@ -42,7 +43,7 @@
                 <option value="High" {% if priority == 'High' %}selected{% endif %}>High</option>
             </select>
         </div>
-        <div class="col-12 col-md-1">
+        <div class="col-12 col-md-2">
             <button type="submit" class="btn btn-primary w-100">Filter</button>
         </div>
     </form>
@@ -50,45 +51,29 @@
 
 <div class="card p-3">
     {% if tasks %}
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Subject</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                    <tr>
-                        <td><a href="{% url 'task_detail' task.pk %}" class="text-decoration-none fw-semibold">{{ task.title }}</a></td>
-                        <td>{{ task.subject.name|default:'General' }}</td>
-                        <td>
-                            <span class="badge {% if task.priority == 'High' %}bg-danger{% elif task.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                                {{ task.priority }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge {% if task.status == 'Completed' %}bg-success{% elif task.status == 'In Progress' %}bg-primary{% else %}bg-secondary{% endif %}">
-                                {{ task.status }}
-                            </span>
-                        </td>
-                        <td>{{ task.due_date|default:'No date' }}</td>
-                        <td>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="{% url 'task_complete' task.pk %}" class="btn btn-sm btn-outline-success">Done</a>
-                                <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="row g-3">
+            {% for task in tasks %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="card h-100 p-3 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h5 class="mb-0">{{ task.title }}</h5>
+                            <span class="pill {% if task.priority == 'High' %}pill-danger{% elif task.priority == 'Medium' %}pill-warning{% else %}pill-success{% endif %}">{{ task.priority }}</span>
+                        </div>
+                        <p class="text-muted mb-3">{{ task.description|truncatechars:110|default:'No description provided.' }}</p>
+                        <div class="small text-muted mb-2">Subject: {{ task.subject.name|default:'General' }}</div>
+                        <div class="d-flex justify-content-between text-muted small mb-3">
+                            <span>Due: {{ task.due_date|default:'No date' }}</span>
+                            <span class="pill {% if task.status == 'Completed' %}pill-success{% elif task.status == 'In Progress' %}pill-primary{% else %}pill-secondary{% endif %}">{{ task.status }}</span>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'task_complete' task.pk %}" class="btn btn-sm btn-outline-success">Done</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     {% else %}
         <div class="empty-state">No tasks match your current filters.</div>

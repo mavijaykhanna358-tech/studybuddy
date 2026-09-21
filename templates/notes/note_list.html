@@ -3,6 +3,7 @@
 {% block content %}
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
+        <p class="text-uppercase small fw-bold text-primary mb-2">Knowledge Base</p>
         <h2 class="mb-1">Notes</h2>
         <p class="text-muted mb-0">Keep your revision and ideas organized.</p>
     </div>
@@ -39,7 +40,7 @@
                     <small class="text-muted">{{ note.updated_at|date:'M d' }}</small>
                 </div>
                 <div class="small text-muted mb-3">{{ note.subject.name|default:'General' }}</div>
-                <p class="mb-3">{{ note.content|truncatechars:120 }}</p>
+                <p class="mb-3 text-muted">{{ note.content|truncatechars:120 }}</p>
                 <div class="d-flex gap-2 flex-wrap">
                     <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">View</a>
                     <a href="{% url 'note_edit' note.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
