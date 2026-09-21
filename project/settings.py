@@ -29,11 +29,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-n85_@_@i0ev0$$&%)97xc
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes', 'on')
 
 ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'testserver',
     'studybuddy-9bug.onrender.com',
     'studybuddyapp.in.net',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
     'https://studybuddy-9bug.onrender.com',
     'https://studybuddyapp.in.net',
 ]

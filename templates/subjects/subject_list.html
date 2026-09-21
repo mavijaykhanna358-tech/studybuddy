@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="mb-1">Subjects</h2>
+        <p class="text-muted mb-0">Track each study area separately.</p>
+    </div>
+    <a href="{% url 'subject_create' %}" class="btn btn-primary">+ Add Subject</a>
+</div>
+
+<div class="card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-10">
+            <label class="form-label">Search subjects</label>
+            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by subject name">
+        </div>
+        <div class="col-12 col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-3">
+    {% for subject in subjects %}
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <h5 class="mb-0">{{ subject.name }}</h5>
+                    <span class="badge bg-light text-dark">{{ subject.tasks.count }} tasks</span>
+                </div>
+                <p class="text-muted mb-3">{{ subject.description|default:'No description provided yet.' }}</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'subject_detail' subject.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                    <a href="{% url 'subject_edit' subject.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'subject_delete' subject.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="empty-state">No subjects yet. Add your first subject to start organizing your studies.</div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

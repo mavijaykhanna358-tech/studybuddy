@@ -11,18 +11,29 @@ class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 
 def register(request):
+    error = None
+
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
+        username = (request.POST.get('username') or '').strip()
+        email = (request.POST.get('email') or '').strip()
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        if password1 and password1 == password2 and not User.objects.filter(username=username).exists():
-            user = User.objects.create_user(username=username, email=email, password=password1)
-            login(request, user)
-            return redirect('dashboard')
+        if not username:
+            error = 'Username is required.'
+        elif User.objects.filter(username=username).exists():
+            error = 'This username is already taken.'
+        elif not password1 or not password2:
+            error = 'Please enter and confirm your password.'
+        elif password1 != password2:
+            error = 'Passwords do not match.'
+        elif len(password1) < 8:
+            error = 'Password must be at least 8 characters long.'
+        else:
+            User.objects.create_user(username=username, email=email, password=password1)
+            return redirect('login')
 
-    return render(request, 'users/register.html')
+    return render(request, 'users/register.html', {'error': error})
 
 
 @login_required

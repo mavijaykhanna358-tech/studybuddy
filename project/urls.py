@@ -29,6 +29,6 @@ urlpatterns = [
     path('', root_redirect, name='home'),
     path('dashboard/', include('dashboard.urls')),
     path('', include('users.urls')),
-    path('tasks/', include('tasks.urls')),
+    path('', include('tasks.urls')),
     path('admin/', admin.site.urls),
 ]

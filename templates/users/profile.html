@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
+<div class="card auth-card">
     <h2>Profile</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email|default:'Not provided' }}</p>
-    <p><strong>Joined:</strong> {{ user.date_joined|date:'M d, Y' }}</p>
+    <div class="list-card">
+        <div class="item">
+            <div class="muted small">Username</div>
+            <div class="fw-semibold">{{ user.username }}</div>
+        </div>
+        <div class="item">
+            <div class="muted small">Email</div>
+            <div class="fw-semibold">{{ user.email|default:'Not provided' }}</div>
+        </div>
+        <div class="item">
+            <div class="muted small">Joined</div>
+            <div class="fw-semibold">{{ user.date_joined|date:'M d, Y' }}</div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,20 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
+<div class="card auth-card">
     <h2>Create Account</h2>
-    <form method="post">
+    {% if error %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endif %}
+    <form method="post" class="row g-3">
         {% csrf_token %}
-        <label>Username</label>
-        <input type="text" name="username" required>
-        <label>Email</label>
-        <input type="email" name="email" required>
-        <label>Password</label>
-        <input type="password" name="password1" required>
-        <label>Confirm Password</label>
-        <input type="password" name="password2" required>
-        <button type="submit" class="btn btn-success">Register</button>
+        <div class="col-12">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Password</label>
+            <input type="password" name="password1" class="form-control" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password2" class="form-control" required>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-success w-100">Register</button>
+        </div>
     </form>
-    <p class="small">Already have an account? <a href="{% url 'login' %}">Login</a>.</p>
+    <p class="text-center mb-0 mt-3">Already have an account? <a href="{% url 'login' %}">Login</a>.</p>
 </div>
 {% endblock %}
