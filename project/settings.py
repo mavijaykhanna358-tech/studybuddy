@@ -28,23 +28,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-n85_@_@i0ev0$$&%)97xc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes', 'on')
 
-DEFAULT_ALLOWED_HOSTS = 'localhost,127.0.0.1,testserver,.onrender.com'
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
-    if host.strip()
+    'studybuddy-9bug.onrender.com',
+    'studybuddyapp.in.net',
 ]
 
-if 'studybuddy-bg.onrender.com' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append('studybuddy-bg.onrender.com')
-
 CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get(
-        'CSRF_TRUSTED_ORIGINS',
-        'https://studybuddy-bg.onrender.com'
-    ).split(',')
-    if origin.strip()
+    'https://studybuddy-9bug.onrender.com',
+    'https://studybuddyapp.in.net',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -100,7 +91,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL')
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
     )
 }
 
