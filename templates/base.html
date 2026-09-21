@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>StudyBuddy</title>
 
     <link
@@ -11,10 +13,14 @@
     >
 
     <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
         :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
-            --secondary: #4f46e5;
             --background: #f4f7fb;
             --panel: #ffffff;
             --text: #172033;
@@ -42,6 +48,7 @@
         }
 
         body {
+            margin: 0;
             font-family: "Segoe UI", Arial, sans-serif;
             background: var(--background);
             color: var(--text);
@@ -69,22 +76,28 @@
             box-sizing: border-box;
         }
 
+
         /* =====================================================
-           MAIN DESKTOP LAYOUT
-           ===================================================== */
+           AUTHENTICATED APP LAYOUT
+        ===================================================== */
 
         .app-layout {
-            display: flex;
             width: 100%;
-            max-width: 100%;
             min-height: 100vh;
+            display: flex;
         }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
 
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
+
             width: 300px;
 
             background: linear-gradient(
@@ -94,6 +107,7 @@
             );
 
             color: white;
+
             padding: 1.5rem 1rem 1rem;
 
             display: flex;
@@ -101,7 +115,8 @@
 
             z-index: 1000;
 
-            box-shadow: 10px 0 28px rgba(15, 23, 42, 0.12);
+            box-shadow:
+                10px 0 28px rgba(15, 23, 42, 0.12);
 
             transition: transform 0.3s ease;
         }
@@ -120,19 +135,24 @@
         .sidebar-nav {
             display: flex;
             flex-direction: column;
+
             gap: 0.45rem;
+
             margin-top: 0.9rem;
+
             flex: 1;
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
+
             gap: 0.7rem;
 
             color: rgba(255, 255, 255, 0.8);
 
             padding: 0.8rem 0.9rem;
+
             border-radius: 12px;
 
             font-weight: 600;
@@ -152,19 +172,24 @@
 
         .sidebar .logout-box {
             margin-top: auto;
+
             padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+            border-top:
+                1px solid rgba(255, 255, 255, 0.12);
         }
+
 
         /* =====================================================
            MAIN AREA
-           ===================================================== */
+        ===================================================== */
 
         .main-area {
             margin-left: 300px;
+
             width: calc(100% - 300px);
+
             min-height: 100vh;
-            max-width: calc(100% - 300px);
 
             display: flex;
             flex-direction: column;
@@ -172,6 +197,7 @@
 
         .main-content {
             width: 100%;
+
             min-height: 100vh;
 
             padding: 32px 40px 40px;
@@ -180,12 +206,14 @@
         .content-shell {
             width: 100%;
             max-width: 1200px;
+
             margin: 0 auto;
         }
 
+
         /* =====================================================
            MOBILE TOPBAR
-           ===================================================== */
+        ===================================================== */
 
         .mobile-topbar {
             display: none;
@@ -195,16 +223,19 @@
             display: none;
         }
 
+
         /* =====================================================
            PAGE HEADER
-           ===================================================== */
+        ===================================================== */
 
         .page-header {
             display: flex;
+
             justify-content: space-between;
             align-items: center;
 
             gap: 1rem;
+
             margin-bottom: 1.5rem;
 
             flex-wrap: wrap;
@@ -222,14 +253,16 @@
             margin: 0.25rem 0 0;
         }
 
+
         /* =====================================================
            CARDS
-           ===================================================== */
+        ===================================================== */
 
         .card {
             background: var(--panel);
 
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            border:
+                1px solid rgba(148, 163, 184, 0.18);
 
             border-radius: var(--radius);
 
@@ -240,39 +273,55 @@
             transition:
                 transform 0.2s ease,
                 box-shadow 0.2s ease;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.09);
+
+            box-shadow:
+                0 14px 36px rgba(15, 23, 42, 0.09);
         }
 
+
         /* =====================================================
-           STAT CARDS
-           ===================================================== */
+           STATISTICS
+        ===================================================== */
 
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 1rem;
         }
 
         .stat-card {
             display: flex;
+
             flex-direction: column;
+
             justify-content: center;
 
             width: 100%;
+
             min-height: 140px;
 
-            background: linear-gradient(
-                180deg,
-                #f8fbff,
-                #eff6ff
-            );
+            background:
+                linear-gradient(
+                    180deg,
+                    #f8fbff,
+                    #eff6ff
+                );
 
-            border: 1px solid rgba(37, 99, 235, 0.12);
-            border-left: 4px solid var(--primary);
+            border:
+                1px solid rgba(37, 99, 235, 0.12);
+
+            border-left:
+                4px solid var(--primary);
 
             border-radius: 18px;
 
@@ -285,12 +334,12 @@
 
             transition:
                 transform 0.25s ease,
-                box-shadow 0.25s ease,
-                border-color 0.25s ease;
+                box-shadow 0.25s ease;
 
             cursor: pointer;
 
             position: relative;
+
             overflow: hidden;
         }
 
@@ -305,7 +354,8 @@
             width: 70px;
             height: 70px;
 
-            background: rgba(37, 99, 235, 0.06);
+            background:
+                rgba(37, 99, 235, 0.06);
 
             border-radius: 50%;
         }
@@ -317,27 +367,30 @@
             box-shadow:
                 0 14px 28px rgba(37, 99, 235, 0.12);
 
-            border-color: rgba(37, 99, 235, 0.2);
-
             outline: none;
         }
 
         .stat-card.is-active {
-            border-color: rgba(37, 99, 235, 0.3);
+            border-color:
+                rgba(37, 99, 235, 0.3);
 
-            background: linear-gradient(
-                180deg,
-                #f4f9ff,
-                #ebf3ff
-            );
+            background:
+                linear-gradient(
+                    180deg,
+                    #f4f9ff,
+                    #ebf3ff
+                );
         }
 
         .stat-card-head {
             position: relative;
+
             z-index: 1;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
             gap: 0.75rem;
@@ -345,19 +398,24 @@
 
         .stat-card-label {
             color: var(--muted);
+
             margin: 0;
 
             font-size: 0.9rem;
+
             font-weight: 600;
         }
 
         .stat-card-value {
             position: relative;
+
             z-index: 1;
 
             margin: 0.55rem 0 0;
 
-            font-size: clamp(1.7rem, 2vw, 2.4rem);
+            font-size:
+                clamp(1.7rem, 2vw, 2.4rem);
+
             font-weight: 700;
 
             color: var(--text);
@@ -370,27 +428,35 @@
             border-radius: 50%;
 
             display: inline-flex;
+
             align-items: center;
             justify-content: center;
 
-            background: rgba(37, 99, 235, 0.08);
+            background:
+                rgba(37, 99, 235, 0.08);
+
             color: var(--primary);
 
             position: relative;
+
             z-index: 1;
         }
 
-        .stat-card.is-active .stat-card-indicator {
+        .stat-card.is-active
+        .stat-card-indicator {
             transform: rotate(180deg);
         }
 
+
         /* =====================================================
            PILLS
-           ===================================================== */
+        ===================================================== */
 
         .pill {
             display: inline-flex;
+
             align-items: center;
+
             justify-content: center;
 
             border-radius: 999px;
@@ -398,6 +464,7 @@
             padding: 0.35rem 0.7rem;
 
             font-size: 0.74rem;
+
             font-weight: 700;
         }
 
@@ -426,14 +493,18 @@
             color: #334155;
         }
 
+
         /* =====================================================
            BUTTONS
-           ===================================================== */
+        ===================================================== */
 
         .btn {
             border-radius: 12px;
+
             font-weight: 600;
-            padding: 0.72rem 1.1rem;
+
+            padding:
+                0.72rem 1.1rem;
 
             transition:
                 transform 0.2s ease,
@@ -445,26 +516,33 @@
         }
 
         .btn-sm {
-            padding: 0.45rem 0.8rem;
+            padding:
+                0.45rem 0.8rem;
+
             font-size: 0.82rem;
         }
 
+
         /* =====================================================
            FORMS
-           ===================================================== */
+        ===================================================== */
 
         .form-control,
         .form-select,
         textarea {
             width: 100%;
+
             max-width: 100%;
+
             min-width: 0;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid var(--border);
 
             border-radius: 12px;
 
-            padding: 0.78rem 0.9rem;
+            padding:
+                0.78rem 0.9rem;
 
             background: #fff;
 
@@ -474,77 +552,97 @@
         .form-control:focus,
         .form-select:focus,
         textarea:focus {
-            border-color: rgba(37, 99, 235, 0.5);
+            border-color:
+                rgba(37, 99, 235, 0.5);
 
             box-shadow:
-                0 0 0 0.22rem rgba(37, 99, 235, 0.12);
+                0 0 0 0.22rem
+                rgba(37, 99, 235, 0.12);
         }
 
         .form-label {
             font-weight: 600;
+
             color: var(--text);
+
             margin-bottom: 0.4rem;
         }
 
+
         /* =====================================================
-           TABLE
-           ===================================================== */
+           TABLES
+        ===================================================== */
 
         .table-responsive {
-            overflow-x: auto;
+            width: 100%;
+
             max-width: 100%;
+
+            overflow-x: auto;
         }
 
         .table {
             word-break: break-word;
+
             overflow-wrap: anywhere;
         }
 
         .table thead th {
             background: #f8fafc;
+
             color: #334155;
 
-            border-bottom: 1px solid var(--border);
+            border-bottom:
+                1px solid var(--border);
 
             font-weight: 700;
         }
 
         .table td {
             vertical-align: middle;
+
             border-color: var(--border);
         }
 
+
         /* =====================================================
-           LIST
-           ===================================================== */
+           LISTS
+        ===================================================== */
 
         .list-card {
             display: flex;
+
             flex-direction: column;
+
             gap: 0.8rem;
         }
 
         .list-card .item {
-            border: 1px solid var(--border);
+            border:
+                1px solid var(--border);
 
             border-radius: 12px;
 
-            padding: 0.9rem 1rem;
+            padding:
+                0.9rem 1rem;
 
             background: #fff;
 
             word-break: break-word;
+
             overflow-wrap: anywhere;
         }
 
         .empty-state {
             background: #f8fafc;
 
-            border: 1px dashed var(--border);
+            border:
+                1px dashed var(--border);
 
             border-radius: 14px;
 
-            padding: 1rem 1.2rem;
+            padding:
+                1rem 1.2rem;
 
             color: var(--muted);
 
@@ -555,28 +653,41 @@
             color: var(--muted);
         }
 
+
         /* =====================================================
-           AUTH PAGES
-           ===================================================== */
+           LOGIN / REGISTER / FORGOT PASSWORD
+        ===================================================== */
+
+        .guest-layout {
+            width: 100%;
+
+            min-height: 100vh;
+        }
 
         .main-content.is-guest {
-            margin-left: 0;
             width: 100%;
+
             min-height: 100vh;
+
             padding: 0;
         }
 
-        .main-content.is-guest .content-shell {
-            max-width: 100%;
+        .main-content.is-guest
+        .content-shell {
             width: 100%;
+
+            max-width: 100%;
 
             min-height: 100vh;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            padding: 24px 16px 32px;
+            padding:
+                24px 16px 32px;
         }
 
         .auth-card {
@@ -587,58 +698,75 @@
             padding: 1.75rem;
 
             word-break: break-word;
+
             overflow-wrap: anywhere;
         }
 
         .auth-card h2 {
             text-align: center;
+
             margin-bottom: 1.5rem;
         }
 
+
         /* =====================================================
            ANIMATION
-           ===================================================== */
+        ===================================================== */
 
         @keyframes fadeUp {
+
             from {
                 opacity: 0;
-                transform: translateY(12px);
+
+                transform:
+                    translateY(12px);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+
+                transform:
+                    translateY(0);
             }
+
         }
+
 
         /* =====================================================
            DESKTOP
-           ===================================================== */
+        ===================================================== */
 
         @media (min-width: 1024px) {
 
             .sidebar {
                 display: flex !important;
+
                 position: fixed;
 
                 left: 0;
                 top: 0;
                 bottom: 0;
 
-                transform: translateX(0);
+                transform:
+                    translateX(0);
             }
 
             .mobile-topbar,
             .mobile-backdrop {
                 display: none !important;
             }
+
         }
+
 
         /* =====================================================
            TABLET
-           ===================================================== */
+        ===================================================== */
 
-        @media (min-width: 768px) and (max-width: 1023px) {
+        @media
+        (min-width: 768px)
+        and
+        (max-width: 1023px) {
 
             .sidebar {
                 display: none;
@@ -649,56 +777,66 @@
                 top: 0;
                 bottom: 0;
 
-                width: min(300px, 85vw);
+                width:
+                    min(300px, 85vw);
 
-                transform: translateX(-110%);
+                transform:
+                    translateX(-110%);
 
                 z-index: 1000;
             }
 
-            body.mobile-nav-open .sidebar {
+            body.mobile-nav-open
+            .sidebar {
                 display: flex;
-                transform: translateX(0);
+
+                transform:
+                    translateX(0);
             }
 
             .main-area {
                 margin-left: 0 !important;
 
                 width: 100% !important;
-                max-width: 100% !important;
 
-                min-height: 100vh;
+                max-width: 100% !important;
             }
 
             .mobile-topbar {
                 display: flex;
 
                 align-items: center;
+
                 justify-content: space-between;
 
                 width: 100%;
 
-                background: linear-gradient(
-                    90deg,
-                    var(--primary-dark),
-                    var(--primary)
-                );
+                background:
+                    linear-gradient(
+                        90deg,
+                        var(--primary-dark),
+                        var(--primary)
+                    );
 
                 color: white;
 
-                padding: 0.9rem 1rem;
+                padding:
+                    0.9rem 1rem;
 
                 position: sticky;
+
                 top: 0;
 
                 z-index: 900;
 
                 box-shadow:
-                    0 8px 24px rgba(37, 99, 235, 0.18);
+                    0 8px 24px
+                    rgba(37, 99, 235, 0.18);
             }
 
             .mobile-menu-toggle {
                 background: transparent;
+
                 border: none;
 
                 color: white;
@@ -706,6 +844,7 @@
                 font-size: 1.5rem;
 
                 width: 42px;
+
                 height: 42px;
 
                 border-radius: 12px;
@@ -713,6 +852,7 @@
                 display: flex;
 
                 align-items: center;
+
                 justify-content: center;
 
                 cursor: pointer;
@@ -723,7 +863,8 @@
 
                 font-weight: 800;
 
-                letter-spacing: -0.04em;
+                letter-spacing:
+                    -0.04em;
 
                 color: white;
             }
@@ -735,9 +876,11 @@
 
                 inset: 0;
 
-                background: rgba(15, 23, 42, 0.45);
+                background:
+                    rgba(15, 23, 42, 0.45);
 
                 opacity: 0;
+
                 visibility: hidden;
 
                 transition:
@@ -747,15 +890,18 @@
                 z-index: 950;
             }
 
-            body.mobile-nav-open .mobile-backdrop {
+            body.mobile-nav-open
+            .mobile-backdrop {
                 opacity: 1;
+
                 visibility: visible;
             }
 
             .main-content {
                 width: 100%;
 
-                padding: 24px 20px 32px;
+                padding:
+                    24px 20px 32px;
             }
 
             .content-shell {
@@ -764,13 +910,18 @@
 
             .stat-grid {
                 grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
             }
+
         }
+
 
         /* =====================================================
            MOBILE
-           ===================================================== */
+        ===================================================== */
 
         @media (max-width: 767px) {
 
@@ -783,56 +934,66 @@
                 top: 0;
                 bottom: 0;
 
-                width: min(82vw, 300px);
+                width:
+                    min(82vw, 300px);
 
-                transform: translateX(-110%);
+                transform:
+                    translateX(-110%);
 
                 z-index: 1000;
             }
 
-            body.mobile-nav-open .sidebar {
+            body.mobile-nav-open
+            .sidebar {
                 display: flex;
-                transform: translateX(0);
+
+                transform:
+                    translateX(0);
             }
 
             .main-area {
                 margin-left: 0 !important;
 
                 width: 100% !important;
-                max-width: 100% !important;
 
-                min-height: 100vh;
+                max-width: 100% !important;
             }
 
             .mobile-topbar {
                 display: flex;
 
                 align-items: center;
+
                 justify-content: space-between;
 
                 width: 100%;
 
-                background: linear-gradient(
-                    90deg,
-                    var(--primary-dark),
-                    var(--primary)
-                );
+                background:
+                    linear-gradient(
+                        90deg,
+                        var(--primary-dark),
+                        var(--primary)
+                    );
 
                 color: white;
 
-                padding: 0.8rem 1rem;
+                padding:
+                    0.8rem 1rem;
 
                 position: sticky;
+
                 top: 0;
 
                 z-index: 900;
 
                 box-shadow:
-                    0 8px 24px rgba(37, 99, 235, 0.18);
+                    0 8px 24px
+                    rgba(37, 99, 235, 0.18);
             }
 
             .mobile-menu-toggle {
                 background: transparent;
+
                 border: none;
 
                 color: white;
@@ -840,6 +1001,7 @@
                 font-size: 1.5rem;
 
                 width: 42px;
+
                 height: 42px;
 
                 border-radius: 12px;
@@ -847,6 +1009,7 @@
                 display: flex;
 
                 align-items: center;
+
                 justify-content: center;
 
                 cursor: pointer;
@@ -857,7 +1020,8 @@
 
                 font-weight: 800;
 
-                letter-spacing: -0.04em;
+                letter-spacing:
+                    -0.04em;
 
                 color: white;
             }
@@ -869,9 +1033,11 @@
 
                 inset: 0;
 
-                background: rgba(15, 23, 42, 0.45);
+                background:
+                    rgba(15, 23, 42, 0.45);
 
                 opacity: 0;
+
                 visibility: hidden;
 
                 transition:
@@ -881,37 +1047,47 @@
                 z-index: 950;
             }
 
-            body.mobile-nav-open .mobile-backdrop {
+            body.mobile-nav-open
+            .mobile-backdrop {
                 opacity: 1;
+
                 visibility: visible;
             }
 
             .main-content {
                 width: 100%;
 
-                padding: 20px 16px 40px;
+                padding:
+                    20px 16px 40px;
             }
 
             .content-shell {
                 width: 100%;
+
                 max-width: 100%;
+
                 padding: 0;
             }
 
             .page-header {
                 align-items: flex-start;
+
                 flex-direction: column;
             }
 
             .stat-grid {
                 grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
 
                 gap: 0.75rem;
             }
 
             .stat-card {
                 min-height: 120px;
+
                 padding: 0.9rem;
             }
 
@@ -919,26 +1095,30 @@
                 font-size: 1.7rem;
             }
 
-            /* Keep login/register pages centered */
-            .main-content.is-guest .content-shell {
+            .main-content.is-guest
+            .content-shell {
+                min-height: 100vh;
+
                 display: flex;
 
                 align-items: center;
+
                 justify-content: center;
 
-                min-height: calc(100vh - 58px);
-
-                padding: 16px 0 24px;
+                padding:
+                    16px 0 24px;
             }
 
             .auth-card {
-                width: calc(100% - 32px);
+                width:
+                    calc(100% - 32px);
 
                 max-width: 480px;
 
                 margin: 16px auto;
 
-                padding: 1.25rem 1rem;
+                padding:
+                    1.25rem 1rem;
             }
 
             .form-control,
@@ -947,6 +1127,7 @@
             .btn,
             .btn-sm {
                 width: 100%;
+
                 max-width: 100%;
             }
 
@@ -954,11 +1135,13 @@
             .d-grid .btn {
                 width: 100%;
             }
+
         }
 
+
         /* =====================================================
-           VERY SMALL PHONE
-           ===================================================== */
+           SMALL PHONE
+        ===================================================== */
 
         @media (max-width: 380px) {
 
@@ -973,33 +1156,47 @@
             .main-content {
                 padding: 14px;
             }
+
         }
+
     </style>
+
 </head>
 
+
 <body>
+
 
 {% if user.is_authenticated %}
 
     <!-- =====================================================
-         AUTHENTICATED LAYOUT
-         ===================================================== -->
+         AUTHENTICATED USER
+    ===================================================== -->
 
     <div class="app-layout">
 
+
         <!-- SIDEBAR -->
-        <aside class="sidebar" aria-label="Sidebar navigation">
+
+        <aside
+            class="sidebar"
+            aria-label="Sidebar navigation"
+        >
 
             <div class="sidebar-header">
+
                 <a
                     class="sidebar-brand"
                     href="{% url 'dashboard' %}"
                 >
                     StudyBuddy
                 </a>
+
             </div>
 
+
             <nav class="sidebar-nav">
+
 
                 <a
                     class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}"
@@ -1008,12 +1205,14 @@
                     Dashboard
                 </a>
 
+
                 <a
                     class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}"
                     href="{% url 'subjects' %}"
                 >
                     Subjects
                 </a>
+
 
                 <a
                     class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}"
@@ -1022,12 +1221,14 @@
                     Tasks
                 </a>
 
+
                 <a
                     class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}"
                     href="{% url 'notes' %}"
                 >
                     Notes
                 </a>
+
 
                 <a
                     class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}"
@@ -1036,7 +1237,9 @@
                     Profile
                 </a>
 
+
             </nav>
+
 
             <div class="logout-box">
 
@@ -1044,6 +1247,7 @@
                     method="post"
                     action="{% url 'logout' %}"
                 >
+
                     {% csrf_token %}
 
                     <button
@@ -1060,10 +1264,15 @@
         </aside>
 
 
-        <!-- MAIN AREA -->
+        <!-- =================================================
+             MAIN AREA
+        ================================================= -->
+
         <div class="main-area">
 
-            <!-- MOBILE/TABLET NAVBAR -->
+
+            <!-- MOBILE NAVBAR -->
+
             <div
                 class="mobile-topbar"
                 aria-label="Mobile navigation"
@@ -1078,6 +1287,7 @@
                     ☰
                 </button>
 
+
                 <div class="mobile-brand">
                     StudyBuddy
                 </div>
@@ -1086,6 +1296,7 @@
 
 
             <!-- MOBILE OVERLAY -->
+
             <div
                 class="mobile-backdrop"
                 aria-hidden="true"
@@ -1093,9 +1304,11 @@
 
 
             <!-- MAIN CONTENT -->
+
             <main class="main-content">
 
                 <div class="content-shell">
+
 
                     {% if messages %}
 
@@ -1121,207 +1334,302 @@
 
                     {% endif %}
 
+
+                    <!-- ONLY ONE BLOCK CONTENT -->
+
                     {% block content %}{% endblock %}
+
 
                 </div>
 
             </main>
 
+
         </div>
 
     </div>
 
+
 {% else %}
 
+
     <!-- =====================================================
-         GUEST / LOGIN / REGISTER / FORGOT PASSWORD
-         ===================================================== -->
+         GUEST USER
+         LOGIN / REGISTER / FORGOT PASSWORD
+    ===================================================== -->
 
-    <main class="main-content is-guest">
+    <div class="guest-layout">
 
-        <div class="content-shell">
 
-            {% if messages %}
+        <main class="main-content is-guest">
 
-                {% for message in messages %}
+            <div class="content-shell">
 
-                    <div
-                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
-                        role="alert"
-                    >
 
-                        {{ message }}
+                {% if messages %}
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
+                    {% for message in messages %}
 
-                    </div>
+                        <div
+                            class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                            role="alert"
+                        >
 
-                {% endfor %}
+                            {{ message }}
 
-            {% endif %}
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close"
+                            ></button>
 
-            {% block content %}{% endblock %}
+                        </div>
 
-        </div>
+                    {% endfor %}
 
-    </main>
+                {% endif %}
+
+
+                <!-- DO NOT PUT BLOCK CONTENT HERE -->
+
+            </div>
+
+        </main>
+
+
+    </div>
+
 
 {% endif %}
 
 
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
-
-    const mobileMenuToggle =
-        document.querySelector(".mobile-menu-toggle");
-
-    const mobileBackdrop =
-        document.querySelector(".mobile-backdrop");
-
-    const sidebarLinks =
-        document.querySelectorAll(".sidebar-link");
-
-    const statCards =
-        document.querySelectorAll(".stat-card");
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
 
-    /* =====================================================
-       MOBILE MENU
-       ===================================================== */
-
-    if (mobileMenuToggle && mobileBackdrop) {
-
-        mobileMenuToggle.addEventListener("click", function () {
-
-            const isOpen =
-                document.body.classList.toggle(
-                    "mobile-nav-open"
-                );
-
-            mobileMenuToggle.setAttribute(
-                "aria-expanded",
-                String(isOpen)
+        const mobileMenuToggle =
+            document.querySelector(
+                ".mobile-menu-toggle"
             );
 
-        });
 
-
-        mobileBackdrop.addEventListener("click", function () {
-
-            document.body.classList.remove(
-                "mobile-nav-open"
+        const mobileBackdrop =
+            document.querySelector(
+                ".mobile-backdrop"
             );
 
-            mobileMenuToggle.setAttribute(
-                "aria-expanded",
-                "false"
+
+        const sidebarLinks =
+            document.querySelectorAll(
+                ".sidebar-link"
             );
 
-        });
 
-    }
+        const statCards =
+            document.querySelectorAll(
+                ".stat-card"
+            );
 
 
-    /* =====================================================
-       CLOSE MENU AFTER CLICKING LINK
-       ===================================================== */
+        /* =============================================
+           MOBILE MENU
+        ============================================= */
 
-    sidebarLinks.forEach(function (link) {
+        if (
+            mobileMenuToggle &&
+            mobileBackdrop
+        ) {
 
-        link.addEventListener("click", function () {
 
-            if (window.innerWidth <= 1023) {
+            mobileMenuToggle.addEventListener(
+                "click",
+                function () {
 
-                document.body.classList.remove(
-                    "mobile-nav-open"
-                );
 
-                if (mobileMenuToggle) {
+                    const isOpen =
+                        document.body.classList.toggle(
+                            "mobile-nav-open"
+                        );
+
+
+                    mobileMenuToggle.setAttribute(
+                        "aria-expanded",
+                        String(isOpen)
+                    );
+
+
+                }
+            );
+
+
+            mobileBackdrop.addEventListener(
+                "click",
+                function () {
+
+
+                    document.body.classList.remove(
+                        "mobile-nav-open"
+                    );
+
 
                     mobileMenuToggle.setAttribute(
                         "aria-expanded",
                         "false"
                     );
 
+
                 }
-
-            }
-
-        });
-
-    });
-
-
-    /* =====================================================
-       STAT CARD
-       ===================================================== */
-
-    statCards.forEach(function (card) {
-
-        card.addEventListener("click", function () {
-
-            const isActive =
-                card.classList.contains("is-active");
-
-
-            statCards.forEach(function (item) {
-
-                const activate =
-                    item === card && !isActive;
-
-                item.classList.toggle(
-                    "is-active",
-                    activate
-                );
-
-                item.setAttribute(
-                    "aria-pressed",
-                    String(activate)
-                );
-
-            });
-
-        });
-
-    });
-
-
-    /* =====================================================
-       RESET MOBILE MENU WHEN RESIZING
-       ===================================================== */
-
-    window.addEventListener("resize", function () {
-
-        if (window.innerWidth >= 1024) {
-
-            document.body.classList.remove(
-                "mobile-nav-open"
             );
-
-            if (mobileMenuToggle) {
-
-                mobileMenuToggle.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-            }
 
         }
 
-    });
 
-});
+        /* =============================================
+           CLOSE MENU AFTER LINK CLICK
+        ============================================= */
+
+        sidebarLinks.forEach(
+            function (link) {
+
+
+                link.addEventListener(
+                    "click",
+                    function () {
+
+
+                        if (
+                            window.innerWidth <= 1023
+                        ) {
+
+
+                            document.body.classList.remove(
+                                "mobile-nav-open"
+                            );
+
+
+                            if (
+                                mobileMenuToggle
+                            ) {
+
+                                mobileMenuToggle.setAttribute(
+                                    "aria-expanded",
+                                    "false"
+                                );
+
+                            }
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =============================================
+           STAT CARDS
+        ============================================= */
+
+        statCards.forEach(
+            function (card) {
+
+
+                card.addEventListener(
+                    "click",
+                    function () {
+
+
+                        const isActive =
+                            card.classList.contains(
+                                "is-active"
+                            );
+
+
+                        statCards.forEach(
+                            function (item) {
+
+
+                                const activate =
+                                    item === card &&
+                                    !isActive;
+
+
+                                item.classList.toggle(
+                                    "is-active",
+                                    activate
+                                );
+
+
+                                item.setAttribute(
+                                    "aria-pressed",
+                                    String(activate)
+                                );
+
+
+                            }
+                        );
+
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =============================================
+           RESET MENU WHEN RESIZING
+        ============================================= */
+
+        window.addEventListener(
+            "resize",
+            function () {
+
+
+                if (
+                    window.innerWidth >= 1024
+                ) {
+
+
+                    document.body.classList.remove(
+                        "mobile-nav-open"
+                    );
+
+
+                    if (
+                        mobileMenuToggle
+                    ) {
+
+                        mobileMenuToggle.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+
+    }
+);
 
 </script>
+
 
 </body>
 </html>
