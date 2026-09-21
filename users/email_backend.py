@@ -17,7 +17,7 @@ class ResendEmailBackend(BaseEmailBackend):
         for message in email_messages:
             try:
                 resend.Emails.send({
-                    "from": "onboarding@resend.dev",
+                    "from": "noreply@studybuddyapp.in.net",
                     "to": message.to,
                     "subject": message.subject,
                     "text": message.body,
