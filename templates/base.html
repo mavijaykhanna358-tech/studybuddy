@@ -25,6 +25,12 @@
 
         * { box-sizing: border-box; }
 
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         html { scroll-behavior: smooth; }
 
         body {
@@ -33,15 +39,32 @@
             background: var(--background);
             color: var(--text);
             min-height: 100vh;
-            overflow-x: hidden;
+        }
+
+        body.mobile-nav-open {
+            overflow: hidden;
         }
 
         a { text-decoration: none; }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
 
         .app-layout {
             min-height: 100vh;
             display: flex;
             width: 100%;
+            max-width: 100%;
         }
 
         .sidebar {
@@ -49,7 +72,7 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 260px;
+            width: 280px;
             background: linear-gradient(180deg, #0f1f4d 0%, #122d7a 100%);
             color: white;
             padding: 1.5rem 1rem 1rem;
@@ -104,16 +127,18 @@
         }
 
         .main-content {
-            margin-left: 260px;
-            width: calc(100% - 260px);
+            margin-left: 280px;
+            width: calc(100% - 280px);
             min-height: 100vh;
             padding: 32px 28px 40px;
+            max-width: 100%;
         }
 
         .content-shell {
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            max-width: 100%;
         }
 
         .mobile-topbar {
@@ -122,6 +147,28 @@
 
         .mobile-backdrop {
             display: none;
+        }
+
+        .form-control,
+        .form-select,
+        textarea {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .btn,
+        .btn-sm {
+            max-width: 100%;
+        }
+
+        .list-card .item,
+        .item,
+        .auth-card,
+        .card,
+        .table {
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .page-header {
@@ -370,9 +417,20 @@
             }
         }
 
-        @media (max-width: 1023px) {
+        @media (min-width: 1024px) {
             .sidebar {
-                transform: translateX(-100%);
+                transform: translateX(0);
+            }
+
+            .mobile-topbar,
+            .mobile-backdrop {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-110%);
                 width: 280px;
             }
 
@@ -383,6 +441,7 @@
             .main-content {
                 margin-left: 0;
                 width: 100%;
+                max-width: 100%;
                 padding: 24px 20px 32px;
             }
 
@@ -441,8 +500,21 @@
         }
 
         @media (max-width: 767px) {
+            .sidebar {
+                width: min(82vw, 300px);
+                transform: translateX(-110%);
+                z-index: 60;
+            }
+
+            body.mobile-nav-open .sidebar {
+                transform: translateX(0);
+            }
+
             .main-content {
-                padding: 20px 14px 28px;
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 16px;
             }
 
             .content-shell {
@@ -450,8 +522,53 @@
                 padding: 0;
             }
 
-            .stat-grid {
-                grid-template-columns: 1fr 1fr;
+            .mobile-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+                color: white;
+                padding: 0.9rem 1rem;
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                box-shadow: 0 8px 24px rgba(37, 99, 235, 0.18);
+            }
+
+            .mobile-menu-toggle {
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-brand {
+                font-size: 1.5rem;
+                font-weight: 800;
+                letter-spacing: -0.04em;
+                color: white;
+            }
+
+            .mobile-backdrop {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.45);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.25s ease, visibility 0.25s ease;
+                z-index: 45;
+            }
+
+            body.mobile-nav-open .mobile-backdrop {
+                opacity: 1;
+                visibility: visible;
             }
 
             .page-header {
@@ -459,9 +576,44 @@
                 flex-direction: column;
             }
 
+            .stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .auth-card {
-                margin-top: 0.5rem;
+                width: calc(100% - 32px);
+                max-width: 500px;
+                margin: 0 auto;
                 padding: 1.1rem;
+            }
+
+            .form-control,
+            .form-select,
+            textarea,
+            .btn,
+            .btn-sm,
+            button {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .page-header .btn,
+            .d-grid .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mobile-brand {
+                font-size: 1.3rem;
+            }
+
+            .main-content {
+                padding: 14px;
             }
         }
     </style>
