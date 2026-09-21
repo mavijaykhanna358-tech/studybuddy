@@ -96,12 +96,15 @@
         .main-panel {
             flex: 1;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .content-shell {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1.25rem 1.1rem 2.5rem;
+            padding: 1rem 1.1rem 2rem;
+            width: 100%;
         }
 
         .navbar {
@@ -290,7 +293,7 @@
 
         .auth-card {
             max-width: 540px;
-            margin: 1rem auto;
+            margin: 0 auto;
             padding: 1.5rem;
             animation: fadeUp 0.45s ease both;
         }
@@ -388,6 +391,7 @@
                     </form>
                 </div>
             </aside>
+
             <main class="main-panel">
                 <nav class="navbar navbar-expand-lg navbar-dark">
                     <div class="container-fluid content-shell px-0 px-md-3">
