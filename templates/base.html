@@ -504,10 +504,6 @@
                             </div>
                         {% endfor %}
                     {% endif %}
-                    {% block content %}{% endblock %}
-                </div>
-            </main>
-        </div>
     {% else %}
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid content-shell px-0 px-md-3">
@@ -533,7 +529,15 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            {% block content %}{% endblock %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% if user.is_authenticated %}
+                </div>
+            </main>
+        </div>
+    {% else %}
         </div>
     {% endif %}
 
