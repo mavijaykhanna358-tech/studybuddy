@@ -12,78 +12,46 @@
     </div>
 </div>
 
-<div class="stat-accordion mb-4" aria-label="Study summary cards">
-    <div class="stat-accordion-item">
-        <button class="stat-accordion-button" type="button" aria-expanded="false" aria-controls="subjects-panel" id="subjects-trigger">
-            <div class="stat-accordion-header">
-                <div>
-                    <p class="stat-accordion-label">Subjects</p>
-                    <h3 class="stat-accordion-value">{{ total_subjects }}</h3>
-                </div>
-                <span class="stat-accordion-icon" aria-hidden="true">⌄</span>
+<div class="stat-grid mb-4" aria-label="Study summary cards">
+    <button class="stat-card" type="button" aria-pressed="false">
+        <div class="stat-card-head">
+            <div>
+                <p class="stat-card-label">Subjects</p>
+                <h3 class="stat-card-value">{{ total_subjects }}</h3>
             </div>
-        </button>
-        <div class="stat-accordion-panel" id="subjects-panel" role="region" aria-labelledby="subjects-trigger">
-            <div class="stat-accordion-details">
-                Keep your subjects organized and ready for your next study session.
-            </div>
-            <a href="{% url 'subjects' %}" class="stat-accordion-link">View Subjects <span aria-hidden="true">→</span></a>
+            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
         </div>
-    </div>
+    </button>
 
-    <div class="stat-accordion-item">
-        <button class="stat-accordion-button" type="button" aria-expanded="false" aria-controls="tasks-panel" id="tasks-trigger">
-            <div class="stat-accordion-header">
-                <div>
-                    <p class="stat-accordion-label">Total Tasks</p>
-                    <h3 class="stat-accordion-value">{{ total_tasks }}</h3>
-                </div>
-                <span class="stat-accordion-icon" aria-hidden="true">⌄</span>
+    <button class="stat-card" type="button" aria-pressed="false">
+        <div class="stat-card-head">
+            <div>
+                <p class="stat-card-label">Total Tasks</p>
+                <h3 class="stat-card-value">{{ total_tasks }}</h3>
             </div>
-        </button>
-        <div class="stat-accordion-panel" id="tasks-panel" role="region" aria-labelledby="tasks-trigger">
-            <div class="stat-accordion-details">
-                Your total workload across courses, goals, and daily study plans.
-            </div>
-            <a href="{% url 'tasks' %}" class="stat-accordion-link">Open Tasks <span aria-hidden="true">→</span></a>
+            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
         </div>
-    </div>
+    </button>
 
-    <div class="stat-accordion-item">
-        <button class="stat-accordion-button" type="button" aria-expanded="false" aria-controls="completed-panel" id="completed-trigger">
-            <div class="stat-accordion-header">
-                <div>
-                    <p class="stat-accordion-label">Completed</p>
-                    <h3 class="stat-accordion-value">{{ completed_tasks }}</h3>
-                </div>
-                <span class="stat-accordion-icon" aria-hidden="true">⌄</span>
+    <button class="stat-card" type="button" aria-pressed="false">
+        <div class="stat-card-head">
+            <div>
+                <p class="stat-card-label">Completed</p>
+                <h3 class="stat-card-value">{{ completed_tasks }}</h3>
             </div>
-        </button>
-        <div class="stat-accordion-panel" id="completed-panel" role="region" aria-labelledby="completed-trigger">
-            <div class="stat-accordion-details">
-                Great momentum. These tasks are finished and ready for the next step.
-            </div>
-            <a href="{% url 'tasks' %}" class="stat-accordion-link">See Progress <span aria-hidden="true">→</span></a>
+            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
         </div>
-    </div>
+    </button>
 
-    <div class="stat-accordion-item">
-        <button class="stat-accordion-button" type="button" aria-expanded="false" aria-controls="pending-panel" id="pending-trigger">
-            <div class="stat-accordion-header">
-                <div>
-                    <p class="stat-accordion-label">Pending</p>
-                    <h3 class="stat-accordion-value">{{ pending_tasks }}</h3>
-                </div>
-                <span class="stat-accordion-icon" aria-hidden="true">⌄</span>
+    <button class="stat-card" type="button" aria-pressed="false">
+        <div class="stat-card-head">
+            <div>
+                <p class="stat-card-label">Pending</p>
+                <h3 class="stat-card-value">{{ pending_tasks }}</h3>
             </div>
-        </button>
-        <div class="stat-accordion-panel" id="pending-panel" role="region" aria-labelledby="pending-trigger">
-            <div class="stat-accordion-details">
-                Tasks still waiting for attention. Focus on the next important action.
-            </div>
-            <a href="{% url 'tasks' %}" class="stat-accordion-link">Review Pending <span aria-hidden="true">→</span></a>
+            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
         </div>
-    </div>
+    </button>
 </div>
 
 <div class="row g-3 mb-4">
