@@ -2,11 +2,14 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>StudyBuddy</title>
 
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -22,12 +25,13 @@
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --background: #f4f7fb;
-            --panel: #ffffff;
+            --white: #ffffff;
             --text: #172033;
             --muted: #64748b;
             --border: #e2e8f0;
-            --radius: 18px;
-            --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            --sidebar-width: 300px;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
         }
 
         * {
@@ -37,22 +41,16 @@
         html,
         body {
             width: 100%;
-            max-width: 100%;
+            min-height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            margin: 0;
             font-family: "Segoe UI", Arial, sans-serif;
             background: var(--background);
             color: var(--text);
-            min-height: 100vh;
         }
 
         body.mobile-nav-open {
@@ -68,17 +66,9 @@
             height: auto;
         }
 
-        input,
-        textarea,
-        select,
-        button {
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
 
         /* =====================================================
-           AUTHENTICATED APP LAYOUT
+           AUTHENTICATED APP
         ===================================================== */
 
         .app-layout {
@@ -94,21 +84,22 @@
 
         .sidebar {
             position: fixed;
-            left: 0;
+
             top: 0;
+            left: 0;
             bottom: 0;
 
-            width: 300px;
+            width: var(--sidebar-width);
 
             background: linear-gradient(
                 180deg,
                 #0f1f4d 0%,
-                #122d7a 100%
+                #173b91 100%
             );
 
             color: white;
 
-            padding: 1.5rem 1rem 1rem;
+            padding: 24px 16px;
 
             display: flex;
             flex-direction: column;
@@ -116,29 +107,41 @@
             z-index: 1000;
 
             box-shadow:
-                10px 0 28px rgba(15, 23, 42, 0.12);
+                8px 0 25px rgba(15, 23, 42, 0.12);
 
-            transition: transform 0.3s ease;
+            transition:
+                transform 0.3s ease;
         }
 
+
+        /* Sidebar brand */
+
         .sidebar-header {
-            padding: 0.5rem 0.5rem 1.2rem;
+            padding: 4px 8px 20px;
         }
 
         .sidebar-brand {
-            font-size: 2rem;
+            color: white;
+
+            font-size: 30px;
+
             font-weight: 800;
-            letter-spacing: -0.04em;
+
+            letter-spacing: -1px;
+        }
+
+        .sidebar-brand:hover {
             color: white;
         }
+
+
+        /* Sidebar navigation */
 
         .sidebar-nav {
             display: flex;
             flex-direction: column;
 
-            gap: 0.45rem;
-
-            margin-top: 0.9rem;
+            gap: 6px;
 
             flex: 1;
         }
@@ -147,33 +150,45 @@
             display: flex;
             align-items: center;
 
-            gap: 0.7rem;
+            min-height: 48px;
 
-            color: rgba(255, 255, 255, 0.8);
-
-            padding: 0.8rem 0.9rem;
+            padding: 12px 14px;
 
             border-radius: 12px;
+
+            color: rgba(255, 255, 255, 0.82);
+
+            font-size: 15px;
 
             font-weight: 600;
 
             transition:
-                background 0.25s ease,
-                transform 0.25s ease,
-                color 0.25s ease;
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
         }
 
-        .sidebar-link:hover,
-        .sidebar-link.active {
-            background: rgba(255, 255, 255, 0.12);
+        .sidebar-link:hover {
             color: white;
-            transform: translateX(4px);
+
+            background:
+                rgba(255, 255, 255, 0.12);
+
+            transform: translateX(3px);
         }
 
-        .sidebar .logout-box {
-            margin-top: auto;
+        .sidebar-link.active {
+            color: white;
 
-            padding-top: 1rem;
+            background:
+                rgba(255, 255, 255, 0.16);
+        }
+
+
+        /* Logout */
+
+        .logout-box {
+            padding-top: 16px;
 
             border-top:
                 1px solid rgba(255, 255, 255, 0.12);
@@ -185,15 +200,20 @@
         ===================================================== */
 
         .main-area {
-            margin-left: 300px;
-
-            width: calc(100% - 300px);
+            width: calc(100% - var(--sidebar-width));
 
             min-height: 100vh;
+
+            margin-left: var(--sidebar-width);
 
             display: flex;
             flex-direction: column;
         }
+
+
+        /* =====================================================
+           MAIN CONTENT
+        ===================================================== */
 
         .main-content {
             width: 100%;
@@ -205,6 +225,7 @@
 
         .content-shell {
             width: 100%;
+
             max-width: 1200px;
 
             margin: 0 auto;
@@ -212,15 +233,110 @@
 
 
         /* =====================================================
-           MOBILE TOPBAR
+           MOBILE TOP BAR
         ===================================================== */
 
         .mobile-topbar {
             display: none;
+
+            width: 100%;
+
+            height: 64px;
+
+            padding: 0 16px;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--primary-dark),
+                    var(--primary)
+                );
+
+            color: white;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 900;
+
+            box-shadow:
+                0 5px 20px rgba(37, 99, 235, 0.18);
         }
+
+        .mobile-brand {
+            color: white;
+
+            font-size: 23px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+        }
+
+        .mobile-menu-toggle {
+            width: 42px;
+
+            height: 42px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: transparent;
+
+            color: white;
+
+            font-size: 26px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            cursor: pointer;
+        }
+
+        .mobile-menu-toggle:hover {
+            background:
+                rgba(255, 255, 255, 0.12);
+        }
+
+
+        /* =====================================================
+           MOBILE BACKDROP
+        ===================================================== */
 
         .mobile-backdrop {
             display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(15, 23, 42, 0.50);
+
+            z-index: 950;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+        }
+
+        body.mobile-nav-open .mobile-backdrop {
+            opacity: 1;
+
+            visibility: visible;
         }
 
 
@@ -229,28 +345,32 @@
         ===================================================== */
 
         .page-header {
+            width: 100%;
+
             display: flex;
 
             justify-content: space-between;
+
             align-items: center;
 
-            gap: 1rem;
+            gap: 16px;
 
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
 
             flex-wrap: wrap;
         }
 
+        .page-header h1,
         .page-header h2,
         .page-header h3,
         .page-header h4 {
             margin: 0;
-            color: var(--text);
         }
 
         .page-subtitle {
+            margin-top: 5px;
+
             color: var(--muted);
-            margin: 0.25rem 0 0;
         }
 
 
@@ -259,7 +379,9 @@
         ===================================================== */
 
         .card {
-            background: var(--panel);
+            width: 100%;
+
+            background: var(--white);
 
             border:
                 1px solid rgba(148, 163, 184, 0.18);
@@ -268,21 +390,9 @@
 
             box-shadow: var(--shadow);
 
-            padding: 1.2rem;
+            padding: 20px;
 
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-
-            word-break: break-word;
             overflow-wrap: anywhere;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 14px 36px rgba(15, 23, 42, 0.09);
         }
 
 
@@ -291,206 +401,67 @@
         ===================================================== */
 
         .stat-grid {
+            width: 100%;
+
             display: grid;
 
             grid-template-columns:
                 repeat(4, minmax(0, 1fr));
 
-            gap: 1rem;
+            gap: 16px;
+
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            display: flex;
-
-            flex-direction: column;
-
-            justify-content: center;
-
-            width: 100%;
+            min-width: 0;
 
             min-height: 140px;
 
-            background:
-                linear-gradient(
-                    180deg,
-                    #f8fbff,
-                    #eff6ff
-                );
+            padding: 20px;
+
+            background: white;
+
+            border-radius: 16px;
 
             border:
-                1px solid rgba(37, 99, 235, 0.12);
-
-            border-left:
-                4px solid var(--primary);
-
-            border-radius: 18px;
-
-            padding: 1rem;
-
-            color: var(--text);
+                1px solid var(--border);
 
             box-shadow:
-                0 8px 20px rgba(15, 23, 42, 0.04);
+                0 8px 22px
+                rgba(15, 23, 42, 0.06);
 
             transition:
-                transform 0.25s ease,
-                box-shadow 0.25s ease;
-
-            cursor: pointer;
-
-            position: relative;
-
-            overflow: hidden;
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .stat-card::after {
-            content: "";
-
-            position: absolute;
-
-            right: -14px;
-            top: -18px;
-
-            width: 70px;
-            height: 70px;
-
-            background:
-                rgba(37, 99, 235, 0.06);
-
-            border-radius: 50%;
-        }
-
-        .stat-card:hover,
-        .stat-card:focus-visible {
+        .stat-card:hover {
             transform: translateY(-2px);
 
             box-shadow:
-                0 14px 28px rgba(37, 99, 235, 0.12);
-
-            outline: none;
-        }
-
-        .stat-card.is-active {
-            border-color:
-                rgba(37, 99, 235, 0.3);
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #f4f9ff,
-                    #ebf3ff
-                );
-        }
-
-        .stat-card-head {
-            position: relative;
-
-            z-index: 1;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 0.75rem;
+                0 14px 30px
+                rgba(15, 23, 42, 0.10);
         }
 
         .stat-card-label {
-            color: var(--muted);
-
             margin: 0;
 
-            font-size: 0.9rem;
+            color: var(--muted);
+
+            font-size: 14px;
 
             font-weight: 600;
         }
 
         .stat-card-value {
-            position: relative;
+            margin: 8px 0 0;
 
-            z-index: 1;
+            font-size: 32px;
 
-            margin: 0.55rem 0 0;
-
-            font-size:
-                clamp(1.7rem, 2vw, 2.4rem);
-
-            font-weight: 700;
+            font-weight: 800;
 
             color: var(--text);
-        }
-
-        .stat-card-indicator {
-            width: 28px;
-            height: 28px;
-
-            border-radius: 50%;
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            background:
-                rgba(37, 99, 235, 0.08);
-
-            color: var(--primary);
-
-            position: relative;
-
-            z-index: 1;
-        }
-
-        .stat-card.is-active
-        .stat-card-indicator {
-            transform: rotate(180deg);
-        }
-
-
-        /* =====================================================
-           PILLS
-        ===================================================== */
-
-        .pill {
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius: 999px;
-
-            padding: 0.35rem 0.7rem;
-
-            font-size: 0.74rem;
-
-            font-weight: 700;
-        }
-
-        .pill-primary {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .pill-success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .pill-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .pill-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .pill-secondary {
-            background: #e2e8f0;
-            color: #334155;
         }
 
 
@@ -499,27 +470,9 @@
         ===================================================== */
 
         .btn {
-            border-radius: 12px;
+            border-radius: 10px;
 
             font-weight: 600;
-
-            padding:
-                0.72rem 1.1rem;
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-sm {
-            padding:
-                0.45rem 0.8rem;
-
-            font-size: 0.82rem;
         }
 
 
@@ -534,43 +487,31 @@
 
             max-width: 100%;
 
-            min-width: 0;
-
             border:
                 1px solid var(--border);
 
-            border-radius: 12px;
+            border-radius: 10px;
 
-            padding:
-                0.78rem 0.9rem;
-
-            background: #fff;
-
-            box-shadow: none;
+            padding: 10px 12px;
         }
 
         .form-control:focus,
         .form-select:focus,
         textarea:focus {
-            border-color:
-                rgba(37, 99, 235, 0.5);
+            border-color: var(--primary);
 
             box-shadow:
-                0 0 0 0.22rem
+                0 0 0 3px
                 rgba(37, 99, 235, 0.12);
         }
 
         .form-label {
             font-weight: 600;
-
-            color: var(--text);
-
-            margin-bottom: 0.4rem;
         }
 
 
         /* =====================================================
-           TABLES
+           TABLE
         ===================================================== */
 
         .table-responsive {
@@ -582,79 +523,12 @@
         }
 
         .table {
-            word-break: break-word;
-
-            overflow-wrap: anywhere;
-        }
-
-        .table thead th {
-            background: #f8fafc;
-
-            color: #334155;
-
-            border-bottom:
-                1px solid var(--border);
-
-            font-weight: 700;
-        }
-
-        .table td {
-            vertical-align: middle;
-
-            border-color: var(--border);
+            min-width: 600px;
         }
 
 
         /* =====================================================
-           LISTS
-        ===================================================== */
-
-        .list-card {
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 0.8rem;
-        }
-
-        .list-card .item {
-            border:
-                1px solid var(--border);
-
-            border-radius: 12px;
-
-            padding:
-                0.9rem 1rem;
-
-            background: #fff;
-
-            word-break: break-word;
-
-            overflow-wrap: anywhere;
-        }
-
-        .empty-state {
-            background: #f8fafc;
-
-            border:
-                1px dashed var(--border);
-
-            border-radius: 14px;
-
-            padding:
-                1rem 1.2rem;
-
-            color: var(--muted);
-
-            text-align: center;
-        }
-
-        .muted {
-            color: var(--muted);
-        }
-
-
-        /* =====================================================
+           GUEST PAGES
            LOGIN / REGISTER / FORGOT PASSWORD
         ===================================================== */
 
@@ -686,74 +560,72 @@
 
             justify-content: center;
 
-            padding:
-                24px 16px 32px;
+            padding: 30px 20px;
         }
 
+
+        /* Login/register cards if used */
+
         .auth-card {
-            width: min(100%, 600px);
+            width: 100%;
+
+            max-width: 500px;
 
             margin: 0 auto;
 
-            padding: 1.75rem;
+            background: white;
 
-            word-break: break-word;
+            border-radius: 18px;
 
-            overflow-wrap: anywhere;
-        }
+            padding: 30px;
 
-        .auth-card h2 {
-            text-align: center;
-
-            margin-bottom: 1.5rem;
-        }
-
-
-        /* =====================================================
-           ANIMATION
-        ===================================================== */
-
-        @keyframes fadeUp {
-
-            from {
-                opacity: 0;
-
-                transform:
-                    translateY(12px);
-            }
-
-            to {
-                opacity: 1;
-
-                transform:
-                    translateY(0);
-            }
-
+            box-shadow:
+                0 15px 40px
+                rgba(15, 23, 42, 0.10);
         }
 
 
         /* =====================================================
-           DESKTOP
+           MOBILE / TABLET
         ===================================================== */
 
-        @media (min-width: 1024px) {
+        @media (max-width: 1023px) {
 
             .sidebar {
-                display: flex !important;
+                width: min(300px, 82vw);
 
-                position: fixed;
+                transform:
+                    translateX(-110%);
+            }
 
-                left: 0;
-                top: 0;
-                bottom: 0;
-
+            body.mobile-nav-open .sidebar {
                 transform:
                     translateX(0);
             }
 
-            .mobile-topbar,
+            .main-area {
+                width: 100%;
+
+                margin-left: 0;
+            }
+
+            .mobile-topbar {
+                display: flex;
+            }
+
             .mobile-backdrop {
-                display: none !important;
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+
+                padding:
+                    24px 20px 32px;
+            }
+
+            .content-shell {
+                max-width: 100%;
             }
 
         }
@@ -768,152 +640,9 @@
         and
         (max-width: 1023px) {
 
-            .sidebar {
-                display: none;
-
-                position: fixed;
-
-                left: 0;
-                top: 0;
-                bottom: 0;
-
-                width:
-                    min(300px, 85vw);
-
-                transform:
-                    translateX(-110%);
-
-                z-index: 1000;
-            }
-
-            body.mobile-nav-open
-            .sidebar {
-                display: flex;
-
-                transform:
-                    translateX(0);
-            }
-
-            .main-area {
-                margin-left: 0 !important;
-
-                width: 100% !important;
-
-                max-width: 100% !important;
-            }
-
-            .mobile-topbar {
-                display: flex;
-
-                align-items: center;
-
-                justify-content: space-between;
-
-                width: 100%;
-
-                background:
-                    linear-gradient(
-                        90deg,
-                        var(--primary-dark),
-                        var(--primary)
-                    );
-
-                color: white;
-
-                padding:
-                    0.9rem 1rem;
-
-                position: sticky;
-
-                top: 0;
-
-                z-index: 900;
-
-                box-shadow:
-                    0 8px 24px
-                    rgba(37, 99, 235, 0.18);
-            }
-
-            .mobile-menu-toggle {
-                background: transparent;
-
-                border: none;
-
-                color: white;
-
-                font-size: 1.5rem;
-
-                width: 42px;
-
-                height: 42px;
-
-                border-radius: 12px;
-
-                display: flex;
-
-                align-items: center;
-
-                justify-content: center;
-
-                cursor: pointer;
-            }
-
-            .mobile-brand {
-                font-size: 1.5rem;
-
-                font-weight: 800;
-
-                letter-spacing:
-                    -0.04em;
-
-                color: white;
-            }
-
-            .mobile-backdrop {
-                display: block;
-
-                position: fixed;
-
-                inset: 0;
-
-                background:
-                    rgba(15, 23, 42, 0.45);
-
-                opacity: 0;
-
-                visibility: hidden;
-
-                transition:
-                    opacity 0.25s ease,
-                    visibility 0.25s ease;
-
-                z-index: 950;
-            }
-
-            body.mobile-nav-open
-            .mobile-backdrop {
-                opacity: 1;
-
-                visibility: visible;
-            }
-
-            .main-content {
-                width: 100%;
-
-                padding:
-                    24px 20px 32px;
-            }
-
-            .content-shell {
-                max-width: 100%;
-            }
-
             .stat-grid {
                 grid-template-columns:
-                    repeat(
-                        2,
-                        minmax(0, 1fr)
-                    );
+                    repeat(2, minmax(0, 1fr));
             }
 
         }
@@ -925,148 +654,30 @@
 
         @media (max-width: 767px) {
 
-            .sidebar {
-                display: none;
-
-                position: fixed;
-
-                left: 0;
-                top: 0;
-                bottom: 0;
-
-                width:
-                    min(82vw, 300px);
-
-                transform:
-                    translateX(-110%);
-
-                z-index: 1000;
-            }
-
-            body.mobile-nav-open
-            .sidebar {
-                display: flex;
-
-                transform:
-                    translateX(0);
-            }
-
-            .main-area {
-                margin-left: 0 !important;
-
-                width: 100% !important;
-
-                max-width: 100% !important;
-            }
-
-            .mobile-topbar {
-                display: flex;
-
-                align-items: center;
-
-                justify-content: space-between;
-
-                width: 100%;
-
-                background:
-                    linear-gradient(
-                        90deg,
-                        var(--primary-dark),
-                        var(--primary)
-                    );
-
-                color: white;
-
-                padding:
-                    0.8rem 1rem;
-
-                position: sticky;
-
-                top: 0;
-
-                z-index: 900;
-
-                box-shadow:
-                    0 8px 24px
-                    rgba(37, 99, 235, 0.18);
-            }
-
-            .mobile-menu-toggle {
-                background: transparent;
-
-                border: none;
-
-                color: white;
-
-                font-size: 1.5rem;
-
-                width: 42px;
-
-                height: 42px;
-
-                border-radius: 12px;
-
-                display: flex;
-
-                align-items: center;
-
-                justify-content: center;
-
-                cursor: pointer;
-            }
-
-            .mobile-brand {
-                font-size: 1.5rem;
-
-                font-weight: 800;
-
-                letter-spacing:
-                    -0.04em;
-
-                color: white;
-            }
-
-            .mobile-backdrop {
-                display: block;
-
-                position: fixed;
-
-                inset: 0;
-
-                background:
-                    rgba(15, 23, 42, 0.45);
-
-                opacity: 0;
-
-                visibility: hidden;
-
-                transition:
-                    opacity 0.25s ease,
-                    visibility 0.25s ease;
-
-                z-index: 950;
-            }
-
-            body.mobile-nav-open
-            .mobile-backdrop {
-                opacity: 1;
-
-                visibility: visible;
-            }
-
             .main-content {
-                width: 100%;
-
                 padding:
-                    20px 16px 40px;
+                    20px 16px 32px;
             }
 
-            .content-shell {
-                width: 100%;
+            .stat-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
 
-                max-width: 100%;
+                gap: 10px;
+            }
 
-                padding: 0;
+            .stat-card {
+                min-height: 115px;
+
+                padding: 14px;
+            }
+
+            .stat-card-value {
+                font-size: 25px;
+            }
+
+            .stat-card-label {
+                font-size: 12px;
             }
 
             .page-header {
@@ -1075,86 +686,67 @@
                 flex-direction: column;
             }
 
-            .stat-grid {
-                grid-template-columns:
-                    repeat(
-                        2,
-                        minmax(0, 1fr)
-                    );
-
-                gap: 0.75rem;
+            .page-header .btn {
+                width: 100%;
             }
 
-            .stat-card {
-                min-height: 120px;
-
-                padding: 0.9rem;
+            .card {
+                padding: 16px;
             }
 
-            .stat-card-value {
-                font-size: 1.7rem;
+            .auth-card {
+                padding: 22px 18px;
             }
 
             .main-content.is-guest
             .content-shell {
-                min-height: 100vh;
-
-                display: flex;
-
-                align-items: center;
-
-                justify-content: center;
-
                 padding:
-                    16px 0 24px;
-            }
-
-            .auth-card {
-                width:
-                    calc(100% - 32px);
-
-                max-width: 480px;
-
-                margin: 16px auto;
-
-                padding:
-                    1.25rem 1rem;
-            }
-
-            .form-control,
-            .form-select,
-            textarea,
-            .btn,
-            .btn-sm {
-                width: 100%;
-
-                max-width: 100%;
-            }
-
-            .page-header .btn,
-            .d-grid .btn {
-                width: 100%;
+                    20px 12px;
             }
 
         }
 
 
         /* =====================================================
-           SMALL PHONE
+           VERY SMALL MOBILE
         ===================================================== */
 
         @media (max-width: 380px) {
 
             .stat-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+            .stat-card {
+                padding: 11px;
+            }
+
+            .stat-card-value {
+                font-size: 22px;
             }
 
             .mobile-brand {
-                font-size: 1.3rem;
+                font-size: 20px;
             }
 
-            .main-content {
-                padding: 14px;
+        }
+
+
+        /* =====================================================
+           DESKTOP
+        ===================================================== */
+
+        @media (min-width: 1024px) {
+
+            .sidebar {
+                transform:
+                    translateX(0);
+            }
+
+            .mobile-topbar,
+            .mobile-backdrop {
+                display: none;
             }
 
         }
@@ -1167,27 +759,31 @@
 <body>
 
 
-{% if user.is_authenticated %}
+<!-- =========================================================
+     MAIN APPLICATION WRAPPER
+========================================================= -->
+
+<div class="{% if user.is_authenticated %}app-layout{% else %}guest-layout{% endif %}">
+
 
     <!-- =====================================================
          AUTHENTICATED USER
     ===================================================== -->
 
-    <div class="app-layout">
+    {% if user.is_authenticated %}
 
 
-        <!-- SIDEBAR -->
+        <!-- =================================================
+             SIDEBAR
+        ================================================= -->
 
-        <aside
-            class="sidebar"
-            aria-label="Sidebar navigation"
-        >
+        <aside class="sidebar">
 
             <div class="sidebar-header">
 
                 <a
-                    class="sidebar-brand"
                     href="{% url 'dashboard' %}"
+                    class="sidebar-brand"
                 >
                     StudyBuddy
                 </a>
@@ -1198,41 +794,51 @@
             <nav class="sidebar-nav">
 
 
+                <!-- Dashboard -->
+
                 <a
-                    class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}"
                     href="{% url 'dashboard' %}"
+                    class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}"
                 >
                     Dashboard
                 </a>
 
 
+                <!-- Subjects -->
+
                 <a
-                    class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}"
                     href="{% url 'subjects' %}"
+                    class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}"
                 >
                     Subjects
                 </a>
 
 
+                <!-- Tasks -->
+
                 <a
-                    class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}"
                     href="{% url 'tasks' %}"
+                    class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}"
                 >
                     Tasks
                 </a>
 
 
+                <!-- Notes -->
+
                 <a
-                    class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}"
                     href="{% url 'notes' %}"
+                    class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}"
                 >
                     Notes
                 </a>
 
 
+                <!-- Profile -->
+
                 <a
-                    class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}"
                     href="{% url 'profile' %}"
+                    class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}"
                 >
                     Profile
                 </a>
@@ -1240,6 +846,8 @@
 
             </nav>
 
+
+            <!-- Logout -->
 
             <div class="logout-box">
 
@@ -1271,17 +879,14 @@
         <div class="main-area">
 
 
-            <!-- MOBILE NAVBAR -->
+            <!-- Mobile navbar -->
 
-            <div
-                class="mobile-topbar"
-                aria-label="Mobile navigation"
-            >
+            <div class="mobile-topbar">
 
                 <button
                     type="button"
                     class="mobile-menu-toggle"
-                    aria-label="Open navigation menu"
+                    aria-label="Open menu"
                     aria-expanded="false"
                 >
                     ☰
@@ -1292,124 +897,102 @@
                     StudyBuddy
                 </div>
 
+
+                <div style="width:42px;"></div>
+
             </div>
 
 
-            <!-- MOBILE OVERLAY -->
+            <!-- Mobile background overlay -->
 
-            <div
-                class="mobile-backdrop"
-                aria-hidden="true"
-            ></div>
+            <div class="mobile-backdrop"></div>
 
 
-            <!-- MAIN CONTENT -->
-
-            <main class="main-content">
-
-                <div class="content-shell">
+    {% endif %}
 
 
-                    {% if messages %}
+    <!-- =====================================================
+         MAIN CONTENT
 
-                        {% for message in messages %}
+         IMPORTANT:
+         THERE IS ONLY ONE BLOCK CONTENT
+    ===================================================== -->
 
-                            <div
-                                class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
-                                role="alert"
-                            >
+    <main
+        class="main-content {% if not user.is_authenticated %}is-guest{% endif %}"
+    >
 
-                                {{ message }}
-
-                                <button
-                                    type="button"
-                                    class="btn-close"
-                                    data-bs-dismiss="alert"
-                                    aria-label="Close"
-                                ></button>
-
-                            </div>
-
-                        {% endfor %}
-
-                    {% endif %}
+        <div class="content-shell">
 
 
-                    <!-- ONLY ONE BLOCK CONTENT -->
+            <!-- Django messages -->
 
-                    {% block content %}{% endblock %}
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div
+                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                        role="alert"
+                    >
+
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
 
 
-                </div>
+            <!-- =================================================
+                 CHILD PAGE CONTENT
 
-            </main>
+                 DO NOT ADD ANOTHER BLOCK ANYWHERE
+            ================================================== -->
+
+            {% block content %}
+            {% endblock %}
 
 
         </div>
 
-    </div>
-
-
-{% else %}
+    </main>
 
 
     <!-- =====================================================
-         GUEST USER
-         LOGIN / REGISTER / FORGOT PASSWORD
+         CLOSE AUTHENTICATED MAIN AREA
     ===================================================== -->
 
-    <div class="guest-layout">
+    {% if user.is_authenticated %}
+
+        </div>
+
+    {% endif %}
 
 
-        <main class="main-content is-guest">
-
-            <div class="content-shell">
+</div>
 
 
-                {% if messages %}
+<!-- =========================================================
+     BOOTSTRAP JS
+========================================================= -->
 
-                    {% for message in messages %}
-
-                        <div
-                            class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
-                            role="alert"
-                        >
-
-                            {{ message }}
-
-                            <button
-                                type="button"
-                                class="btn-close"
-                                data-bs-dismiss="alert"
-                                aria-label="Close"
-                            ></button>
-
-                        </div>
-
-                    {% endfor %}
-
-                {% endif %}
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
 
 
-                <!-- DO NOT PUT BLOCK CONTENT HERE -->
-
-            </div>
-
-        </main>
-
-
-    </div>
-
-
-{% endif %}
-
-
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<!-- =========================================================
+     MOBILE MENU JAVASCRIPT
+========================================================= -->
 
 <script>
 
@@ -1418,15 +1001,21 @@ document.addEventListener(
     function () {
 
 
-        const mobileMenuToggle =
+        const menuButton =
             document.querySelector(
                 ".mobile-menu-toggle"
             );
 
 
-        const mobileBackdrop =
+        const backdrop =
             document.querySelector(
                 ".mobile-backdrop"
+            );
+
+
+        const sidebar =
+            document.querySelector(
+                ".sidebar"
             );
 
 
@@ -1436,23 +1025,13 @@ document.addEventListener(
             );
 
 
-        const statCards =
-            document.querySelectorAll(
-                ".stat-card"
-            );
+        /* ================================================
+           OPEN / CLOSE MOBILE MENU
+        ================================================= */
 
+        if (menuButton) {
 
-        /* =============================================
-           MOBILE MENU
-        ============================================= */
-
-        if (
-            mobileMenuToggle &&
-            mobileBackdrop
-        ) {
-
-
-            mobileMenuToggle.addEventListener(
+            menuButton.addEventListener(
                 "click",
                 function () {
 
@@ -1463,29 +1042,9 @@ document.addEventListener(
                         );
 
 
-                    mobileMenuToggle.setAttribute(
+                    menuButton.setAttribute(
                         "aria-expanded",
                         String(isOpen)
-                    );
-
-
-                }
-            );
-
-
-            mobileBackdrop.addEventListener(
-                "click",
-                function () {
-
-
-                    document.body.classList.remove(
-                        "mobile-nav-open"
-                    );
-
-
-                    mobileMenuToggle.setAttribute(
-                        "aria-expanded",
-                        "false"
                     );
 
 
@@ -1495,13 +1054,43 @@ document.addEventListener(
         }
 
 
-        /* =============================================
-           CLOSE MENU AFTER LINK CLICK
-        ============================================= */
+        /* ================================================
+           CLICK OUTSIDE SIDEBAR
+        ================================================= */
+
+        if (backdrop) {
+
+            backdrop.addEventListener(
+                "click",
+                function () {
+
+
+                    document.body.classList.remove(
+                        "mobile-nav-open"
+                    );
+
+
+                    if (menuButton) {
+
+                        menuButton.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ================================================
+           CLOSE MENU AFTER CLICKING LINK
+        ================================================= */
 
         sidebarLinks.forEach(
             function (link) {
-
 
                 link.addEventListener(
                     "click",
@@ -1512,17 +1101,14 @@ document.addEventListener(
                             window.innerWidth <= 1023
                         ) {
 
-
                             document.body.classList.remove(
                                 "mobile-nav-open"
                             );
 
 
-                            if (
-                                mobileMenuToggle
-                            ) {
+                            if (menuButton) {
 
-                                mobileMenuToggle.setAttribute(
+                                menuButton.setAttribute(
                                     "aria-expanded",
                                     "false"
                                 );
@@ -1538,60 +1124,43 @@ document.addEventListener(
         );
 
 
-        /* =============================================
-           STAT CARDS
-        ============================================= */
+        /* ================================================
+           CLOSE MENU WITH ESC
+        ================================================= */
 
-        statCards.forEach(
-            function (card) {
-
-
-                card.addEventListener(
-                    "click",
-                    function () {
+        document.addEventListener(
+            "keydown",
+            function (event) {
 
 
-                        const isActive =
-                            card.classList.contains(
-                                "is-active"
-                            );
+                if (
+                    event.key === "Escape"
+                ) {
 
 
-                        statCards.forEach(
-                            function (item) {
+                    document.body.classList.remove(
+                        "mobile-nav-open"
+                    );
 
 
-                                const activate =
-                                    item === card &&
-                                    !isActive;
+                    if (menuButton) {
 
-
-                                item.classList.toggle(
-                                    "is-active",
-                                    activate
-                                );
-
-
-                                item.setAttribute(
-                                    "aria-pressed",
-                                    String(activate)
-                                );
-
-
-                            }
+                        menuButton.setAttribute(
+                            "aria-expanded",
+                            "false"
                         );
 
-
                     }
-                );
+
+                }
 
             }
         );
 
 
-        /* =============================================
-           RESET MENU WHEN RESIZING
-        ============================================= */
+        /* ================================================
+           RESET MOBILE MENU ON DESKTOP
+        ================================================= */
 
         window.addEventListener(
             "resize",
@@ -1608,11 +1177,9 @@ document.addEventListener(
                     );
 
 
-                    if (
-                        mobileMenuToggle
-                    ) {
+                    if (menuButton) {
 
-                        mobileMenuToggle.setAttribute(
+                        menuButton.setAttribute(
                             "aria-expanded",
                             "false"
                         );
@@ -1632,4 +1199,5 @@ document.addEventListener(
 
 
 </body>
+
 </html>
