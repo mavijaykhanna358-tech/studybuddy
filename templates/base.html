@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyBuddy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
     <style>
         :root {
             --primary: #2563eb;
@@ -12,29 +17,31 @@
             --secondary: #4f46e5;
             --background: #f4f7fb;
             --panel: #ffffff;
-            --panel-soft: #eef4ff;
             --text: #172033;
             --muted: #64748b;
             --border: #e2e8f0;
-            --success: #16a34a;
-            --warning: #f59e0b;
-            --danger: #ef4444;
             --radius: 18px;
             --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             max-width: 100%;
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
         }
 
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
-            margin: 0;
             font-family: "Segoe UI", Arial, sans-serif;
             background: var(--background);
             color: var(--text);
@@ -45,7 +52,9 @@
             overflow: hidden;
         }
 
-        a { text-decoration: none; }
+        a {
+            text-decoration: none;
+        }
 
         img {
             max-width: 100%;
@@ -60,11 +69,15 @@
             box-sizing: border-box;
         }
 
+        /* =====================================================
+           MAIN DESKTOP LAYOUT
+           ===================================================== */
+
         .app-layout {
-            min-height: 100vh;
             display: flex;
             width: 100%;
             max-width: 100%;
+            min-height: 100vh;
         }
 
         .sidebar {
@@ -73,13 +86,23 @@
             top: 0;
             bottom: 0;
             width: 300px;
-            background: linear-gradient(180deg, #0f1f4d 0%, #122d7a 100%);
+
+            background: linear-gradient(
+                180deg,
+                #0f1f4d 0%,
+                #122d7a 100%
+            );
+
             color: white;
             padding: 1.5rem 1rem 1rem;
+
             display: flex;
             flex-direction: column;
-            z-index: 50;
+
+            z-index: 1000;
+
             box-shadow: 10px 0 28px rgba(15, 23, 42, 0.12);
+
             transition: transform 0.3s ease;
         }
 
@@ -106,16 +129,23 @@
             display: flex;
             align-items: center;
             gap: 0.7rem;
-            color: rgba(255,255,255,0.8);
+
+            color: rgba(255, 255, 255, 0.8);
+
             padding: 0.8rem 0.9rem;
             border-radius: 12px;
+
             font-weight: 600;
-            transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease, opacity 0.25s ease;
+
+            transition:
+                background 0.25s ease,
+                transform 0.25s ease,
+                color 0.25s ease;
         }
 
         .sidebar-link:hover,
         .sidebar-link.active {
-            background: rgba(255,255,255,0.12);
+            background: rgba(255, 255, 255, 0.12);
             color: white;
             transform: translateX(4px);
         }
@@ -123,40 +153,39 @@
         .sidebar .logout-box {
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .main-content {
+        /* =====================================================
+           MAIN AREA
+           ===================================================== */
+
+        .main-area {
             margin-left: 300px;
             width: calc(100% - 300px);
             min-height: 100vh;
-            padding: 32px 40px 40px;
-            max-width: 100%;
+            max-width: calc(100% - 300px);
+
+            display: flex;
+            flex-direction: column;
         }
 
-        .main-content.is-guest {
-            margin-left: 0;
+        .main-content {
             width: 100%;
-            padding: 0;
             min-height: 100vh;
+
+            padding: 32px 40px 40px;
         }
 
         .content-shell {
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            width: 100%;
         }
 
-        .main-content.is-guest .content-shell {
-            max-width: 100%;
-            margin: 0;
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px 32px;
-        }
+        /* =====================================================
+           MOBILE TOPBAR
+           ===================================================== */
 
         .mobile-topbar {
             display: none;
@@ -166,34 +195,18 @@
             display: none;
         }
 
-        .form-control,
-        .form-select,
-        textarea {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-        }
-
-        .btn,
-        .btn-sm {
-            max-width: 100%;
-        }
-
-        .list-card .item,
-        .item,
-        .auth-card,
-        .card,
-        .table {
-            word-break: break-word;
-            overflow-wrap: anywhere;
-        }
+        /* =====================================================
+           PAGE HEADER
+           ===================================================== */
 
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             gap: 1rem;
             margin-bottom: 1.5rem;
+
             flex-wrap: wrap;
         }
 
@@ -209,20 +222,34 @@
             margin: 0.25rem 0 0;
         }
 
+        /* =====================================================
+           CARDS
+           ===================================================== */
+
         .card {
             background: var(--panel);
+
             border: 1px solid rgba(148, 163, 184, 0.18);
+
             border-radius: var(--radius);
+
             box-shadow: var(--shadow);
+
             padding: 1.2rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            animation: fadeUp 0.35s ease both;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 14px 36px rgba(15, 23, 42, 0.09);
         }
+
+        /* =====================================================
+           STAT CARDS
+           ===================================================== */
 
         .stat-grid {
             display: grid;
@@ -234,59 +261,92 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+
             width: 100%;
             min-height: 140px;
-            background: linear-gradient(180deg, #f8fbff, #eff6ff);
+
+            background: linear-gradient(
+                180deg,
+                #f8fbff,
+                #eff6ff
+            );
+
             border: 1px solid rgba(37, 99, 235, 0.12);
             border-left: 4px solid var(--primary);
+
             border-radius: 18px;
-            padding: 1rem 1rem 0.9rem;
-            text-align: left;
+
+            padding: 1rem;
+
             color: var(--text);
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+
+            box-shadow:
+                0 8px 20px rgba(15, 23, 42, 0.04);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                border-color 0.25s ease;
+
             cursor: pointer;
+
             position: relative;
             overflow: hidden;
         }
 
         .stat-card::after {
             content: "";
+
             position: absolute;
+
             right: -14px;
             top: -18px;
+
             width: 70px;
             height: 70px;
+
             background: rgba(37, 99, 235, 0.06);
+
             border-radius: 50%;
         }
 
         .stat-card:hover,
         .stat-card:focus-visible {
             transform: translateY(-2px);
-            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.12);
+
+            box-shadow:
+                0 14px 28px rgba(37, 99, 235, 0.12);
+
             border-color: rgba(37, 99, 235, 0.2);
+
             outline: none;
         }
 
         .stat-card.is-active {
             border-color: rgba(37, 99, 235, 0.3);
-            background: linear-gradient(180deg, #f4f9ff, #ebf3ff);
-            box-shadow: 0 16px 30px rgba(37, 99, 235, 0.12);
+
+            background: linear-gradient(
+                180deg,
+                #f4f9ff,
+                #ebf3ff
+            );
         }
 
         .stat-card-head {
             position: relative;
             z-index: 1;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             gap: 0.75rem;
         }
 
         .stat-card-label {
             color: var(--muted);
             margin: 0;
+
             font-size: 0.9rem;
             font-weight: 600;
         }
@@ -294,23 +354,28 @@
         .stat-card-value {
             position: relative;
             z-index: 1;
+
             margin: 0.55rem 0 0;
+
             font-size: clamp(1.7rem, 2vw, 2.4rem);
             font-weight: 700;
+
             color: var(--text);
         }
 
         .stat-card-indicator {
             width: 28px;
             height: 28px;
+
             border-radius: 50%;
+
             display: inline-flex;
             align-items: center;
             justify-content: center;
+
             background: rgba(37, 99, 235, 0.08);
             color: var(--primary);
-            font-size: 1.05rem;
-            transition: transform 0.25s ease;
+
             position: relative;
             z-index: 1;
         }
@@ -319,28 +384,60 @@
             transform: rotate(180deg);
         }
 
+        /* =====================================================
+           PILLS
+           ===================================================== */
+
         .pill {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+
             border-radius: 999px;
+
             padding: 0.35rem 0.7rem;
+
             font-size: 0.74rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
         }
 
-        .pill-primary { background: #dbeafe; color: #1d4ed8; }
-        .pill-success { background: #dcfce7; color: #166534; }
-        .pill-warning { background: #fef3c7; color: #92400e; }
-        .pill-danger { background: #fee2e2; color: #991b1b; }
-        .pill-secondary { background: #e2e8f0; color: #334155; }
+        .pill-primary {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .pill-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pill-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        /* =====================================================
+           BUTTONS
+           ===================================================== */
 
         .btn {
             border-radius: 12px;
             font-weight: 600;
             padding: 0.72rem 1.1rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .btn:hover {
@@ -352,17 +449,35 @@
             font-size: 0.82rem;
         }
 
-        .form-control, .form-select, textarea {
+        /* =====================================================
+           FORMS
+           ===================================================== */
+
+        .form-control,
+        .form-select,
+        textarea {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+
             border: 1px solid var(--border);
+
             border-radius: 12px;
+
             padding: 0.78rem 0.9rem;
+
             background: #fff;
+
             box-shadow: none;
         }
 
-        .form-control:focus, .form-select:focus, textarea:focus {
+        .form-control:focus,
+        .form-select:focus,
+        textarea:focus {
             border-color: rgba(37, 99, 235, 0.5);
-            box-shadow: 0 0 0 0.22rem rgba(37, 99, 235, 0.12);
+
+            box-shadow:
+                0 0 0 0.22rem rgba(37, 99, 235, 0.12);
         }
 
         .form-label {
@@ -371,23 +486,26 @@
             margin-bottom: 0.4rem;
         }
 
-        .empty-state {
-            background: #f8fafc;
-            border: 1px dashed var(--border);
-            border-radius: 14px;
-            padding: 1rem 1.2rem;
-            color: var(--muted);
-            text-align: center;
-        }
+        /* =====================================================
+           TABLE
+           ===================================================== */
 
         .table-responsive {
             overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .table {
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         .table thead th {
             background: #f8fafc;
             color: #334155;
+
             border-bottom: 1px solid var(--border);
+
             font-weight: 700;
         }
 
@@ -396,18 +514,9 @@
             border-color: var(--border);
         }
 
-        .auth-card {
-            max-width: 600px;
-            width: min(100%, 600px);
-            margin: 0 auto;
-            padding: 1.75rem;
-            animation: fadeUp 0.35s ease both;
-        }
-
-        .auth-card h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
+        /* =====================================================
+           LIST
+           ===================================================== */
 
         .list-card {
             display: flex;
@@ -417,28 +526,105 @@
 
         .list-card .item {
             border: 1px solid var(--border);
+
             border-radius: 12px;
+
             padding: 0.9rem 1rem;
+
             background: #fff;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
-        .muted { color: var(--muted); }
+        .empty-state {
+            background: #f8fafc;
+
+            border: 1px dashed var(--border);
+
+            border-radius: 14px;
+
+            padding: 1rem 1.2rem;
+
+            color: var(--muted);
+
+            text-align: center;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* =====================================================
+           AUTH PAGES
+           ===================================================== */
+
+        .main-content.is-guest {
+            margin-left: 0;
+            width: 100%;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .main-content.is-guest .content-shell {
+            max-width: 100%;
+            width: 100%;
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px 16px 32px;
+        }
+
+        .auth-card {
+            width: min(100%, 600px);
+
+            margin: 0 auto;
+
+            padding: 1.75rem;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* =====================================================
+           ANIMATION
+           ===================================================== */
 
         @keyframes fadeUp {
             from {
                 opacity: 0;
                 transform: translateY(12px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
+        /* =====================================================
+           DESKTOP
+           ===================================================== */
+
         @media (min-width: 1024px) {
+
             .sidebar {
                 display: flex !important;
                 position: fixed;
+
+                left: 0;
+                top: 0;
+                bottom: 0;
+
                 transform: translateX(0);
             }
 
@@ -448,16 +634,26 @@
             }
         }
 
+        /* =====================================================
+           TABLET
+           ===================================================== */
+
         @media (min-width: 768px) and (max-width: 1023px) {
+
             .sidebar {
                 display: none;
+
                 position: fixed;
+
                 left: 0;
                 top: 0;
                 bottom: 0;
+
                 width: min(300px, 85vw);
+
                 transform: translateX(-110%);
-                z-index: 60;
+
+                z-index: 1000;
             }
 
             body.mobile-nav-open .sidebar {
@@ -465,64 +661,90 @@
                 transform: translateX(0);
             }
 
-            .main-content {
+            .main-area {
                 margin-left: 0 !important;
+
                 width: 100% !important;
                 max-width: 100% !important;
-                padding: 24px 20px 32px;
-            }
 
-            .main-content.is-guest {
-                padding: 0;
                 min-height: 100vh;
-            }
-
-            .content-shell {
-                max-width: 100%;
             }
 
             .mobile-topbar {
                 display: flex;
+
                 align-items: center;
                 justify-content: space-between;
-                background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+
+                width: 100%;
+
+                background: linear-gradient(
+                    90deg,
+                    var(--primary-dark),
+                    var(--primary)
+                );
+
                 color: white;
+
                 padding: 0.9rem 1rem;
+
                 position: sticky;
                 top: 0;
-                z-index: 40;
-                box-shadow: 0 8px 24px rgba(37, 99, 235, 0.18);
+
+                z-index: 900;
+
+                box-shadow:
+                    0 8px 24px rgba(37, 99, 235, 0.18);
             }
 
             .mobile-menu-toggle {
                 background: transparent;
                 border: none;
+
                 color: white;
+
                 font-size: 1.5rem;
+
                 width: 42px;
                 height: 42px;
+
                 border-radius: 12px;
+
                 display: flex;
+
                 align-items: center;
                 justify-content: center;
+
+                cursor: pointer;
             }
 
             .mobile-brand {
                 font-size: 1.5rem;
+
                 font-weight: 800;
+
                 letter-spacing: -0.04em;
+
                 color: white;
             }
 
             .mobile-backdrop {
                 display: block;
+
                 position: fixed;
+
                 inset: 0;
+
                 background: rgba(15, 23, 42, 0.45);
+
                 opacity: 0;
                 visibility: hidden;
-                transition: opacity 0.25s ease, visibility 0.25s ease;
-                z-index: 45;
+
+                transition:
+                    opacity 0.25s ease,
+                    visibility 0.25s ease;
+
+                z-index: 950;
             }
 
             body.mobile-nav-open .mobile-backdrop {
@@ -530,21 +752,42 @@
                 visibility: visible;
             }
 
+            .main-content {
+                width: 100%;
+
+                padding: 24px 20px 32px;
+            }
+
+            .content-shell {
+                max-width: 100%;
+            }
+
             .stat-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
         }
 
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
         @media (max-width: 767px) {
+
             .sidebar {
                 display: none;
+
                 position: fixed;
+
                 left: 0;
                 top: 0;
                 bottom: 0;
+
                 width: min(82vw, 300px);
+
                 transform: translateX(-110%);
-                z-index: 60;
+
+                z-index: 1000;
             }
 
             body.mobile-nav-open .sidebar {
@@ -552,65 +795,107 @@
                 transform: translateX(0);
             }
 
-            .main-content {
+            .main-area {
                 margin-left: 0 !important;
+
                 width: 100% !important;
                 max-width: 100% !important;
+
+                min-height: 100vh;
+            }
+
+            .mobile-topbar {
+                display: flex;
+
+                align-items: center;
+                justify-content: space-between;
+
+                width: 100%;
+
+                background: linear-gradient(
+                    90deg,
+                    var(--primary-dark),
+                    var(--primary)
+                );
+
+                color: white;
+
+                padding: 0.8rem 1rem;
+
+                position: sticky;
+                top: 0;
+
+                z-index: 900;
+
+                box-shadow:
+                    0 8px 24px rgba(37, 99, 235, 0.18);
+            }
+
+            .mobile-menu-toggle {
+                background: transparent;
+                border: none;
+
+                color: white;
+
+                font-size: 1.5rem;
+
+                width: 42px;
+                height: 42px;
+
+                border-radius: 12px;
+
+                display: flex;
+
+                align-items: center;
+                justify-content: center;
+
+                cursor: pointer;
+            }
+
+            .mobile-brand {
+                font-size: 1.5rem;
+
+                font-weight: 800;
+
+                letter-spacing: -0.04em;
+
+                color: white;
+            }
+
+            .mobile-backdrop {
+                display: block;
+
+                position: fixed;
+
+                inset: 0;
+
+                background: rgba(15, 23, 42, 0.45);
+
+                opacity: 0;
+                visibility: hidden;
+
+                transition:
+                    opacity 0.25s ease,
+                    visibility 0.25s ease;
+
+                z-index: 950;
+            }
+
+            body.mobile-nav-open .mobile-backdrop {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .main-content {
+                width: 100%;
+
                 padding: 20px 16px 40px;
             }
 
             .content-shell {
+                width: 100%;
                 max-width: 100%;
                 padding: 0;
-            }
-
-            .mobile-topbar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                background: linear-gradient(90deg, var(--primary-dark), var(--primary));
-                color: white;
-                padding: 0.8rem 1rem;
-                position: sticky;
-                top: 0;
-                z-index: 40;
-                box-shadow: 0 8px 24px rgba(37, 99, 235, 0.18);
-            }
-
-            .mobile-menu-toggle {
-                background: transparent;
-                border: none;
-                color: white;
-                font-size: 1.5rem;
-                width: 42px;
-                height: 42px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .mobile-brand {
-                font-size: 1.5rem;
-                font-weight: 800;
-                letter-spacing: -0.04em;
-                color: white;
-            }
-
-            .mobile-backdrop {
-                display: block;
-                position: fixed;
-                inset: 0;
-                background: rgba(15, 23, 42, 0.45);
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.25s ease, visibility 0.25s ease;
-                z-index: 45;
-            }
-
-            body.mobile-nav-open .mobile-backdrop {
-                opacity: 1;
-                visibility: visible;
             }
 
             .page-header {
@@ -619,30 +904,48 @@
             }
 
             .stat-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                min-height: 120px;
+                padding: 0.9rem;
+            }
+
+            .stat-card-value {
+                font-size: 1.7rem;
+            }
+
+            /* Keep login/register pages centered */
+            .main-content.is-guest .content-shell {
+                display: flex;
+
+                align-items: center;
+                justify-content: center;
+
+                min-height: calc(100vh - 58px);
+
+                padding: 16px 0 24px;
             }
 
             .auth-card {
                 width: calc(100% - 32px);
-                max-width: 480px;
-                margin: 16px auto;
-                padding: 1.25rem 1rem;
-            }
 
-            .main-content.is-guest .content-shell {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: calc(100vh - 58px);
-                padding: 16px 0 24px;
+                max-width: 480px;
+
+                margin: 16px auto;
+
+                padding: 1.25rem 1rem;
             }
 
             .form-control,
             .form-select,
             textarea,
             .btn,
-            .btn-sm,
-            button {
+            .btn-sm {
                 width: 100%;
                 max-width: 100%;
             }
@@ -653,7 +956,12 @@
             }
         }
 
+        /* =====================================================
+           VERY SMALL PHONE
+           ===================================================== */
+
         @media (max-width: 380px) {
+
             .stat-grid {
                 grid-template-columns: 1fr;
             }
@@ -668,92 +976,352 @@
         }
     </style>
 </head>
-<body>
-    {% if user.is_authenticated %}
-        <div class="app-layout">
-            <aside class="sidebar" aria-label="Sidebar navigation">
-                <div class="sidebar-header">
-                    <a class="sidebar-brand" href="{% url 'dashboard' %}">StudyBuddy</a>
-                </div>
-                <nav class="sidebar-nav">
-                    <a class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
-                    <a class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}" href="{% url 'subjects' %}">Subjects</a>
-                    <a class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}" href="{% url 'tasks' %}">Tasks</a>
-                    <a class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}" href="{% url 'notes' %}">Notes</a>
-                    <a class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
-                </nav>
-                <div class="logout-box">
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-light w-100">Logout</button>
-                    </form>
-                </div>
-            </aside>
-        </div>
-    {% endif %}
 
-    <div class="mobile-backdrop" aria-hidden="true"></div>
-    <div class="mobile-topbar">
-        <button type="button" class="mobile-menu-toggle" aria-label="Open navigation menu" aria-expanded="false">☰</button>
-        <div class="mobile-brand">StudyBuddy</div>
+<body>
+
+{% if user.is_authenticated %}
+
+    <!-- =====================================================
+         AUTHENTICATED LAYOUT
+         ===================================================== -->
+
+    <div class="app-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" aria-label="Sidebar navigation">
+
+            <div class="sidebar-header">
+                <a
+                    class="sidebar-brand"
+                    href="{% url 'dashboard' %}"
+                >
+                    StudyBuddy
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a
+                    class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}"
+                    href="{% url 'dashboard' %}"
+                >
+                    Dashboard
+                </a>
+
+                <a
+                    class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}"
+                    href="{% url 'subjects' %}"
+                >
+                    Subjects
+                </a>
+
+                <a
+                    class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}"
+                    href="{% url 'tasks' %}"
+                >
+                    Tasks
+                </a>
+
+                <a
+                    class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}"
+                    href="{% url 'notes' %}"
+                >
+                    Notes
+                </a>
+
+                <a
+                    class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}"
+                    href="{% url 'profile' %}"
+                >
+                    Profile
+                </a>
+
+            </nav>
+
+            <div class="logout-box">
+
+                <form
+                    method="post"
+                    action="{% url 'logout' %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-light w-100"
+                    >
+                        Logout
+                    </button>
+
+                </form>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN AREA -->
+        <div class="main-area">
+
+            <!-- MOBILE/TABLET NAVBAR -->
+            <div
+                class="mobile-topbar"
+                aria-label="Mobile navigation"
+            >
+
+                <button
+                    type="button"
+                    class="mobile-menu-toggle"
+                    aria-label="Open navigation menu"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
+
+                <div class="mobile-brand">
+                    StudyBuddy
+                </div>
+
+            </div>
+
+
+            <!-- MOBILE OVERLAY -->
+            <div
+                class="mobile-backdrop"
+                aria-hidden="true"
+            ></div>
+
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+
+                <div class="content-shell">
+
+                    {% if messages %}
+
+                        {% for message in messages %}
+
+                            <div
+                                class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                                role="alert"
+                            >
+
+                                {{ message }}
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Close"
+                                ></button>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                    {% block content %}{% endblock %}
+
+                </div>
+
+            </main>
+
+        </div>
+
     </div>
 
-    <main class="main-content {% if not user.is_authenticated %}is-guest{% endif %}">
+{% else %}
+
+    <!-- =====================================================
+         GUEST / LOGIN / REGISTER / FORGOT PASSWORD
+         ===================================================== -->
+
+    <main class="main-content is-guest">
+
         <div class="content-shell">
+
             {% if messages %}
+
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+
+                    <div
+                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                        role="alert"
+                    >
+
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+
                     </div>
+
                 {% endfor %}
+
             {% endif %}
+
             {% block content %}{% endblock %}
+
         </div>
+
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const mobileBackdrop = document.querySelector('.mobile-backdrop');
-            const sidebarLinks = document.querySelectorAll('.sidebar-link');
-            const statCards = document.querySelectorAll('.stat-card');
+{% endif %}
 
-            if (mobileMenuToggle && mobileBackdrop) {
-                mobileMenuToggle.addEventListener('click', function () {
-                    const isOpen = document.body.classList.toggle('mobile-nav-open');
-                    mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
-                });
 
-                mobileBackdrop.addEventListener('click', function () {
-                    document.body.classList.remove('mobile-nav-open');
-                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
-                });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const mobileMenuToggle =
+        document.querySelector(".mobile-menu-toggle");
+
+    const mobileBackdrop =
+        document.querySelector(".mobile-backdrop");
+
+    const sidebarLinks =
+        document.querySelectorAll(".sidebar-link");
+
+    const statCards =
+        document.querySelectorAll(".stat-card");
+
+
+    /* =====================================================
+       MOBILE MENU
+       ===================================================== */
+
+    if (mobileMenuToggle && mobileBackdrop) {
+
+        mobileMenuToggle.addEventListener("click", function () {
+
+            const isOpen =
+                document.body.classList.toggle(
+                    "mobile-nav-open"
+                );
+
+            mobileMenuToggle.setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
+
+        });
+
+
+        mobileBackdrop.addEventListener("click", function () {
+
+            document.body.classList.remove(
+                "mobile-nav-open"
+            );
+
+            mobileMenuToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       CLOSE MENU AFTER CLICKING LINK
+       ===================================================== */
+
+    sidebarLinks.forEach(function (link) {
+
+        link.addEventListener("click", function () {
+
+            if (window.innerWidth <= 1023) {
+
+                document.body.classList.remove(
+                    "mobile-nav-open"
+                );
+
+                if (mobileMenuToggle) {
+
+                    mobileMenuToggle.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
             }
 
-            sidebarLinks.forEach(function (link) {
-                link.addEventListener('click', function () {
-                    if (window.innerWidth <= 1023) {
-                        document.body.classList.remove('mobile-nav-open');
-                        if (mobileMenuToggle) {
-                            mobileMenuToggle.setAttribute('aria-expanded', 'false');
-                        }
-                    }
-                });
+        });
+
+    });
+
+
+    /* =====================================================
+       STAT CARD
+       ===================================================== */
+
+    statCards.forEach(function (card) {
+
+        card.addEventListener("click", function () {
+
+            const isActive =
+                card.classList.contains("is-active");
+
+
+            statCards.forEach(function (item) {
+
+                const activate =
+                    item === card && !isActive;
+
+                item.classList.toggle(
+                    "is-active",
+                    activate
+                );
+
+                item.setAttribute(
+                    "aria-pressed",
+                    String(activate)
+                );
+
             });
 
-            statCards.forEach(function (card) {
-                card.addEventListener('click', function () {
-                    const isActive = card.classList.contains('is-active');
-                    statCards.forEach(function (item) {
-                        const activate = item === card && !isActive;
-                        item.classList.toggle('is-active', activate);
-                        item.setAttribute('aria-pressed', String(activate));
-                    });
-                });
-            });
         });
-    </script>
+
+    });
+
+
+    /* =====================================================
+       RESET MOBILE MENU WHEN RESIZING
+       ===================================================== */
+
+    window.addEventListener("resize", function () {
+
+        if (window.innerWidth >= 1024) {
+
+            document.body.classList.remove(
+                "mobile-nav-open"
+            );
+
+            if (mobileMenuToggle) {
+
+                mobileMenuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+            }
+
+        }
+
+    });
+
+});
+
+</script>
+
 </body>
 </html>
