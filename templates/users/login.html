@@ -1,23 +1,214 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card auth-card">
-    <h2>Login</h2>
-    <form method="post" class="row g-3">
-        {% csrf_token %}
-        <div class="col-12">
-            <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" required>
+
+<style>
+    .login-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 15px;
+    }
+
+    .login-wrapper {
+        width: 100%;
+        max-width: 430px;
+    }
+
+    .brand {
+        text-align: center;
+        margin-bottom: 18px;
+    }
+
+    .brand h1 {
+        margin: 0;
+        font-size: 36px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .brand h1 span {
+        color: #146ef5;
+    }
+
+    .brand p {
+        margin: 5px 0 0;
+        color: #7890ad;
+        font-size: 13px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(50, 90, 140, 0.12);
+    }
+
+    .login-card h2 {
+        text-align: center;
+        margin-bottom: 5px;
+        font-size: 30px;
+        color: #172033;
+    }
+
+    .welcome {
+        text-align: center;
+        color: #7890ad;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control {
+        height: 46px;
+        border-radius: 10px;
+    }
+
+    .login-btn {
+        height: 46px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .login-links {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 14px;
+    }
+
+    .login-links a {
+        color: #146ef5;
+        text-decoration: none;
+    }
+
+    .login-links a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+        .login-page {
+            min-height: calc(100dvh - 70px);
+            padding: 15px 12px;
+        }
+
+        .brand {
+            margin-bottom: 12px;
+        }
+
+        .brand h1 {
+            font-size: 31px;
+        }
+
+        .brand p {
+            font-size: 11px;
+        }
+
+        .login-card {
+            padding: 22px 20px;
+        }
+
+        .login-card h2 {
+            font-size: 27px;
+        }
+
+        .welcome {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+
+
+<div class="login-page">
+
+    <div class="login-wrapper">
+
+        <div class="brand">
+            <h1>Study<span>Buddy</span></h1>
+            <p>Plan &nbsp; | &nbsp; Learn &nbsp; | &nbsp; Achieve</p>
         </div>
-        <div class="col-12">
-            <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" required>
+
+
+        <div class="login-card">
+
+            <h2>Login</h2>
+
+            <p class="welcome">
+                Welcome back! Glad to see you again.
+            </p>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Invalid username or password.
+                </div>
+            {% endif %}
+
+            <form method="post" class="row g-3">
+
+                {% csrf_token %}
+
+                <div class="col-12">
+                    <label for="id_username" class="form-label">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        class="form-control"
+                        placeholder="Enter your username"
+                        required>
+                </div>
+
+                <div class="col-12">
+                    <label for="id_password" class="form-label">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                        required>
+                </div>
+
+                <div class="col-12">
+                    <button
+                        type="submit"
+                        class="btn btn-primary login-btn w-100">
+                        Login
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="login-links">
+
+                <p class="mb-2">
+                    <a href="{% url 'password_reset' %}">
+                        Forgot password?
+                    </a>
+                </p>
+
+                <p class="mb-0">
+                    No account yet?
+                    <a href="{% url 'register' %}">
+                        Register here
+                    </a>
+                </p>
+
+            </div>
+
         </div>
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-        </div>
-    </form>
-    <p class="mt-3 mb-1 text-center"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
-    <p class="text-center mb-0">No account yet? <a href="{% url 'register' %}">Register here</a>.</p>
+
+    </div>
+
 </div>
+
 {% endblock %}
