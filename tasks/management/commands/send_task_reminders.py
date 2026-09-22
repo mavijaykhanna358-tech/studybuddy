@@ -13,12 +13,11 @@ class Command(BaseCommand):
 
         today = timezone.localdate()
 
-        tomorrow = today + timezone.timedelta(
-            days=1
-        )
+        tomorrow = today + timezone.timedelta(days=1)
 
         tasks = Task.objects.filter(
-            due_date=tomorrow
+            due_date=tomorrow,
+            reminder_sent_at__isnull=True
         ).exclude(
             status='Completed'
         ).select_related(
@@ -77,7 +76,7 @@ StudyBuddy
 
             try:
 
-                send_mail(
+                sent = send_mail(
                     subject=email_subject,
                     message=email_message,
                     from_email=None,
@@ -87,14 +86,33 @@ StudyBuddy
                     fail_silently=False
                 )
 
-                sent_count += 1
+                if sent:
 
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f'Reminder sent for "{task.title}" '
-                        f'to {user.email}'
+                    task.reminder_sent_at = timezone.now()
+
+                    task.save(
+                        update_fields=[
+                            'reminder_sent_at'
+                        ]
                     )
-                )
+
+                    sent_count += 1
+
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Reminder sent for "{task.title}" '
+                            f'to {user.email}'
+                        )
+                    )
+
+                else:
+
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f'Email was not sent for '
+                            f'"{task.title}".'
+                        )
+                    )
 
             except Exception as e:
 

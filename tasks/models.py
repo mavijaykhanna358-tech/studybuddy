@@ -94,6 +94,11 @@ class Task(models.Model):
         blank=True
     )
 
+    reminder_sent_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )
