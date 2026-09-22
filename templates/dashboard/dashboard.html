@@ -1,141 +1,431 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card p-4 mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-        <div>
-            <p class="text-uppercase small fw-bold text-primary mb-2">Overview</p>
-            <h2 class="mb-1">Good day, {{ user.first_name|default:user.username }} 👋</h2>
-            <p class="text-muted mb-0">Stay organized. Stay ahead.</p>
+
+<style>
+    .dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Welcome */
+    .welcome-card {
+        padding: 20px 24px;
+        margin-bottom: 16px;
+    }
+
+    .welcome-card h2 {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .welcome-card p {
+        font-size: 14px;
+    }
+
+    /* Stats */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        border: 0;
+        background: white;
+        border-radius: 12px;
+        padding: 16px 18px;
+        text-align: left;
+        box-shadow: 0 4px 15px rgba(50, 90, 140, 0.08);
+    }
+
+    .stat-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-card-label {
+        color: #7890ad;
+        font-size: 13px;
+        margin: 0 0 4px;
+        font-weight: 600;
+    }
+
+    .stat-card-value {
+        font-size: 25px;
+        margin: 0;
+        color: #172033;
+        font-weight: 700;
+    }
+
+    /* General cards */
+    .dashboard .card {
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(50, 90, 140, 0.08);
+    }
+
+    .dashboard h4 {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .dashboard h5 {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .compact-card {
+        padding: 16px;
+    }
+
+    /* Task items */
+    .task-item,
+    .note-item {
+        border: 1px solid #e8edf3;
+        border-radius: 9px;
+        padding: 9px 11px;
+    }
+
+    .task-item-title {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .task-item small,
+    .note-item small {
+        font-size: 12px;
+    }
+
+    /* Buttons */
+    .quick-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    /* Mobile */
+    @media (max-width: 991px) {
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard {
+            width: 100%;
+        }
+
+        .welcome-card {
+            padding: 18px;
+        }
+
+        .welcome-card h2 {
+            font-size: 21px;
+        }
+
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            padding: 14px;
+        }
+
+        .stat-card-value {
+            font-size: 22px;
+        }
+    }
+</style>
+
+
+<div class="dashboard">
+
+    <!-- Welcome -->
+    <div class="card welcome-card">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+
+            <div>
+                <p class="text-uppercase small fw-bold text-primary mb-1">
+                    Overview
+                </p>
+
+                <h2 class="mb-1">
+                    Good day, {{ user.first_name|default:user.username }}
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Stay organized. Stay ahead.
+                </p>
+            </div>
+
+            <a href="{% url 'task_create' %}" class="btn btn-primary">
+                + New Task
+            </a>
+
         </div>
-        <a href="{% url 'task_create' %}" class="btn btn-primary">+ New Task</a>
     </div>
-</div>
 
-<div class="stat-grid mb-4" aria-label="Study summary cards">
-    <button class="stat-card" type="button" aria-pressed="false">
-        <div class="stat-card-head">
-            <div>
-                <p class="stat-card-label">Subjects</p>
-                <h3 class="stat-card-value">{{ total_subjects }}</h3>
-            </div>
-            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
-        </div>
-    </button>
 
-    <button class="stat-card" type="button" aria-pressed="false">
-        <div class="stat-card-head">
-            <div>
-                <p class="stat-card-label">Total Tasks</p>
-                <h3 class="stat-card-value">{{ total_tasks }}</h3>
-            </div>
-            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
-        </div>
-    </button>
+    <!-- Statistics -->
+    <div class="stat-grid mb-3">
 
-    <button class="stat-card" type="button" aria-pressed="false">
-        <div class="stat-card-head">
-            <div>
-                <p class="stat-card-label">Completed</p>
-                <h3 class="stat-card-value">{{ completed_tasks }}</h3>
-            </div>
-            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
+        <div class="stat-card">
+            <p class="stat-card-label">Subjects</p>
+            <h3 class="stat-card-value">
+                {{ total_subjects }}
+            </h3>
         </div>
-    </button>
 
-    <button class="stat-card" type="button" aria-pressed="false">
-        <div class="stat-card-head">
-            <div>
-                <p class="stat-card-label">Pending</p>
-                <h3 class="stat-card-value">{{ pending_tasks }}</h3>
-            </div>
-            <span class="stat-card-indicator" aria-hidden="true">⌄</span>
+        <div class="stat-card">
+            <p class="stat-card-label">Total Tasks</p>
+            <h3 class="stat-card-value">
+                {{ total_tasks }}
+            </h3>
         </div>
-    </button>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-12 col-lg-4">
-        <div class="card h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Task Progress</h5>
-                <span class="pill pill-success">{{ completion_percentage }}%</span>
-            </div>
-            <div class="progress mb-3" style="height: 10px;" role="progressbar" aria-label="Task completion progress" aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar bg-success" style="width: {{ completion_percentage }}%"></div>
-            </div>
-            <div class="d-flex justify-content-between text-muted small">
-                <span>In Progress: {{ in_progress_tasks }}</span>
-                <span>Completed: {{ completed_tasks }}</span>
-            </div>
-            <div class="mt-2 text-muted small">Notes: {{ total_notes }}</div>
+        <div class="stat-card">
+            <p class="stat-card-label">Completed</p>
+            <h3 class="stat-card-value">
+                {{ completed_tasks }}
+            </h3>
         </div>
+
+        <div class="stat-card">
+            <p class="stat-card-label">Pending</p>
+            <h3 class="stat-card-value">
+                {{ pending_tasks }}
+            </h3>
+        </div>
+
     </div>
 
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 p-3">
-            <h5 class="mb-3">Overdue Tasks</h5>
-            <div class="d-flex align-items-center gap-3">
-                <div class="pill pill-danger" style="min-width: 52px;">{{ overdue_tasks }}</div>
-                <div>
-                    <div class="fw-semibold">Need attention</div>
-                    <small class="text-muted">Work that needs quick action</small>
+
+    <!-- Progress / Overdue / Upcoming -->
+    <div class="row g-3 mb-3">
+
+        <!-- Task Progress -->
+        <div class="col-12 col-lg-4">
+
+            <div class="card compact-card h-100">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Task Progress</h5>
+
+                    <span class="badge bg-success">
+                        {{ completion_percentage }}%
+                    </span>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 p-3">
-            <h5 class="mb-3">Upcoming Tasks</h5>
-            {% if upcoming_tasks %}
-                <div class="d-flex flex-column gap-2">
-                    {% for task in upcoming_tasks %}
-                        <div class="border rounded-3 p-2">
-                            <div class="fw-semibold">{{ task.title }}</div>
-                            <small class="text-muted">{{ task.subject.name|default:'General' }} · {{ task.due_date }}</small>
+                <div
+                    class="progress mb-2"
+                    style="height: 8px;"
+                    role="progressbar"
+                    aria-valuenow="{{ completion_percentage }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+
+                    <div
+                        class="progress-bar bg-success"
+                        style="width: {{ completion_percentage }}%">
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-between text-muted small">
+                    <span>In Progress: {{ in_progress_tasks }}</span>
+                    <span>Completed: {{ completed_tasks }}</span>
+                </div>
+
+                <div class="text-muted small mt-2">
+                    Notes: {{ total_notes }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Overdue -->
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card compact-card h-100">
+
+                <h5 class="mb-3">
+                    Overdue Tasks
+                </h5>
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div
+                        class="badge bg-danger fs-6"
+                        style="min-width: 45px;">
+                        {{ overdue_tasks }}
+                    </div>
+
+                    <div>
+                        <div class="fw-semibold">
+                            Need attention
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">No upcoming tasks.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
 
-<div class="row g-3">
-    <div class="col-12 col-lg-7">
-        <div class="card p-3">
-            <h4 class="mb-3">Recent Notes</h4>
-            {% if recent_notes %}
-                <div class="d-flex flex-column gap-2">
-                    {% for note in recent_notes %}
-                        <div class="border rounded-3 p-3">
-                            <div class="d-flex justify-content-between align-items-start gap-2">
-                                <div>
-                                    <strong>{{ note.title }}</strong>
-                                    <div class="text-muted small">{{ note.subject.name|default:'General' }}</div>
+                        <small class="text-muted">
+                            Tasks that need quick action
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Upcoming -->
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card compact-card h-100">
+
+                <h5 class="mb-2">
+                    Upcoming Tasks
+                </h5>
+
+                {% if upcoming_tasks %}
+
+                    <div class="d-flex flex-column gap-2">
+
+                        {% for task in upcoming_tasks %}
+
+                            <div class="task-item">
+
+                                <div class="task-item-title">
+                                    {{ task.title }}
                                 </div>
-                                <small class="text-muted">{{ note.updated_at|date:'M d' }}</small>
+
+                                <small class="text-muted">
+                                    {{ task.subject.name|default:'General' }}
+                                    ·
+                                    {{ task.due_date }}
+                                </small>
+
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">No notes yet.</p>
-            {% endif %}
-        </div>
-    </div>
-    <div class="col-12 col-lg-5">
-        <div class="card p-3">
-            <h4 class="mb-3">Quick Actions</h4>
-            <div class="d-grid gap-2">
-                <a href="{% url 'subject_create' %}" class="btn btn-outline-primary">+ Add Subject</a>
-                <a href="{% url 'task_create' %}" class="btn btn-outline-primary">+ Add Task</a>
-                <a href="{% url 'note_create' %}" class="btn btn-outline-primary">+ Add Note</a>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-muted mb-0 small">
+                        No upcoming tasks.
+                    </p>
+
+                {% endif %}
+
             </div>
+
         </div>
+
     </div>
+
+
+    <!-- Recent Notes / Quick Actions -->
+    <div class="row g-3">
+
+        <!-- Recent Notes -->
+        <div class="col-12 col-lg-7">
+
+            <div class="card compact-card">
+
+                <h4 class="mb-3">
+                    Recent Notes
+                </h4>
+
+                {% if recent_notes %}
+
+                    <div class="d-flex flex-column gap-2">
+
+                        {% for note in recent_notes %}
+
+                            <div class="note-item">
+
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+
+                                    <div>
+
+                                        <strong>
+                                            {{ note.title }}
+                                        </strong>
+
+                                        <div class="text-muted small">
+                                            {{ note.subject.name|default:'General' }}
+                                        </div>
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ note.updated_at|date:'M d' }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        No notes yet.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Quick Actions -->
+        <div class="col-12 col-lg-5">
+
+            <div class="card compact-card">
+
+                <h4 class="mb-3">
+                    Quick Actions
+                </h4>
+
+                <div class="d-grid gap-2">
+
+                    <a
+                        href="{% url 'subject_create' %}"
+                        class="btn btn-outline-primary quick-btn">
+                        + Add Subject
+                    </a>
+
+                    <a
+                        href="{% url 'task_create' %}"
+                        class="btn btn-outline-primary quick-btn">
+                        + Add Task
+                    </a>
+
+                    <a
+                        href="{% url 'note_create' %}"
+                        class="btn btn-outline-primary quick-btn">
+                        + Add Note
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+
 {% endblock %}
