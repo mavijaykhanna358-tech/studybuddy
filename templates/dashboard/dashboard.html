@@ -5,7 +5,7 @@
 <style>
 
 /* =====================================================
-   MAIN DASHBOARD
+   DASHBOARD
 ===================================================== */
 
 .dashboard {
@@ -33,8 +33,7 @@
 }
 
 
-/* IMPORTANT:
-   Allows every section to stay inside its own row */
+/* Keep cards inside their grid areas */
 
 .dashboard > * {
     min-width: 0;
@@ -48,11 +47,12 @@
 
 .dashboard .card {
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
 
     background: #ffffff;
 
-    box-shadow: 0 2px 10px rgba(50, 90, 140, 0.07);
+    box-shadow:
+        0 2px 10px rgba(50, 90, 140, 0.07);
 
     overflow: hidden;
 }
@@ -68,10 +68,25 @@
 
     padding: 14px 20px;
 
-    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.welcome-label {
+    color: #0d6efd;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    margin-bottom: 4px;
 }
 
 .welcome-card h2 {
+    color: #172033;
+
     font-size: 21px;
     font-weight: 700;
 
@@ -81,20 +96,11 @@
 }
 
 .welcome-card p {
+    color: #60738c;
+
     font-size: 12px;
-    line-height: 1.2;
-}
 
-.welcome-card .text-uppercase {
-    margin-bottom: 4px !important;
-}
-
-.welcome-card .btn {
-    padding: 8px 15px;
-
-    font-size: 13px;
-
-    border-radius: 8px;
+    margin: 0;
 }
 
 
@@ -106,18 +112,12 @@
     width: 100%;
     height: 100%;
 
-    min-height: 0;
-
     display: grid;
 
     grid-template-columns:
         repeat(4, minmax(0, 1fr));
 
     gap: 10px;
-
-    margin: 0 !important;
-
-    overflow: hidden;
 }
 
 .stat-card {
@@ -127,19 +127,18 @@
     min-width: 0;
     min-height: 0;
 
+    padding: 10px 15px;
+
     background: #ffffff;
 
     border-radius: 10px;
 
-    padding: 10px 15px;
+    box-shadow:
+        0 2px 10px rgba(50, 90, 140, 0.07);
 
     display: flex;
-
     flex-direction: column;
-
     justify-content: center;
-
-    box-shadow: 0 2px 10px rgba(50, 90, 140, 0.07);
 
     overflow: hidden;
 }
@@ -148,7 +147,6 @@
     color: #7890ad;
 
     font-size: 12px;
-
     font-weight: 600;
 
     line-height: 1.2;
@@ -160,7 +158,6 @@
     color: #172033;
 
     font-size: 21px;
-
     font-weight: 700;
 
     line-height: 1;
@@ -182,7 +179,9 @@
     display: grid;
 
     grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1.15fr);
 
     gap: 10px;
 
@@ -201,9 +200,10 @@
     overflow: hidden;
 }
 
-.middle-card h5 {
-    font-size: 15px;
+.section-title {
+    color: #172033;
 
+    font-size: 15px;
     font-weight: 700;
 
     line-height: 1.2;
@@ -216,12 +216,37 @@
    TASK PROGRESS
 ===================================================== */
 
-.task-progress-bar {
+.progress-percentage {
+    color: #172033;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.progress-wrapper {
     width: 100%;
 
-    height: 7px;
+    margin-bottom: 8px;
+}
 
-    margin-bottom: 10px;
+.progress {
+    width: 100%;
+
+    height: 8px;
+
+    border-radius: 10px;
+
+    background: #e9edf2;
+
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+
+    border-radius: 10px;
 }
 
 .task-info {
@@ -233,58 +258,65 @@
 
     font-size: 11px;
 
-    margin-bottom: 7px;
+    margin-top: 8px;
 }
 
-.notes-count {
+.task-info-bottom {
     color: #60738c;
 
     font-size: 11px;
+
+    margin-top: 7px;
 }
 
 
 /* =====================================================
-   OVERDUE
+   TODAY'S FOCUS
 ===================================================== */
 
-.overdue-content {
+.focus-list {
     display: flex;
 
-    align-items: center;
+    flex-direction: column;
 
-    gap: 10px;
+    gap: 7px;
 }
 
-.overdue-badge {
-    min-width: 42px;
+.focus-item {
+    border: 1px solid #e8edf3;
+
+    border-radius: 8px;
 
     padding: 8px 9px;
+}
 
-    border-radius: 7px;
-
-    text-align: center;
+.focus-item-title {
+    color: #172033;
 
     font-size: 12px;
-
     font-weight: 600;
 }
 
-.overdue-title {
-    font-size: 13px;
-
-    font-weight: 600;
-
-    line-height: 1.2;
-
-    margin-bottom: 4px;
-}
-
-.overdue-text {
+.focus-item-text {
     color: #60738c;
 
-    font-size: 11px;
+    font-size: 10px;
 
-    line-height: 1.2;
+    line-height: 1.3;
+
+    margin-top: 3px;
+}
+
+.focus-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.focus-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.focus-success {
+    border-left: 4px solid #198754;
 }
 
 
@@ -309,14 +341,17 @@
 }
 
 .task-item-title {
-    font-size: 11px;
+    color: #172033;
 
+    font-size: 11px;
     font-weight: 600;
 
     line-height: 1.2;
 }
 
 .task-item small {
+    color: #60738c;
+
     font-size: 9px;
 
     line-height: 1.1;
@@ -336,8 +371,8 @@
     display: grid;
 
     grid-template-columns:
-        minmax(0, 7fr)
-        minmax(0, 5fr);
+        minmax(0, 1.4fr)
+        minmax(0, 1fr);
 
     gap: 10px;
 
@@ -354,16 +389,6 @@
     padding: 13px 15px;
 
     overflow: hidden;
-}
-
-.bottom-card h4 {
-    font-size: 15px;
-
-    font-weight: 700;
-
-    line-height: 1.2;
-
-    margin: 0 0 8px;
 }
 
 
@@ -388,6 +413,8 @@
 }
 
 .note-item strong {
+    color: #172033;
+
     font-size: 11px;
 }
 
@@ -440,7 +467,6 @@
         padding: 10px 0 20px;
     }
 
-
     .dashboard > * {
         min-height: auto;
     }
@@ -451,7 +477,7 @@
     .welcome-card {
         height: auto;
 
-        margin-bottom: 10px !important;
+        margin-bottom: 10px;
     }
 
 
@@ -465,9 +491,7 @@
 
         gap: 8px;
 
-        margin-bottom: 10px !important;
-
-        overflow: visible;
+        margin-bottom: 10px;
     }
 
     .stat-card {
@@ -493,9 +517,9 @@
     }
 
     .middle-card {
-        height: 130px;
+        height: 140px;
 
-        min-height: 130px;
+        min-height: 140px;
     }
 
 
@@ -512,9 +536,9 @@
     }
 
     .bottom-card {
-        height: 120px;
+        height: 130px;
 
-        min-height: 120px;
+        min-height: 130px;
     }
 
 }
@@ -544,15 +568,11 @@
 
         padding: 12px;
 
-        margin-bottom: 8px !important;
+        margin-bottom: 8px;
     }
 
     .welcome-card h2 {
         font-size: 18px;
-    }
-
-    .welcome-card .btn {
-        width: 100%;
     }
 
 
@@ -588,6 +608,8 @@
         grid-template-columns: 1fr;
 
         height: auto;
+
+        gap: 8px;
     }
 
     .middle-card {
@@ -603,12 +625,27 @@
         grid-template-columns: 1fr;
 
         height: auto;
+
+        gap: 8px;
     }
 
     .bottom-card {
         height: auto;
 
         min-height: 120px;
+    }
+
+}
+
+
+/* =====================================================
+   DESKTOP - PREVENT PAGE SCROLL
+===================================================== */
+
+@media (min-width: 992px) {
+
+    .dashboard {
+        overflow: hidden;
     }
 
 }
@@ -625,25 +662,17 @@
 
     <div class="card welcome-card">
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-
-            <div>
-
-                <p class="text-uppercase small fw-bold text-primary mb-1">
-                    Overview
-                </p>
-
-                <h2>
-                    Good day, {{ user.first_name|default:user.username }}
-                </h2>
-
-                <p class="text-muted mb-0">
-                    Stay organized. Stay ahead.
-                </p>
-
-            </div>
-
+        <div class="welcome-label">
+            Overview
         </div>
+
+        <h2>
+            Good day, {{ user.first_name|default:user.username }} 👋
+        </h2>
+
+        <p>
+            Stay organized. Stay ahead.
+        </p>
 
     </div>
 
@@ -697,54 +726,54 @@
         <div class="stat-card">
 
             <p class="stat-card-label">
-                Pending
+                Notes
             </p>
 
             <h3 class="stat-card-value">
-                {{ pending_tasks }}
+                {{ total_notes }}
             </h3>
 
         </div>
+
 
     </div>
 
 
     <!-- =================================================
-         TASK / OVERDUE / UPCOMING
+         PROGRESS / FOCUS / UPCOMING
     ================================================== -->
 
     <div class="middle-grid">
 
 
-        <!-- Task Progress -->
+        <!-- TASK PROGRESS -->
 
         <div class="card middle-card">
 
-            <div class="d-flex justify-content-between align-items-center">
+            <h5 class="section-title">
+                Task Progress
+            </h5>
 
-                <h5>
-                    Task Progress
-                </h5>
-
-                <span class="badge bg-success">
-                    {{ completion_percentage }}%
-                </span>
-
+            <div class="progress-percentage">
+                {{ completion_percentage }}%
             </div>
 
-
-            <div
-                class="progress task-progress-bar"
-                role="progressbar"
-                aria-valuenow="{{ completion_percentage }}"
-                aria-valuemin="0"
-                aria-valuemax="100"
-            >
+            <div class="progress-wrapper">
 
                 <div
-                    class="progress-bar bg-success"
-                    id="taskProgressBar"
-                ></div>
+                    class="progress"
+                    role="progressbar"
+                    aria-valuenow="{{ completion_percentage }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                >
+
+                    <div
+                        class="progress-bar bg-success"
+                        id="taskProgressBar"
+                    ></div>
+
+                </div>
 
             </div>
 
@@ -752,7 +781,7 @@
             <div class="task-info">
 
                 <span>
-                    In Progress: {{ in_progress_tasks }}
+                    Pending: {{ pending_tasks }}
                 </span>
 
                 <span>
@@ -762,176 +791,219 @@
             </div>
 
 
-            <div class="notes-count">
-                Notes: {{ total_notes }}
+            <div class="task-info-bottom">
+
+                In Progress: {{ in_progress_tasks }}
+
             </div>
 
         </div>
 
 
-        <!-- Overdue Tasks -->
+        <!-- TODAY'S FOCUS -->
 
         <div class="card middle-card">
 
-            <h5>
-                Overdue Tasks
+            <h5 class="section-title">
+                Today's Focus
             </h5>
 
 
-            <div class="overdue-content">
-
-                <div class="badge bg-danger overdue-badge">
-                    {{ overdue_tasks }}
-                </div>
+            <div class="focus-list">
 
 
-                <div>
+                {% if overdue_tasks > 0 %}
 
-                    <div class="overdue-title">
-                        Need attention
+                <div class="focus-item focus-danger">
+
+                    <div class="focus-item-title">
+                        🔴 Overdue Tasks
                     </div>
 
-                    <div class="overdue-text">
-                        Tasks that need quick action
+                    <div class="focus-item-text">
+
+                        {{ overdue_tasks }}
+                        task{{ overdue_tasks|pluralize }}
+                        need attention.
+
                     </div>
 
                 </div>
+
+                {% endif %}
+
+
+                {% if upcoming_tasks %}
+
+                <div class="focus-item focus-warning">
+
+                    <div class="focus-item-title">
+                        🟡 Upcoming Work
+                    </div>
+
+                    <div class="focus-item-text">
+                        You have tasks coming up.
+                        Stay on track.
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if overdue_tasks == 0 and not upcoming_tasks %}
+
+                <div class="focus-item focus-success">
+
+                    <div class="focus-item-title">
+                        🟢 You're all caught up!
+                    </div>
+
+                    <div class="focus-item-text">
+                        No urgent tasks right now.
+                    </div>
+
+                </div>
+
+                {% endif %}
+
 
             </div>
 
         </div>
 
 
-        <!-- Upcoming Tasks -->
+        <!-- UPCOMING TASKS -->
 
         <div class="card middle-card">
 
-            <h5>
+            <h5 class="section-title">
                 Upcoming Tasks
             </h5>
 
 
             {% if upcoming_tasks %}
 
-                <div class="task-list">
+            <div class="task-list">
 
-                    {% for task in upcoming_tasks %}
+                {% for task in upcoming_tasks %}
 
-                        <div class="task-item">
+                <div class="task-item">
 
-                            <div class="task-item-title">
-                                {{ task.title }}
-                            </div>
+                    <div class="task-item-title">
+                        {{ task.title }}
+                    </div>
 
-                            <small class="text-muted">
+                    <small>
 
-                                {{ task.subject.name|default:'General' }}
+                        {{ task.subject.name|default:'General' }}
 
-                                ·
+                        ·
 
-                                {{ task.due_date }}
+                        {{ task.due_date|date:'M d, Y' }}
 
-                            </small>
-
-                        </div>
-
-                    {% endfor %}
+                    </small>
 
                 </div>
 
+                {% endfor %}
+
+            </div>
+
+
             {% else %}
 
-                <p class="text-muted mb-0 small">
-                    No upcoming tasks.
-                </p>
+            <p class="text-muted mb-0 small">
+                No upcoming tasks.
+            </p>
 
             {% endif %}
 
         </div>
+
 
     </div>
 
 
     <!-- =================================================
-         RECENT NOTES / QUICK ACTIONS
+         NOTES / QUICK ACTIONS
     ================================================== -->
 
     <div class="bottom-grid">
 
 
-        <!-- Recent Notes -->
+        <!-- RECENT NOTES -->
 
         <div class="card bottom-card">
 
-            <h4>
+            <h5 class="section-title">
                 Recent Notes
-            </h4>
+            </h5>
 
 
             {% if recent_notes %}
 
-                <div class="note-list">
+            <div class="note-list">
 
-                    {% for note in recent_notes %}
+                {% for note in recent_notes %}
 
-                        <div class="note-item">
+                <div class="note-item">
 
-                            <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div
+                        class="d-flex justify-content-between align-items-start gap-2"
+                    >
 
-                                <div>
+                        <div>
 
-                                    <strong>
-                                        {{ note.title }}
-                                    </strong>
+                            <strong>
+                                {{ note.title }}
+                            </strong>
 
-                                    <div class="text-muted small">
-                                        {{ note.subject.name|default:'General' }}
-                                    </div>
+                            <div class="text-muted small">
 
-                                </div>
-
-
-                                <small class="text-muted">
-                                    {{ note.updated_at|date:'M d' }}
-                                </small>
+                                {{ note.subject.name|default:'General' }}
 
                             </div>
 
                         </div>
 
-                    {% endfor %}
+
+                        <small class="text-muted">
+
+                            {{ note.updated_at|date:'M d' }}
+
+                        </small>
+
+                    </div>
 
                 </div>
 
+                {% endfor %}
+
+            </div>
+
+
             {% else %}
 
-                <p class="text-muted mb-0">
-                    No notes yet.
-                </p>
+            <p class="text-muted mb-0">
+                No notes yet.
+            </p>
 
             {% endif %}
 
         </div>
 
 
-        <!-- Quick Actions -->
+        <!-- QUICK ACTIONS -->
 
         <div class="card bottom-card">
 
-            <h4>
+            <h5 class="section-title">
                 Quick Actions
-            </h4>
+            </h5>
 
 
             <div class="quick-actions-grid">
-
-
-                <a
-                    href="{% url 'subject_create' %}"
-                    class="btn btn-outline-primary quick-btn"
-                >
-                    + Add Subject
-                </a>
 
 
                 <a
@@ -950,34 +1022,49 @@
                 </a>
 
 
+                <a
+                    href="{% url 'subject_create' %}"
+                    class="btn btn-outline-primary quick-btn"
+                >
+                    + Add Subject
+                </a>
+
+
+                <a
+                    href="{% url 'tasks' %}"
+                    class="btn btn-outline-primary quick-btn"
+                >
+                    View Tasks
+                </a>
+
+
             </div>
 
         </div>
 
+
     </div>
+
 
 </div>
 
 
-<!-- =================================================
-     TASK PROGRESS
-================================================== -->
-
 <script>
 
-    const progressBar =
-        document.getElementById('taskProgressBar');
+const progressBar =
+    document.getElementById('taskProgressBar');
 
-    const progressValue = Number(
+const progressValue =
+    Number(
         "{{ completion_percentage|default:0 }}"
     );
 
-    if (progressBar) {
+if (progressBar) {
 
-        progressBar.style.width =
-            progressValue + '%';
+    progressBar.style.width =
+        progressValue + '%';
 
-    }
+}
 
 </script>
 
