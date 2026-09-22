@@ -1,55 +1,261 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h2 class="mb-1">{{ subject.name }}</h2>
-        <p class="text-muted mb-0">{{ subject.description|default:'No subject description yet.' }}</p>
+
+<style>
+    .subject-detail-header {
+        margin-bottom: 24px;
+    }
+
+    .subject-detail-header h2 {
+        font-weight: 700;
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+
+    .subject-description {
+        color: #6c757d;
+        margin-bottom: 0;
+        line-height: 1.6;
+    }
+
+    .detail-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .detail-card h5 {
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .related-item {
+        padding: 13px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .related-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .related-item:first-child {
+        padding-top: 0;
+    }
+
+    .related-title {
+        color: #212529;
+        text-decoration: none;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .related-title:hover {
+        color: #0d6efd;
+    }
+
+    .related-meta {
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    .empty-related {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 0;
+        padding: 10px 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 576px) {
+        .action-buttons {
+            width: 100%;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+        }
+
+        .detail-card {
+            padding: 18px;
+        }
+    }
+</style>
+
+
+<!-- Subject Header -->
+
+<div class="subject-detail-header">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+
+        <div>
+            <h2>{{ subject.name }}</h2>
+
+            <p class="subject-description">
+                {% if subject.description %}
+                    {{ subject.description }}
+                {% else %}
+                    No subject description yet.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="action-buttons">
+
+            <a
+                href="{% url 'subject_edit' subject.pk %}"
+                class="btn btn-outline-primary"
+            >
+                Edit
+            </a>
+
+            <a
+                href="{% url 'subject_delete' subject.pk %}"
+                class="btn btn-outline-danger"
+            >
+                Delete
+            </a>
+
+        </div>
+
     </div>
-    <div class="d-flex gap-2 flex-wrap">
-        <a href="{% url 'subject_edit' subject.pk %}" class="btn btn-outline-primary">Edit</a>
-        <a href="{% url 'subject_delete' subject.pk %}" class="btn btn-outline-danger">Delete</a>
-    </div>
+
 </div>
 
-<div class="row g-3 mb-4">
+
+<!-- Related Content -->
+
+<div class="row g-3">
+
+    <!-- Related Tasks -->
+
     <div class="col-12 col-md-6">
-        <div class="card p-3">
-            <h5>Related Tasks</h5>
+
+        <div class="detail-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="mb-0">Related Tasks</h5>
+
+                <span class="badge text-bg-light">
+                    {{ tasks.count }}
+                </span>
+
+            </div>
+
+
             {% if tasks %}
-                <ul class="list-group list-group-flush">
-                    {% for task in tasks %}
-                        <li class="list-group-item px-0">
-                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none fw-semibold">{{ task.title }}</a>
-                            <div class="small text-muted">{{ task.status }} · {{ task.priority }}</div>
-                        </li>
-                    {% endfor %}
-                </ul>
+
+                {% for task in tasks %}
+
+                    <div class="related-item">
+
+                        <a
+                            href="{% url 'task_detail' task.pk %}"
+                            class="related-title"
+                        >
+                            {{ task.title }}
+                        </a>
+
+                        <div class="related-meta">
+                            {{ task.status }} · {{ task.priority }}
+
+                            {% if task.due_date %}
+                                · Due {{ task.due_date|date:"M d, Y" }}
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
             {% else %}
-                <p class="text-muted mb-0">No tasks in this subject yet.</p>
+
+                <p class="empty-related">
+                    No tasks in this subject yet.
+                </p>
+
             {% endif %}
+
         </div>
+
     </div>
+
+
+    <!-- Related Notes -->
+
     <div class="col-12 col-md-6">
-        <div class="card p-3">
-            <h5>Related Notes</h5>
+
+        <div class="detail-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="mb-0">Related Notes</h5>
+
+                <span class="badge text-bg-light">
+                    {{ notes.count }}
+                </span>
+
+            </div>
+
+
             {% if notes %}
-                <ul class="list-group list-group-flush">
-                    {% for note in notes %}
-                        <li class="list-group-item px-0">
-                            <a href="{% url 'note_detail' note.pk %}" class="text-decoration-none fw-semibold">{{ note.title }}</a>
-                            <div class="small text-muted">{{ note.updated_at|date:'M d, Y' }}</div>
-                        </li>
-                    {% endfor %}
-                </ul>
+
+                {% for note in notes %}
+
+                    <div class="related-item">
+
+                        <a
+                            href="{% url 'note_detail' note.pk %}"
+                            class="related-title"
+                        >
+                            {{ note.title }}
+                        </a>
+
+                        <div class="related-meta">
+                            Updated {{ note.updated_at|date:"M d, Y" }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
             {% else %}
-                <p class="text-muted mb-0">No notes linked to this subject yet.</p>
+
+                <p class="empty-related">
+                    No notes linked to this subject yet.
+                </p>
+
             {% endif %}
+
         </div>
+
     </div>
+
 </div>
 
-<div class="d-flex gap-2">
-    <a href="{% url 'subjects' %}" class="btn btn-outline-secondary">Back to Subjects</a>
+
+<!-- Back -->
+
+<div class="mt-3">
+
+    <a
+        href="{% url 'subjects' %}"
+        class="btn btn-outline-secondary"
+    >
+        ← Back to Subjects
+    </a>
+
 </div>
+
 {% endblock %}

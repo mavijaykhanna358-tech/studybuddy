@@ -1,45 +1,270 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card p-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h2 class="mb-1">{{ task.title }}</h2>
-            <div class="text-muted">{{ task.subject.name|default:'General' }}</div>
+
+<style>
+    .task-detail {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .task-detail-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 28px;
+    }
+
+    .task-detail-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+
+    .task-detail-description {
+        color: #6c757d;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        margin-bottom: 24px;
+    }
+
+    .detail-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .detail-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 14px;
+        height: 100%;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    @media (max-width: 576px) {
+        .task-detail-card {
+            padding: 20px;
+        }
+
+        .task-detail-title {
+            font-size: 24px;
+        }
+
+        .task-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<div class="task-detail">
+
+    <div class="task-detail-card">
+
+        <!-- Header -->
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+
+            <div>
+
+                <h2 class="task-detail-title">
+                    {{ task.title }}
+                </h2>
+
+                {% if task.subject %}
+                    <div class="text-muted">
+                        {{ task.subject.name }}
+                    </div>
+                {% else %}
+                    <div class="text-muted">
+                        General
+                    </div>
+                {% endif %}
+
+            </div>
+
+
+            <!-- Status -->
+
+            {% if task.status == "Completed" %}
+
+                <span class="badge text-bg-success">
+                    Completed
+                </span>
+
+            {% elif task.status == "In Progress" %}
+
+                <span class="badge text-bg-primary">
+                    In Progress
+                </span>
+
+            {% else %}
+
+                <span class="badge text-bg-secondary">
+                    Pending
+                </span>
+
+            {% endif %}
+
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-primary">Edit</a>
-            <a href="{% url 'task_complete' task.pk %}" class="btn btn-outline-success">Mark Complete</a>
-            <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger">Delete</a>
+
+
+        <!-- Description -->
+
+        <div class="task-detail-description">
+
+            {% if task.description %}
+                {{ task.description }}
+            {% else %}
+                No description provided.
+            {% endif %}
+
         </div>
+
+
+        <!-- Details -->
+
+        <div class="row g-3">
+
+            <div class="col-12 col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Subject
+                    </div>
+
+                    <div class="detail-value">
+
+                        {% if task.subject %}
+                            {{ task.subject.name }}
+                        {% else %}
+                            General
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Priority
+                    </div>
+
+                    <div class="detail-value">
+                        {{ task.priority }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Status
+                    </div>
+
+                    <div class="detail-value">
+                        {{ task.status }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-6">
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Due Date
+                    </div>
+
+                    <div class="detail-value">
+
+                        {% if task.due_date %}
+                            {{ task.due_date|date:"M d, Y" }}
+                        {% else %}
+                            No due date
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Actions -->
+
+        <div class="task-actions">
+
+            <a
+                href="{% url 'task_edit' task.pk %}"
+                class="btn btn-outline-primary"
+            >
+                Edit
+            </a>
+
+
+            {% if task.status != "Completed" %}
+
+                <a
+                    href="{% url 'task_complete' task.pk %}"
+                    class="btn btn-outline-success"
+                >
+                    Mark as Completed
+                </a>
+
+            {% endif %}
+
+
+            <a
+                href="{% url 'task_delete' task.pk %}"
+                class="btn btn-outline-danger"
+            >
+                Delete
+            </a>
+
+
+            <a
+                href="{% url 'tasks' %}"
+                class="btn btn-outline-secondary"
+            >
+                ← Back to Tasks
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="row g-3 mb-3">
-        <div class="col-12 col-md-4">
-            <div class="border rounded p-3 h-100">
-                <div class="text-muted small">Status</div>
-                <strong>{{ task.status }}</strong>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="border rounded p-3 h-100">
-                <div class="text-muted small">Priority</div>
-                <strong>{{ task.priority }}</strong>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="border rounded p-3 h-100">
-                <div class="text-muted small">Due Date</div>
-                <strong>{{ task.due_date|default:'No date' }}</strong>
-            </div>
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <h5>Description</h5>
-        <p class="mb-0">{{ task.description|default:'No description provided.' }}</p>
-    </div>
-
-    <a href="{% url 'tasks' %}" class="btn btn-outline-secondary">Back to Tasks</a>
 </div>
+
 {% endblock %}

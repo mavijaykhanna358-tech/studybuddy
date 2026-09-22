@@ -1,47 +1,252 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <p class="text-uppercase small fw-bold text-primary mb-2">Learning Tracks</p>
-        <h2 class="mb-1">Subjects</h2>
-        <p class="text-muted mb-0">Track each study area separately.</p>
+
+<style>
+    .subject-header {
+        margin-bottom: 24px;
+    }
+
+    .subject-header h2 {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .subject-header p {
+        margin: 0;
+        color: #6c757d;
+    }
+
+    .search-card {
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 24px;
+        background: #fff;
+    }
+
+    .subject-card {
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 20px;
+        height: 100%;
+        background: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .subject-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .task-count {
+        background: #f1f3f5;
+        color: #495057;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .subject-description {
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1.6;
+        min-height: 45px;
+        margin-bottom: 18px;
+    }
+
+    .subject-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .empty-state {
+        border: 1px dashed #ced4da;
+        border-radius: 16px;
+        padding: 45px 20px;
+        text-align: center;
+        color: #6c757d;
+        background: #fff;
+    }
+
+    @media (max-width: 576px) {
+        .subject-header {
+            margin-bottom: 18px;
+        }
+
+        .subject-header .btn {
+            width: 100%;
+        }
+
+        .search-card {
+            padding: 14px;
+        }
+
+        .subject-card {
+            padding: 18px;
+        }
+
+        .subject-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+<div class="subject-header">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+        <div>
+            <h2>Subjects</h2>
+            <p>Manage and organize your study subjects.</p>
+        </div>
+
+        <a href="{% url 'subject_create' %}" class="btn btn-primary">
+            + Add Subject
+        </a>
+
     </div>
-    <a href="{% url 'subject_create' %}" class="btn btn-primary">+ Add Subject</a>
+
 </div>
 
-<div class="card p-3 mb-4">
-    <form method="get" class="row g-2 align-items-end">
-        <div class="col-12 col-md-10">
-            <label class="form-label">Search subjects</label>
-            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by subject name">
+
+<!-- Search -->
+
+<div class="search-card">
+
+    <form method="get">
+
+        <div class="row g-2 align-items-end">
+
+            <div class="col-12 col-md-10">
+
+                <label for="subjectSearch" class="form-label fw-semibold">
+                    Search Subjects
+                </label>
+
+                <input
+                    type="text"
+                    id="subjectSearch"
+                    name="q"
+                    value="{{ q }}"
+                    class="form-control"
+                    placeholder="Search by subject name"
+                >
+
+            </div>
+
+            <div class="col-12 col-md-2">
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Search
+                </button>
+
+            </div>
+
         </div>
-        <div class="col-12 col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
-        </div>
+
     </form>
+
 </div>
+
+
+<!-- Subjects -->
 
 <div class="row g-3">
+
     {% for subject in subjects %}
+
         <div class="col-12 col-md-6 col-xl-4">
-            <div class="card p-3 h-100">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                    <h5 class="mb-0">{{ subject.name }}</h5>
-                    <span class="pill pill-secondary">{{ subject.tasks.count }} tasks</span>
+
+            <div class="subject-card">
+
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+
+                    <h5 class="subject-title">
+                        {{ subject.name }}
+                    </h5>
+
+                    <span class="task-count">
+                        {{ subject.tasks.count }} task{{ subject.tasks.count|pluralize }}
+                    </span>
+
                 </div>
-                <p class="text-muted mb-3">{{ subject.description|default:'No description provided yet.' }}</p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{% url 'subject_detail' subject.pk %}" class="btn btn-sm btn-outline-primary">View</a>
-                    <a href="{% url 'subject_edit' subject.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                    <a href="{% url 'subject_delete' subject.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+
+
+                <p class="subject-description">
+
+                    {% if subject.description %}
+                        {{ subject.description }}
+                    {% else %}
+                        No description added yet.
+                    {% endif %}
+
+                </p>
+
+
+                <div class="subject-actions">
+
+                    <a
+                        href="{% url 'subject_detail' subject.pk %}"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        View
+                    </a>
+
+                    <a
+                        href="{% url 'subject_edit' subject.pk %}"
+                        class="btn btn-sm btn-outline-secondary"
+                    >
+                        Edit
+                    </a>
+
+                    <a
+                        href="{% url 'subject_delete' subject.pk %}"
+                        class="btn btn-sm btn-outline-danger"
+                    >
+                        Delete
+                    </a>
+
                 </div>
+
             </div>
+
         </div>
+
     {% empty %}
+
         <div class="col-12">
-            <div class="empty-state">No subjects yet. Add your first subject to start organizing your studies.</div>
+
+            <div class="empty-state">
+
+                <h5 class="mb-2">No subjects yet</h5>
+
+                <p class="mb-3">
+                    Add your first subject to start organizing your studies.
+                </p>
+
+                <a
+                    href="{% url 'subject_create' %}"
+                    class="btn btn-primary"
+                >
+                    + Add Subject
+                </a>
+
+            </div>
+
         </div>
+
     {% endfor %}
+
 </div>
+
 {% endblock %}

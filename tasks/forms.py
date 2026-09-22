@@ -1,12 +1,19 @@
 from django import forms
+from django.utils import timezone
 
 from .models import Note, Subject, Task
 
 
 class SubjectForm(forms.ModelForm):
+
     class Meta:
         model = Subject
-        fields = ['name', 'description']
+
+        fields = [
+            'name',
+            'description'
+        ]
+
         widgets = {
             'name': forms.TextInput(
                 attrs={
@@ -14,6 +21,7 @@ class SubjectForm(forms.ModelForm):
                     'placeholder': 'e.g. Mathematics'
                 }
             ),
+
             'description': forms.Textarea(
                 attrs={
                     'class': 'form-control',
@@ -24,9 +32,14 @@ class SubjectForm(forms.ModelForm):
         }
 
     def clean_name(self):
-        name = self.cleaned_data.get('name', '').strip()
+
+        name = self.cleaned_data.get(
+            'name',
+            ''
+        ).strip()
 
         if not name:
+
             raise forms.ValidationError(
                 'Subject name is required.'
             )
@@ -35,8 +48,10 @@ class SubjectForm(forms.ModelForm):
 
 
 class TaskForm(forms.ModelForm):
+
     class Meta:
         model = Task
+
         fields = [
             'subject',
             'title',
@@ -88,22 +103,48 @@ class TaskForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, user=None, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        *args,
+        user=None,
+        **kwargs
+    ):
 
-        # Store the logged-in user
+        super().__init__(
+            *args,
+            **kwargs
+        )
+
         self.user = user
 
-        # Show only this user's subjects
+        # Get today's date
+        today = timezone.localdate()
+
+        # When creating a NEW task,
+        # prevent selecting dates before today.
+        if not self.instance.pk:
+
+            self.fields[
+                'due_date'
+            ].widget.attrs['min'] = today.isoformat()
+
         if user is not None:
-            self.fields['subject'].queryset = Subject.objects.filter(
+
+            self.fields[
+                'subject'
+            ].queryset = Subject.objects.filter(
                 user=user
             )
 
     def clean_title(self):
-        title = self.cleaned_data.get('title', '').strip()
+
+        title = self.cleaned_data.get(
+            'title',
+            ''
+        ).strip()
 
         if not title:
+
             raise forms.ValidationError(
                 'Title is required.'
             )
@@ -111,27 +152,54 @@ class TaskForm(forms.ModelForm):
         return title
 
     def clean(self):
+
         cleaned_data = super().clean()
 
-        subject = cleaned_data.get('subject')
+        subject = cleaned_data.get(
+            'subject'
+        )
 
-        # Make sure the selected subject belongs to the logged-in user
-        if subject and self.user and subject.user != self.user:
+        due_date = cleaned_data.get(
+            'due_date'
+        )
+
+        # Make sure the subject belongs to the logged-in user.
+        if (
+            subject
+            and self.user
+            and subject.user != self.user
+        ):
+
             self.add_error(
                 'subject',
                 'Please select one of your subjects.'
+            )
+
+        # Prevent past due dates when creating a NEW task.
+        if (
+            not self.instance.pk
+            and due_date
+            and due_date < timezone.localdate()
+        ):
+
+            self.add_error(
+                'due_date',
+                'Due date cannot be before today.'
             )
 
         return cleaned_data
 
 
 class NoteForm(forms.ModelForm):
+
     class Meta:
         model = Note
+
         fields = [
             'subject',
             'title',
-            'content'
+            'content',
+            'attachment'
         ]
 
         widgets = {
@@ -155,21 +223,43 @@ class NoteForm(forms.ModelForm):
                     'placeholder': 'Write your note here...'
                 }
             ),
+
+            'attachment': forms.ClearableFileInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
         }
 
-    def __init__(self, *args, user=None, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        *args,
+        user=None,
+        **kwargs
+    ):
 
-        # Show only this user's subjects
+        super().__init__(
+            *args,
+            **kwargs
+        )
+
         if user is not None:
-            self.fields['subject'].queryset = Subject.objects.filter(
+
+            self.fields[
+                'subject'
+            ].queryset = Subject.objects.filter(
                 user=user
             )
 
     def clean_title(self):
-        title = self.cleaned_data.get('title', '').strip()
+
+        title = self.cleaned_data.get(
+            'title',
+            ''
+        ).strip()
 
         if not title:
+
             raise forms.ValidationError(
                 'Title is required.'
             )
@@ -177,9 +267,14 @@ class NoteForm(forms.ModelForm):
         return title
 
     def clean_content(self):
-        content = self.cleaned_data.get('content', '').strip()
+
+        content = self.cleaned_data.get(
+            'content',
+            ''
+        ).strip()
 
         if not content:
+
             raise forms.ValidationError(
                 'Note content is required.'
             )

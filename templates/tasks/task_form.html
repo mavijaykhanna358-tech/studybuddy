@@ -1,30 +1,183 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card p-4">
-    <h2 class="mb-4">{% if task %}Edit Task{% else %}Add Task{% endif %}</h2>
-    <form method="post" class="row g-3">
-        {% csrf_token %}
 
-        {% for field in form %}
-            <div class="col-12">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
-                {% for error in field.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-            </div>
-        {% endfor %}
+<style>
+    .task-form-page {
+        max-width: 750px;
+        margin: 0 auto;
+    }
 
-        <div class="col-12 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save</button>
-            {% if task %}
-                <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-secondary">Cancel</a>
-            {% else %}
-                <a href="{% url 'tasks' %}" class="btn btn-outline-secondary">Cancel</a>
+    .task-form-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 28px;
+    }
+
+    .task-form-card h2 {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+        color: #6c757d;
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 11px 13px;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    @media (max-width: 576px) {
+        .task-form-card {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="task-form-page">
+
+    <div class="task-form-card">
+
+        {% if task %}
+
+            <h2>Edit Task</h2>
+
+            <p class="form-subtitle">
+                Update your task details.
+            </p>
+
+        {% else %}
+
+            <h2>Add Task</h2>
+
+            <p class="form-subtitle">
+                Create a task to manage your academic workload.
+            </p>
+
+        {% endif %}
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            {% for field in form %}
+
+                <div class="mb-3">
+
+                    <label
+                        for="{{ field.id_for_label }}"
+                        class="form-label"
+                    >
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+
+                    {% if field.help_text %}
+
+                        <small class="form-text text-muted">
+                            {{ field.help_text }}
+                        </small>
+
+                    {% endif %}
+
+
+                    {% for error in field.errors %}
+
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="text-danger small mb-3">
+
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+
             {% endif %}
-        </div>
-    </form>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    {% if task %}
+                        Update Task
+                    {% else %}
+                        Save Task
+                    {% endif %}
+                </button>
+
+
+                {% if task %}
+
+                    <a
+                        href="{% url 'task_detail' task.pk %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'tasks' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
+
 {% endblock %}

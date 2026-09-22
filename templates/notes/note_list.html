@@ -1,57 +1,335 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <p class="text-uppercase small fw-bold text-primary mb-2">Knowledge Base</p>
-        <h2 class="mb-1">Notes</h2>
-        <p class="text-muted mb-0">Keep your revision and ideas organized.</p>
+
+<style>
+    .note-header {
+        margin-bottom: 24px;
+    }
+
+    .note-header h2 {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .note-header p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+
+    .filter-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 24px;
+    }
+
+    .filter-card .form-label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .note-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 20px;
+        height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .note-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .note-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .note-date {
+        font-size: 12px;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+
+    .note-subject {
+        display: inline-block;
+        background: #f1f3f5;
+        color: #495057;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 12px;
+        margin-bottom: 14px;
+    }
+
+    .note-content {
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1.6;
+        min-height: 68px;
+        margin-bottom: 18px;
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .empty-state {
+        border: 1px dashed #ced4da;
+        border-radius: 16px;
+        padding: 45px 20px;
+        text-align: center;
+        color: #6c757d;
+        background: #fff;
+    }
+
+    @media (max-width: 576px) {
+
+        .note-header .btn {
+            width: 100%;
+        }
+
+        .filter-card {
+            padding: 14px;
+        }
+
+        .note-card {
+            padding: 18px;
+        }
+
+        .note-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<!-- Header -->
+
+<div class="note-header">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+        <div>
+
+            <h2>Notes</h2>
+
+            <p>
+                Keep your revision and ideas organized.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'note_create' %}"
+            class="btn btn-primary"
+        >
+            + Add Note
+        </a>
+
     </div>
-    <a href="{% url 'note_create' %}" class="btn btn-primary">+ Add Note</a>
+
 </div>
 
-<div class="card p-3 mb-4">
-    <form method="get" class="row g-2 align-items-end">
-        <div class="col-12 col-md-5">
-            <label class="form-label">Search</label>
-            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Title or content">
+
+<!-- Filters -->
+
+<div class="filter-card">
+
+    <form method="get">
+
+        <div class="row g-3 align-items-end">
+
+            <!-- Search -->
+
+            <div class="col-12 col-md-5">
+
+                <label class="form-label">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ q }}"
+                    class="form-control"
+                    placeholder="Search title or content"
+                >
+
+            </div>
+
+
+            <!-- Subject -->
+
+            <div class="col-12 col-md-5">
+
+                <label class="form-label">
+                    Subject
+                </label>
+
+                <select
+                    name="subject"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        All subjects
+                    </option>
+
+                    {% for subject in subjects %}
+
+                        <option
+                            value="{{ subject.id }}"
+                            {% if subject_id == subject.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ subject.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Filter -->
+
+            <div class="col-12 col-md-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary w-100"
+                >
+                    Filter
+                </button>
+
+            </div>
+
         </div>
-        <div class="col-12 col-md-5">
-            <label class="form-label">Subject</label>
-            <select name="subject" class="form-select">
-                <option value="">All subjects</option>
-                {% for subject in subjects %}
-                    <option value="{{ subject.id }}" {% if subject_id == subject.id|stringformat:'s' %}selected{% endif %}>{{ subject.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-12 col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Filter</button>
-        </div>
+
     </form>
+
 </div>
+
+
+<!-- Notes -->
 
 <div class="row g-3">
+
     {% for note in notes %}
+
         <div class="col-12 col-md-6 col-xl-4">
-            <div class="card p-3 h-100">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                    <h5 class="mb-1">{{ note.title }}</h5>
-                    <small class="text-muted">{{ note.updated_at|date:'M d' }}</small>
+
+            <div class="note-card">
+
+                <!-- Title + Date -->
+
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+
+                    <h5 class="note-title">
+                        {{ note.title }}
+                    </h5>
+
+                    <span class="note-date">
+                        {{ note.updated_at|date:"M d, Y" }}
+                    </span>
+
                 </div>
-                <div class="small text-muted mb-3">{{ note.subject.name|default:'General' }}</div>
-                <p class="mb-3 text-muted">{{ note.content|truncatechars:120 }}</p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">View</a>
-                    <a href="{% url 'note_edit' note.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                    <a href="{% url 'note_delete' note.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+
+
+                <!-- Subject -->
+
+                <span class="note-subject">
+
+                    {% if note.subject %}
+                        {{ note.subject.name }}
+                    {% else %}
+                        General
+                    {% endif %}
+
+                </span>
+
+
+                <!-- Content -->
+
+                <p class="note-content">
+
+                    {% if note.content %}
+                        {{ note.content|truncatechars:120 }}
+                    {% else %}
+                        No content added yet.
+                    {% endif %}
+
+                </p>
+
+
+                <!-- Actions -->
+
+                <div class="note-actions">
+
+                    <a
+                        href="{% url 'note_detail' note.pk %}"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        View
+                    </a>
+
+                    <a
+                        href="{% url 'note_edit' note.pk %}"
+                        class="btn btn-sm btn-outline-secondary"
+                    >
+                        Edit
+                    </a>
+
+                    <a
+                        href="{% url 'note_delete' note.pk %}"
+                        class="btn btn-sm btn-outline-danger"
+                    >
+                        Delete
+                    </a>
+
                 </div>
+
             </div>
+
         </div>
+
     {% empty %}
+
         <div class="col-12">
-            <div class="empty-state">No notes match your current search or filter.</div>
+
+            <div class="empty-state">
+
+                <h5 class="mb-2">
+                    No notes found
+                </h5>
+
+                <p class="mb-3">
+                    No notes match your current search or filter.
+                </p>
+
+                <a
+                    href="{% url 'note_create' %}"
+                    class="btn btn-primary"
+                >
+                    + Add Note
+                </a>
+
+            </div>
+
         </div>
+
     {% endfor %}
+
 </div>
+
 {% endblock %}

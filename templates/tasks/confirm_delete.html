@@ -1,16 +1,108 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card p-4">
-    <h2 class="mb-3">Delete {{ object_type|title }}?</h2>
-    <p>Are you sure you want to delete <strong>{{ object }}</strong>? This action cannot be undone.</p>
 
-    <form method="post">
-        {% csrf_token %}
-        <div class="d-flex gap-2 flex-wrap">
-            <button type="submit" class="btn btn-danger">Confirm Delete</button>
-            <a href="{{ back_url }}" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-    </form>
+<style>
+    .delete-page {
+        max-width: 550px;
+        margin: 60px auto;
+    }
+
+    .delete-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .delete-card h2 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .delete-message {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .delete-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 576px) {
+
+        .delete-page {
+            margin: 30px auto;
+        }
+
+        .delete-card {
+            padding: 22px;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+        .delete-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="delete-page">
+
+    <div class="delete-card">
+
+        <h2>
+            Delete {{ object_type|title }}?
+        </h2>
+
+        <p class="delete-message">
+
+            Are you sure you want to delete
+
+            <strong>{{ object }}</strong>?
+
+            <br>
+
+            This action cannot be undone.
+
+        </p>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="delete-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Yes, Delete
+                </button>
+
+
+                <a
+                    href="{{ back_url }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
+
 {% endblock %}
