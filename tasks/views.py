@@ -582,7 +582,6 @@ def task_complete(request, pk):
         'tasks'
     )
 
-
 # =========================
 # NOTES
 # =========================
