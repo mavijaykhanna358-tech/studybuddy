@@ -50,9 +50,9 @@
 }
 
 
-/* ==============================
+/* =========================
    ATTACHMENT
-============================== */
+========================= */
 
 .attachment-box {
     background: #f6f8fb;
@@ -87,9 +87,9 @@
 }
 
 
-/* ==============================
-   PDF / FILE PREVIEW
-============================== */
+/* =========================
+   FILE PREVIEW
+========================= */
 
 .file-preview {
     width: 100%;
@@ -101,14 +101,15 @@
 }
 
 
-/* ==============================
-   ACTION BUTTONS
-============================== */
+/* =========================
+   NOTE ACTIONS
+========================= */
 
 .note-actions {
     display: flex;
     gap: 10px;
     margin-top: 25px;
+    flex-wrap: wrap;
 }
 
 .note-actions .btn {
@@ -116,9 +117,9 @@
 }
 
 
-/* ==============================
+/* =========================
    MOBILE
-============================== */
+========================= */
 
 @media (max-width: 576px) {
 
@@ -168,131 +169,134 @@
     <div class="note-card">
 
 
-        <!-- NOTE TITLE -->
+        <!-- =========================
+             NOTE TITLE
+        ========================== -->
 
         <h1 class="note-title">
-
             {{ note.title }}
-
         </h1>
 
 
-        <!-- DATE -->
+        <!-- =========================
+             DATE
+        ========================== -->
 
         <div class="note-date">
-
             Updated {{ note.updated_at|date:"M d, Y" }}
-
         </div>
 
 
-        <!-- SUBJECT -->
+        <!-- =========================
+             SUBJECT
+        ========================== -->
 
         {% if note.subject %}
 
         <div class="subject-badge">
-
             {{ note.subject.name }}
-
         </div>
 
         {% endif %}
 
 
-        <!-- NOTE CONTENT -->
+        <!-- =========================
+             NOTE CONTENT
+        ========================== -->
 
         <div class="note-content">
-
             {{ note.content }}
-
         </div>
 
 
-        <!-- ATTACHMENT -->
+        <!-- =========================
+             ATTACHMENT
+        ========================== -->
 
         {% if note.attachment %}
 
         <div class="attachment-box">
 
-
             <div class="attachment-heading">
-
                 📎 Attachment
-
             </div>
 
 
             <div class="attachment-name">
-
                 {{ note.attachment.name }}
-
             </div>
 
+
+            <!-- BUTTONS -->
 
             <div class="attachment-buttons">
 
-
-                <!-- VIEW / OPEN -->
+                <!--
+                Do NOT open Cloudinary in a new tab.
+                The file is already previewed below.
+                -->
 
                 <a
-                    href="{{ note.attachment.url }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#file-preview"
                     class="btn btn-primary"
                 >
-
-                    View / Open
-
+                    View
                 </a>
 
 
-                <!-- DOWNLOAD -->
+                <!--
+                Cloudinary download URL.
+                fl_attachment forces download.
+                -->
 
                 <a
                     href="{{ note.attachment.url }}"
-                    download
                     class="btn btn-outline-primary"
+                    onclick="
+                        event.preventDefault();
+
+                        const url = this.href.replace(
+                            '/upload/',
+                            '/upload/fl_attachment/'
+                        );
+
+                        window.location.href = url;
+                    "
                 >
-
                     Download
-
                 </a>
-
 
             </div>
 
 
-            <!-- FILE PREVIEW -->
+            <!-- =========================
+                 PREVIEW
+            ========================== -->
 
             <iframe
+                id="file-preview"
                 src="{{ note.attachment.url }}"
                 class="file-preview"
                 title="Attachment preview"
             >
             </iframe>
 
-
         </div>
 
         {% endif %}
 
 
-        <!-- ACTIONS -->
+        <!-- =========================
+             NOTE ACTIONS
+        ========================== -->
 
         <div class="note-actions">
-
-
-            <!-- IMPORTANT:
-                 URL NAME IS note_edit
-            -->
 
             <a
                 href="{% url 'note_edit' note.pk %}"
                 class="btn btn-outline-primary"
             >
-
                 Edit
-
             </a>
 
 
@@ -300,9 +304,7 @@
                 href="{% url 'notes' %}"
                 class="btn btn-outline-secondary"
             >
-
                 Back to Notes
-
             </a>
 
 
@@ -310,14 +312,10 @@
                 href="{% url 'note_delete' note.pk %}"
                 class="btn btn-outline-danger"
             >
-
                 Delete
-
             </a>
 
-
         </div>
-
 
     </div>
 
