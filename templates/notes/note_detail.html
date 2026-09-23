@@ -11,22 +11,12 @@
     padding: 20px 0 40px;
 }
 
-
-/* ==============================
-   CARD
-============================== */
-
 .note-card {
     background: #ffffff;
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 2px 12px rgba(50, 90, 140, 0.08);
 }
-
-
-/* ==============================
-   TITLE
-============================== */
 
 .note-title {
     font-size: 30px;
@@ -41,40 +31,21 @@
     margin-bottom: 18px;
 }
 
-
-/* ==============================
-   SUBJECT
-============================== */
-
 .subject-badge {
     display: inline-block;
-
     background: #f1f3f5;
     color: #60738c;
-
     padding: 7px 14px;
-
     border-radius: 20px;
-
     font-size: 14px;
-
     margin-bottom: 20px;
 }
 
-
-/* ==============================
-   CONTENT
-============================== */
-
 .note-content {
     color: #374151;
-
     font-size: 16px;
-
     line-height: 1.7;
-
     white-space: pre-wrap;
-
     margin-bottom: 25px;
 }
 
@@ -85,46 +56,29 @@
 
 .attachment-box {
     background: #f6f8fb;
-
     border: 1px solid #e2e8f0;
-
     border-radius: 12px;
-
     padding: 20px;
-
     margin-top: 20px;
 }
 
 .attachment-heading {
     font-size: 18px;
-
     font-weight: 700;
-
     color: #172033;
-
     margin-bottom: 8px;
 }
 
 .attachment-name {
     color: #60738c;
-
     font-size: 14px;
-
     word-break: break-word;
-
     margin-bottom: 15px;
 }
 
-
-/* ==============================
-   ATTACHMENT BUTTONS
-============================== */
-
 .attachment-buttons {
     display: flex;
-
     gap: 10px;
-
     flex-wrap: wrap;
 }
 
@@ -134,20 +88,15 @@
 
 
 /* ==============================
-   FILE PREVIEW
+   PDF / FILE PREVIEW
 ============================== */
 
 .file-preview {
     width: 100%;
-
     height: 500px;
-
     border: 1px solid #dfe5ec;
-
     border-radius: 10px;
-
     margin-top: 18px;
-
     background: #ffffff;
 }
 
@@ -158,9 +107,7 @@
 
 .note-actions {
     display: flex;
-
     gap: 10px;
-
     margin-top: 25px;
 }
 
@@ -221,9 +168,7 @@
     <div class="note-card">
 
 
-        <!-- =========================
-             NOTE TITLE
-        ========================== -->
+        <!-- NOTE TITLE -->
 
         <h1 class="note-title">
 
@@ -232,9 +177,7 @@
         </h1>
 
 
-        <!-- =========================
-             DATE
-        ========================== -->
+        <!-- DATE -->
 
         <div class="note-date">
 
@@ -243,9 +186,7 @@
         </div>
 
 
-        <!-- =========================
-             SUBJECT
-        ========================== -->
+        <!-- SUBJECT -->
 
         {% if note.subject %}
 
@@ -258,9 +199,7 @@
         {% endif %}
 
 
-        <!-- =========================
-             NOTE CONTENT
-        ========================== -->
+        <!-- NOTE CONTENT -->
 
         <div class="note-content">
 
@@ -269,9 +208,7 @@
         </div>
 
 
-        <!-- =========================
-             ATTACHMENT
-        ========================== -->
+        <!-- ATTACHMENT -->
 
         {% if note.attachment %}
 
@@ -295,7 +232,7 @@
             <div class="attachment-buttons">
 
 
-                <!-- VIEW -->
+                <!-- VIEW / OPEN -->
 
                 <a
                     href="{{ note.attachment.url }}"
@@ -325,9 +262,7 @@
             </div>
 
 
-            <!-- =====================
-                 PREVIEW
-            ====================== -->
+            <!-- FILE PREVIEW -->
 
             <iframe
                 src="{{ note.attachment.url }}"
@@ -342,15 +277,17 @@
         {% endif %}
 
 
-        <!-- =========================
-             ACTIONS
-        ========================== -->
+        <!-- ACTIONS -->
 
         <div class="note-actions">
 
 
+            <!-- IMPORTANT:
+                 URL NAME IS note_edit
+            -->
+
             <a
-                href="{% url 'note_update' note.pk %}"
+                href="{% url 'note_edit' note.pk %}"
                 class="btn btn-outline-primary"
             >
 
