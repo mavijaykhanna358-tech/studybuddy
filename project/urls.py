@@ -15,32 +15,27 @@ def root_redirect(request):
 
 urlpatterns = [
 
-    # Home
     path(
         '',
         root_redirect,
         name='home'
     ),
 
-    # Dashboard
     path(
         'dashboard/',
         include('dashboard.urls')
     ),
 
-    # Users
     path(
         '',
         include('users.urls')
     ),
 
-    # Subjects, Tasks, Notes
     path(
         '',
         include('tasks.urls')
     ),
 
-    # Admin
     path(
         'admin/',
         admin.site.urls
@@ -49,10 +44,8 @@ urlpatterns = [
 ]
 
 
-# Media files
-if settings.DEBUG:
-
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+# Serve uploaded files
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)
