@@ -6,10 +6,15 @@
 
 .note-detail-page {
     width: 100%;
-    max-width: 850px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px 0 40px;
 }
+
+
+/* =========================
+   NOTE CARD
+========================= */
 
 .note-card {
     background: #ffffff;
@@ -51,13 +56,13 @@
 
 
 /* =========================
-   ATTACHMENT
+   ATTACHMENT BOX
 ========================= */
 
 .attachment-box {
     background: #f6f8fb;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 20px;
     margin-top: 20px;
 }
@@ -80,126 +85,84 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-}
-
-.attachment-buttons .btn {
-    min-width: 120px;
+    margin-bottom: 20px;
 }
 
 
 /* =========================
-   FULL PREVIEW MODAL
+   IMAGE VIEWER
 ========================= */
 
-.preview-modal {
-    display: none;
+.image-viewer {
+    width: 100%;
+    min-height: 400px;
 
-    position: fixed;
-    z-index: 9999;
+    background: #ffffff;
 
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    border: 1px solid #dfe5ec;
+    border-radius: 12px;
 
-    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    padding: 20px;
+    padding: 15px;
 
     box-sizing: border-box;
-}
-
-
-/* Show modal */
-
-.preview-modal.active {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-}
-
-
-/* =========================
-   PREVIEW HEADER
-========================= */
-
-.preview-header {
-    width: 100%;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 12px;
-}
-
-.preview-file-name {
-    color: white;
-
-    font-size: 16px;
-
-    font-weight: 600;
-
-    word-break: break-word;
-
-    padding-right: 20px;
-}
-
-.preview-close {
-    border: none;
-
-    background: #ffffff;
-
-    color: #172033;
-
-    width: 40px;
-
-    height: 40px;
-
-    border-radius: 50%;
-
-    font-size: 22px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    flex-shrink: 0;
-}
-
-
-/* =========================
-   PREVIEW CONTENT
-========================= */
-
-.preview-content {
-    width: 100%;
-
-    max-width: 1400px;
-
-    height: calc(100vh - 100px);
-
-    background: #ffffff;
-
-    border-radius: 10px;
 
     overflow: hidden;
 }
 
-.preview-content iframe {
-    width: 100%;
-
-    height: 100%;
-
-    border: none;
-
+.image-viewer img {
     display: block;
+
+    max-width: 100%;
+    max-height: 75vh;
+
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
+
+    border-radius: 6px;
+}
+
+
+/* =========================
+   PDF VIEWER
+========================= */
+
+.pdf-viewer {
+    width: 100%;
+    height: 75vh;
+
+    min-height: 500px;
+
+    border: 1px solid #dfe5ec;
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+
+/* =========================
+   OTHER FILE
+========================= */
+
+.file-message {
+    background: #ffffff;
+
+    border: 1px solid #dfe5ec;
+
+    border-radius: 12px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #60738c;
+
+    font-size: 15px;
 }
 
 
@@ -252,26 +215,27 @@
         width: 100%;
     }
 
+    .image-viewer {
+        min-height: 250px;
+        padding: 8px;
+    }
+
+    .image-viewer img {
+        max-width: 100%;
+        max-height: 65vh;
+    }
+
+    .pdf-viewer {
+        height: 70vh;
+        min-height: 400px;
+    }
+
     .note-actions {
         flex-direction: column;
     }
 
     .note-actions .btn {
         width: 100%;
-    }
-
-    .preview-modal {
-        padding: 10px;
-    }
-
-    .preview-content {
-        height: calc(100vh - 75px);
-
-        border-radius: 6px;
-    }
-
-    .preview-file-name {
-        font-size: 14px;
     }
 
 }
@@ -285,7 +249,7 @@
 
 
         <!-- =========================
-             TITLE
+             NOTE TITLE
         ========================== -->
 
         <h1 class="note-title">
@@ -316,7 +280,7 @@
 
 
         <!-- =========================
-             CONTENT
+             NOTE CONTENT
         ========================== -->
 
         <div class="note-content">
@@ -332,6 +296,7 @@
 
         <div class="attachment-box">
 
+
             <div class="attachment-heading">
                 📎 Attachment
             </div>
@@ -342,18 +307,11 @@
             </div>
 
 
+            <!-- =========================
+                 BUTTONS
+            ========================== -->
+
             <div class="attachment-buttons">
-
-
-                <!-- VIEW -->
-
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="openPreview()"
-                >
-                    View
-                </button>
 
 
                 <!-- DOWNLOAD -->
@@ -375,7 +333,77 @@
                     Download
                 </a>
 
+
+                <!-- BACK TO NOTES -->
+
+                <a
+                    href="{% url 'notes' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Back to Notes
+                </a>
+
             </div>
+
+
+            <!-- =========================
+                 IMAGE PREVIEW
+            ========================== -->
+
+            {% if '.jpg' in note.attachment.name|lower
+               or '.jpeg' in note.attachment.name|lower
+               or '.png' in note.attachment.name|lower
+               or '.gif' in note.attachment.name|lower
+               or '.webp' in note.attachment.name|lower %}
+
+            <div class="image-viewer">
+
+                <img
+                    src="{{ note.attachment.url }}"
+                    alt="{{ note.title }}"
+                >
+
+            </div>
+
+
+            <!-- =========================
+                 PDF PREVIEW
+            ========================== -->
+
+            {% elif '.pdf' in note.attachment.name|lower %}
+
+            <iframe
+                src="{{ note.attachment.url }}"
+                class="pdf-viewer"
+                title="PDF Preview"
+            >
+            </iframe>
+
+
+            <!-- =========================
+                 OTHER FILES
+            ========================== -->
+
+            {% else %}
+
+            <div class="file-message">
+
+                <div style="font-size: 40px; margin-bottom: 10px;">
+                    📄
+                </div>
+
+                <div>
+                    This file cannot be previewed in the browser.
+                </div>
+
+                <div style="margin-top: 8px;">
+                    Click <strong>Download</strong> to open the file.
+                </div>
+
+            </div>
+
+            {% endif %}
+
 
         </div>
 
@@ -383,10 +411,11 @@
 
 
         <!-- =========================
-             ACTIONS
+             NOTE ACTIONS
         ========================== -->
 
         <div class="note-actions">
+
 
             <a
                 href="{% url 'note_edit' note.pk %}"
@@ -411,111 +440,12 @@
                 Delete
             </a>
 
+
         </div>
+
 
     </div>
 
 </div>
-
-
-<!-- =================================================
-     FULL SCREEN PREVIEW
-================================================= -->
-
-{% if note.attachment %}
-
-<div
-    id="previewModal"
-    class="preview-modal"
->
-
-
-    <div class="preview-header">
-
-
-        <div class="preview-file-name">
-            {{ note.attachment.name }}
-        </div>
-
-
-        <button
-            type="button"
-            class="preview-close"
-            onclick="closePreview()"
-            aria-label="Close preview"
-        >
-            ✕
-        </button>
-
-    </div>
-
-
-    <div class="preview-content">
-
-        <iframe
-            src="{{ note.attachment.url }}"
-            title="Attachment preview"
-        >
-        </iframe>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-<script>
-
-function openPreview() {
-
-    const modal = document.getElementById(
-        'previewModal'
-    );
-
-    if (modal) {
-
-        modal.classList.add('active');
-
-        document.body.style.overflow = 'hidden';
-
-    }
-
-}
-
-
-function closePreview() {
-
-    const modal = document.getElementById(
-        'previewModal'
-    );
-
-    if (modal) {
-
-        modal.classList.remove('active');
-
-        document.body.style.overflow = '';
-
-    }
-
-}
-
-
-/* Close using Escape key */
-
-document.addEventListener(
-    'keydown',
-    function(event) {
-
-        if (event.key === 'Escape') {
-
-            closePreview();
-
-        }
-
-    }
-);
-
-</script>
 
 {% endblock %}
