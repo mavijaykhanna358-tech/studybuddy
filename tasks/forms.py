@@ -7,6 +7,7 @@ from .models import Note, Subject, Task
 class SubjectForm(forms.ModelForm):
 
     class Meta:
+
         model = Subject
 
         fields = [
@@ -15,6 +16,7 @@ class SubjectForm(forms.ModelForm):
         ]
 
         widgets = {
+
             'name': forms.TextInput(
                 attrs={
                     'class': 'form-control',
@@ -50,6 +52,7 @@ class SubjectForm(forms.ModelForm):
 class TaskForm(forms.ModelForm):
 
     class Meta:
+
         model = Task
 
         fields = [
@@ -62,6 +65,7 @@ class TaskForm(forms.ModelForm):
         ]
 
         widgets = {
+
             'subject': forms.Select(
                 attrs={
                     'class': 'form-select'
@@ -117,16 +121,15 @@ class TaskForm(forms.ModelForm):
 
         self.user = user
 
-        # Get today's date
         today = timezone.localdate()
 
-        # When creating a NEW task,
-        # prevent selecting dates before today.
         if not self.instance.pk:
 
             self.fields[
                 'due_date'
-            ].widget.attrs['min'] = today.isoformat()
+            ].widget.attrs[
+                'min'
+            ] = today.isoformat()
 
         if user is not None:
 
@@ -163,7 +166,6 @@ class TaskForm(forms.ModelForm):
             'due_date'
         )
 
-        # Make sure the subject belongs to the logged-in user.
         if (
             subject
             and self.user
@@ -175,7 +177,6 @@ class TaskForm(forms.ModelForm):
                 'Please select one of your subjects.'
             )
 
-        # Prevent past due dates when creating a NEW task.
         if (
             not self.instance.pk
             and due_date
@@ -193,6 +194,7 @@ class TaskForm(forms.ModelForm):
 class NoteForm(forms.ModelForm):
 
     class Meta:
+
         model = Note
 
         fields = [
@@ -203,6 +205,7 @@ class NoteForm(forms.ModelForm):
         ]
 
         widgets = {
+
             'subject': forms.Select(
                 attrs={
                     'class': 'form-select'
@@ -226,7 +229,18 @@ class NoteForm(forms.ModelForm):
 
             'attachment': forms.ClearableFileInput(
                 attrs={
-                    'class': 'form-control'
+                    'class': 'form-control',
+                    'accept': (
+                        'image/*,'
+                        '.pdf,'
+                        '.doc,'
+                        '.docx,'
+                        '.txt,'
+                        '.ppt,'
+                        '.pptx,'
+                        '.xls,'
+                        '.xlsx'
+                    )
                 }
             ),
         }

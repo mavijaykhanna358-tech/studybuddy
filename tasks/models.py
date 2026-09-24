@@ -15,8 +15,7 @@ class Subject(models.Model):
     )
 
     description = models.TextField(
-        blank=True,
-        default=''
+        blank=True
     )
 
     created_at = models.DateTimeField(
@@ -36,16 +35,16 @@ class Subject(models.Model):
 
 class Task(models.Model):
 
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('In Progress', 'In Progress'),
-        ('Completed', 'Completed'),
-    ]
-
     PRIORITY_CHOICES = [
         ('Low', 'Low'),
         ('Medium', 'Medium'),
         ('High', 'High'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
     ]
 
     user = models.ForeignKey(
@@ -55,7 +54,7 @@ class Task(models.Model):
     )
 
     subject = models.ForeignKey(
-        'Subject',
+        Subject,
         on_delete=models.CASCADE,
         related_name='tasks',
         null=True,
@@ -67,18 +66,16 @@ class Task(models.Model):
     )
 
     description = models.TextField(
-        blank=True,
-        default=''
+        blank=True
     )
 
     category = models.CharField(
-        max_length=50,
-        default='General',
+        max_length=100,
         blank=True
     )
 
     priority = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=PRIORITY_CHOICES,
         default='Medium'
     )
@@ -89,10 +86,7 @@ class Task(models.Model):
         default='Pending'
     )
 
-    due_date = models.DateField(
-        null=True,
-        blank=True
-    )
+    due_date = models.DateField()
 
     reminder_sent_at = models.DateTimeField(
         null=True,
@@ -108,15 +102,7 @@ class Task(models.Model):
     )
 
     class Meta:
-        ordering = [
-            'due_date',
-            'priority',
-            'title'
-        ]
-
-    @property
-    def is_completed(self):
-        return self.status == 'Completed'
+        ordering = ['due_date', '-created_at']
 
     def __str__(self):
         return self.title
@@ -131,7 +117,7 @@ class Note(models.Model):
     )
 
     subject = models.ForeignKey(
-        'Subject',
+        Subject,
         on_delete=models.SET_NULL,
         related_name='notes',
         null=True,
@@ -146,6 +132,12 @@ class Note(models.Model):
 
     attachment = models.FileField(
         upload_to='notes/',
+        blank=True,
+        null=True
+    )
+
+    # Stores the exact Cloudinary URL returned after upload.
+    attachment_url = models.URLField(
         blank=True,
         null=True
     )

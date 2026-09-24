@@ -1,126 +1,128 @@
-{% extends 'base.html' %}
+{% load static %}
 
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
+<head>
 
-.note-page {
-    max-width: 850px;
-    margin: 0 auto;
-}
+    <meta charset="UTF-8">
 
-.note-heading {
-    margin-bottom: 24px;
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-.note-heading h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #172033;
-    margin: 0 0 8px;
-}
+    <title>
+        {% if note %}
+            Edit Note
+        {% else %}
+            Add Note
+        {% endif %}
+        - StudyBuddy
+    </title>
 
-.note-heading p {
-    font-size: 16px;
-    color: #60738c;
-    margin: 0;
-}
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-.note-form-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(50, 90, 140, 0.08);
-}
+    <style>
 
-.form-group {
-    margin-bottom: 20px;
-}
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+        }
 
-.form-label {
-    display: block;
-    font-size: 15px;
-    font-weight: 600;
-    color: #172033;
-    margin-bottom: 8px;
-}
+        .note-container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
 
-.form-control,
-.form-select {
-    width: 100%;
-    border-radius: 8px;
-}
+        .note-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow:
+                0 8px 25px
+                rgba(0, 0, 0, 0.08);
+        }
 
-textarea.form-control {
-    min-height: 150px;
-    resize: vertical;
-}
+        .page-title {
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
 
-.attachment-help {
-    color: #60738c;
-    font-size: 14px;
-    margin-top: 7px;
-}
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
 
-.current-file {
-    background: #f4f7fb;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-top: 10px;
-}
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            padding: 11px 13px;
+        }
 
-.current-file a {
-    color: #0d6efd;
-    text-decoration: none;
-    font-weight: 600;
-}
+        textarea.form-control {
+            min-height: 160px;
+            resize: vertical;
+        }
 
-.button-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 25px;
-}
+        .attachment-box {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
 
-.button-row .btn {
-    min-width: 120px;
-}
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
 
-@media (max-width: 576px) {
+        .button-row .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
 
-    .note-page {
-        width: 100%;
-    }
+        .current-attachment {
+            margin-top: 15px;
+            border-radius: 10px;
+        }
 
-    .note-heading h1 {
-        font-size: 28px;
-    }
+        @media (max-width: 576px) {
 
-    .note-form-card {
-        padding: 22px 18px;
-    }
+            .note-container {
+                margin: 25px auto;
+            }
 
-    .button-row {
-        flex-direction: column;
-    }
+            .note-card {
+                padding: 20px;
+            }
 
-    .button-row .btn {
-        width: 100%;
-    }
+            .button-row {
+                flex-direction: column;
+            }
 
-}
+            .button-row .btn {
+                width: 100%;
+            }
 
-</style>
+        }
 
+    </style>
 
-<div class="note-page">
+</head>
 
+<body>
 
-    <!-- HEADING -->
+<div class="note-container">
 
-    <div class="note-heading">
+    <div class="note-card">
 
-        <h1>
+        <h2 class="page-title">
 
             {% if note %}
                 Edit Note
@@ -128,30 +130,31 @@ textarea.form-control {
                 Add Note
             {% endif %}
 
-        </h1>
+        </h2>
 
-        <p>
-            Write your note and optionally attach an image, PDF, or document.
-        </p>
-
-    </div>
-
-
-    <!-- FORM -->
-
-    <div class="note-form-card">
 
         <form
-            method="post"
+            method="POST"
             enctype="multipart/form-data"
         >
 
             {% csrf_token %}
 
 
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+            {% endif %}
+
+
             <!-- SUBJECT -->
 
-            <div class="form-group">
+            <div class="mb-3">
 
                 <label
                     for="{{ form.subject.id_for_label }}"
@@ -177,7 +180,7 @@ textarea.form-control {
 
             <!-- TITLE -->
 
-            <div class="form-group">
+            <div class="mb-3">
 
                 <label
                     for="{{ form.title.id_for_label }}"
@@ -203,7 +206,7 @@ textarea.form-control {
 
             <!-- CONTENT -->
 
-            <div class="form-group">
+            <div class="mb-3">
 
                 <label
                     for="{{ form.content.id_for_label }}"
@@ -229,7 +232,7 @@ textarea.form-control {
 
             <!-- ATTACHMENT -->
 
-            <div class="form-group">
+            <div class="mb-3">
 
                 <label
                     for="{{ form.attachment.id_for_label }}"
@@ -238,33 +241,24 @@ textarea.form-control {
                     Attachment
                 </label>
 
-                {{ form.attachment }}
+                <div class="attachment-box">
 
-                <div class="attachment-help">
-
-                    Upload an image, PDF, Word document,
-                    or another file.
-
-                </div>
-
-
-                {% if note and note.attachment %}
-
-                <div class="current-file">
-
-                    Current file:
-
-                    <a
-                        href="{{ note.attachment.url }}"
-                        target="_blank"
+                    <input
+                        type="file"
+                        name="attachment"
+                        id="{{ form.attachment.id_for_label }}"
+                        class="form-control"
+                        accept="image/*,.pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx"
                     >
-                        {{ note.attachment.name|cut:"notes/" }}
-                    </a>
+
+                    <div class="text-muted small mt-2">
+
+                        Upload an image, PDF, Word,
+                        PowerPoint, Excel, or text document.
+
+                    </div>
 
                 </div>
-
-                {% endif %}
-
 
                 {% if form.attachment.errors %}
 
@@ -277,6 +271,36 @@ textarea.form-control {
                 {% endif %}
 
             </div>
+
+
+            <!-- CURRENT ATTACHMENT -->
+
+            {% if note and note.attachment_url %}
+
+                <div
+                    class="alert alert-light current-attachment"
+                >
+
+                    <strong>
+                        Current attachment:
+                    </strong>
+
+                    <div class="mt-2">
+
+                        <a
+                            href="{{ note.attachment_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-sm btn-primary"
+                        >
+                            View / Download Attachment
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
 
 
             <!-- BUTTONS -->
@@ -296,7 +320,6 @@ textarea.form-control {
 
                 </button>
 
-
                 <a
                     href="{% if note %}{% url 'note_detail' note.pk %}{% else %}{% url 'notes' %}{% endif %}"
                     class="btn btn-outline-secondary"
@@ -308,11 +331,17 @@ textarea.form-control {
 
             </div>
 
-
         </form>
 
     </div>
 
 </div>
 
-{% endblock %}
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+></script>
+
+</body>
+
+</html>

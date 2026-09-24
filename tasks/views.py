@@ -1,4 +1,12 @@
 from datetime import date, timedelta
+import hashlib
+import mimetypes
+import os
+import time
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,23 +18,357 @@ from .forms import NoteForm, SubjectForm, TaskForm
 from .models import Note, Subject, Task
 
 
-# =========================
+# =========================================================
+# BASE DIRECTORY
+# =========================================================
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# =========================================================
+# LOAD ENVIRONMENT VARIABLES
+# =========================================================
+
+load_dotenv(
+    BASE_DIR / '.env'
+)
+
+
+# =========================================================
+# CLOUDINARY NOTE ATTACHMENT UPLOAD
+# =========================================================
+
+def upload_note_attachment(uploaded_file):
+
+    load_dotenv(
+        BASE_DIR / '.env',
+        override=True
+    )
+
+    cloud_name = os.getenv(
+        'CLOUDINARY_CLOUD_NAME'
+    )
+
+    api_key = os.getenv(
+        'CLOUDINARY_API_KEY'
+    )
+
+    api_secret = os.getenv(
+        'CLOUDINARY_API_SECRET'
+    )
+
+    # -----------------------------------------------------
+    # CHECK CLOUDINARY SETTINGS
+    # -----------------------------------------------------
+
+    if not cloud_name:
+
+        raise ValueError(
+            'CLOUDINARY_CLOUD_NAME is missing.'
+        )
+
+    if not api_key:
+
+        raise ValueError(
+            'CLOUDINARY_API_KEY is missing.'
+        )
+
+    if not api_secret:
+
+        raise ValueError(
+            'CLOUDINARY_API_SECRET is missing.'
+        )
+
+    # -----------------------------------------------------
+    # CHECK FILE
+    # -----------------------------------------------------
+
+    if uploaded_file is None:
+
+        raise ValueError(
+            'No attachment was selected.'
+        )
+
+    if uploaded_file.size == 0:
+
+        raise ValueError(
+            'The selected file is empty.'
+        )
+
+    # Maximum 50 MB
+
+    max_size = 50 * 1024 * 1024
+
+    if uploaded_file.size > max_size:
+
+        raise ValueError(
+            'File is too large. '
+            'Please upload a file smaller than 50 MB.'
+        )
+
+    # -----------------------------------------------------
+    # READ FILE
+    # -----------------------------------------------------
+
+    uploaded_file.seek(0)
+
+    file_data = uploaded_file.read()
+
+    if not file_data:
+
+        raise ValueError(
+            'Django received an empty file.'
+        )
+
+    filename = uploaded_file.name
+
+    extension = Path(
+        filename
+    ).suffix.lower()
+
+    content_type = (
+        uploaded_file.content_type
+        or mimetypes.guess_type(filename)[0]
+        or 'application/octet-stream'
+    )
+
+    # -----------------------------------------------------
+    # FILE TYPES
+    # -----------------------------------------------------
+
+    image_extensions = {
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.webp',
+        '.bmp',
+        '.tiff',
+        '.svg'
+    }
+
+    pdf_extensions = {
+        '.pdf'
+    }
+
+    # Images and PDFs are uploaded as image resources.
+    # Other files are uploaded as raw resources.
+
+    if (
+        extension in image_extensions
+        or extension in pdf_extensions
+    ):
+
+        resource_type = 'image'
+
+    else:
+
+        resource_type = 'raw'
+
+    # -----------------------------------------------------
+    # UNIQUE PUBLIC ID
+    # -----------------------------------------------------
+
+    unique_name = (
+        f'note_{int(time.time() * 1000)}'
+    )
+
+    # IMPORTANT:
+    # Do NOT put media/notes inside public_id.
+    # The folder is already supplied separately.
+
+    if resource_type == 'raw':
+
+        public_id = (
+            f'{unique_name}'
+            f'{extension}'
+        )
+
+    else:
+
+        public_id = unique_name
+
+    # -----------------------------------------------------
+    # TIMESTAMP
+    # -----------------------------------------------------
+
+    timestamp = int(
+        time.time()
+    )
+
+    # -----------------------------------------------------
+    # SIGNATURE
+    # -----------------------------------------------------
+
+    signature_string = (
+        f'folder=media/notes'
+        f'&public_id={public_id}'
+        f'&timestamp={timestamp}'
+        f'{api_secret}'
+    )
+
+    signature = hashlib.sha1(
+        signature_string.encode(
+            'utf-8'
+        )
+    ).hexdigest()
+
+    # -----------------------------------------------------
+    # CLOUDINARY UPLOAD URL
+    # -----------------------------------------------------
+
+    upload_url = (
+        f'https://api.cloudinary.com/v1_1/'
+        f'{cloud_name}/'
+        f'{resource_type}/upload'
+    )
+
+    # -----------------------------------------------------
+    # REQUEST DATA
+    # -----------------------------------------------------
+
+    data = {
+
+        'api_key':
+            api_key,
+
+        'timestamp':
+            timestamp,
+
+        'folder':
+            'media/notes',
+
+        'public_id':
+            public_id,
+
+        'signature':
+            signature,
+    }
+
+    # -----------------------------------------------------
+    # FILE
+    # -----------------------------------------------------
+
+    files = {
+
+        'file': (
+            filename,
+            file_data,
+            content_type
+        )
+    }
+
+    # -----------------------------------------------------
+    # UPLOAD TO CLOUDINARY
+    # -----------------------------------------------------
+
+    try:
+
+        response = requests.post(
+            upload_url,
+            data=data,
+            files=files,
+            timeout=120
+        )
+
+    except requests.RequestException as e:
+
+        raise ValueError(
+            f'Could not connect to Cloudinary: {e}'
+        )
+
+    # -----------------------------------------------------
+    # CLOUDINARY ERROR
+    # -----------------------------------------------------
+
+    if response.status_code != 200:
+
+        try:
+
+            error_data = response.json()
+
+            error_message = (
+                error_data
+                .get('error', {})
+                .get(
+                    'message',
+                    'Unknown Cloudinary error'
+                )
+            )
+
+        except Exception:
+
+            error_message = response.text
+
+        raise ValueError(
+            f'Cloudinary upload failed: '
+            f'{error_message}'
+        )
+
+    # -----------------------------------------------------
+    # RESPONSE
+    # -----------------------------------------------------
+
+    try:
+
+        result = response.json()
+
+    except Exception:
+
+        raise ValueError(
+            'Cloudinary returned an invalid response.'
+        )
+
+    # -----------------------------------------------------
+    # SECURE URL
+    # -----------------------------------------------------
+
+    if not result.get('secure_url'):
+
+        raise ValueError(
+            'Cloudinary did not return a secure URL.'
+        )
+
+    return result
+
+
+# =========================================================
+# CREATE DOWNLOAD URL
+# =========================================================
+
+def create_download_url(url):
+
+    if not url:
+
+        return ''
+
+    # Cloudinary delivery URLs normally contain
+    # /upload/ in the URL.
+    #
+    # Adding fl_attachment makes the browser download
+    # the file instead of displaying it.
+
+    if '/upload/' in url:
+
+        return url.replace(
+            '/upload/',
+            '/upload/fl_attachment/'
+        )
+
+    return url
+
+
+# =========================================================
 # DASHBOARD
-# =========================
+# =========================================================
 
 @login_required
 def dashboard(request):
 
-    # -------------------------
-    # Subjects
-    # -------------------------
     total_subjects = Subject.objects.filter(
         user=request.user
     ).count()
 
-    # -------------------------
-    # Tasks
-    # -------------------------
     user_tasks = Task.objects.filter(
         user=request.user
     )
@@ -45,9 +387,6 @@ def dashboard(request):
         status='In Progress'
     ).count()
 
-    # -------------------------
-    # Task Progress
-    # -------------------------
     if total_tasks > 0:
 
         completion_percentage = round(
@@ -58,18 +397,12 @@ def dashboard(request):
 
         completion_percentage = 0
 
-    # -------------------------
-    # Overdue Tasks
-    # -------------------------
     overdue_tasks = user_tasks.filter(
         due_date__lt=date.today()
     ).exclude(
         status='Completed'
     ).count()
 
-    # -------------------------
-    # Upcoming Tasks
-    # -------------------------
     upcoming_tasks = user_tasks.filter(
         due_date__gte=date.today()
     ).exclude(
@@ -80,9 +413,6 @@ def dashboard(request):
         'due_date'
     )[:5]
 
-    # -------------------------
-    # Notes
-    # -------------------------
     total_notes = Note.objects.filter(
         user=request.user
     ).count()
@@ -95,9 +425,6 @@ def dashboard(request):
         '-updated_at'
     )[:5]
 
-    # -------------------------
-    # Dashboard
-    # -------------------------
     return render(
         request,
         'dashboard.html',
@@ -116,9 +443,9 @@ def dashboard(request):
     )
 
 
-# =========================
+# =========================================================
 # SUBJECTS
-# =========================
+# =========================================================
 
 @login_required
 def subject_list(request):
@@ -309,9 +636,9 @@ def subject_delete(request, pk):
     )
 
 
-# =========================
+# =========================================================
 # TASKS
-# =========================
+# =========================================================
 
 @login_required
 def tasks_list(request):
@@ -384,10 +711,6 @@ def tasks_list(request):
         'name'
     )
 
-    # -------------------------
-    # Due Date Information
-    # -------------------------
-
     today = date.today()
 
     tomorrow = today + timedelta(
@@ -405,8 +728,6 @@ def tasks_list(request):
             'status': status,
             'priority': priority,
             'due_date': due_date,
-
-            # Used by task_list.html
             'today': today,
             'tomorrow': tomorrow,
         }
@@ -582,9 +903,10 @@ def task_complete(request, pk):
         'tasks'
     )
 
-# =========================
-# NOTES
-# =========================
+
+# =========================================================
+# NOTES LIST
+# =========================================================
 
 @login_required
 def note_list(request):
@@ -637,6 +959,10 @@ def note_list(request):
     )
 
 
+# =========================================================
+# NOTE DETAIL
+# =========================================================
+
 @login_required
 def note_detail(request, pk):
 
@@ -646,14 +972,23 @@ def note_detail(request, pk):
         user=request.user
     )
 
+    download_url = create_download_url(
+        note.attachment_url
+    )
+
     return render(
         request,
         'notes/note_detail.html',
         {
-            'note': note
+            'note': note,
+            'download_url': download_url,
         }
     )
 
+
+# =========================================================
+# NOTE CREATE
+# =========================================================
 
 @login_required
 def note_create(request):
@@ -673,6 +1008,53 @@ def note_create(request):
             )
 
             note.user = request.user
+
+            new_attachment = request.FILES.get(
+                'attachment'
+            )
+
+            if new_attachment:
+
+                try:
+
+                    upload_result = (
+                        upload_note_attachment(
+                            new_attachment
+                        )
+                    )
+
+                except Exception as e:
+
+                    form.add_error(
+                        'attachment',
+                        str(e)
+                    )
+
+                    return render(
+                        request,
+                        'notes/note_form.html',
+                        {
+                            'form': form,
+                            'note': note
+                        }
+                    )
+
+                # Save Cloudinary public ID
+
+                note.attachment.name = (
+                    upload_result['public_id']
+                )
+
+                # Save exact Cloudinary URL
+
+                note.attachment_url = (
+                    upload_result['secure_url']
+                )
+
+                # Prevent Django storage from
+                # uploading the file again.
+
+                note.attachment._committed = True
 
             note.save()
 
@@ -701,6 +1083,10 @@ def note_create(request):
     )
 
 
+# =========================================================
+# NOTE UPDATE
+# =========================================================
+
 @login_required
 def note_update(request, pk):
 
@@ -721,7 +1107,106 @@ def note_update(request, pk):
 
         if form.is_valid():
 
-            form.save()
+            subject = form.cleaned_data.get(
+                'subject'
+            )
+
+            title = form.cleaned_data.get(
+                'title'
+            )
+
+            content = form.cleaned_data.get(
+                'content'
+            )
+
+            new_attachment = request.FILES.get(
+                'attachment'
+            )
+
+            # -------------------------------------------------
+            # NO NEW ATTACHMENT
+            # -------------------------------------------------
+
+            if not new_attachment:
+
+                note.subject = subject
+
+                note.title = title
+
+                note.content = content
+
+                note.save(
+                    update_fields=[
+                        'subject',
+                        'title',
+                        'content',
+                        'updated_at'
+                    ]
+                )
+
+            # -------------------------------------------------
+            # NEW ATTACHMENT
+            # -------------------------------------------------
+
+            else:
+
+                try:
+
+                    upload_result = (
+                        upload_note_attachment(
+                            new_attachment
+                        )
+                    )
+
+                except Exception as e:
+
+                    form.add_error(
+                        'attachment',
+                        str(e)
+                    )
+
+                    return render(
+                        request,
+                        'notes/note_form.html',
+                        {
+                            'form': form,
+                            'note': note
+                        }
+                    )
+
+                note.subject = subject
+
+                note.title = title
+
+                note.content = content
+
+                # Save Cloudinary public ID
+
+                note.attachment.name = (
+                    upload_result['public_id']
+                )
+
+                # Save exact Cloudinary URL
+
+                note.attachment_url = (
+                    upload_result['secure_url']
+                )
+
+                # File has already been uploaded.
+                # Prevent Django storage from uploading again.
+
+                note.attachment._committed = True
+
+                note.save(
+                    update_fields=[
+                        'subject',
+                        'title',
+                        'content',
+                        'attachment',
+                        'attachment_url',
+                        'updated_at'
+                    ]
+                )
 
             messages.success(
                 request,
@@ -749,6 +1234,10 @@ def note_update(request, pk):
         }
     )
 
+
+# =========================================================
+# NOTE DELETE
+# =========================================================
 
 @login_required
 def note_delete(request, pk):

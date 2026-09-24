@@ -1,435 +1,546 @@
-{% extends 'base.html' %}
-
-{% block content %}
-
-<style>
-
-.note-detail-page {
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px 0 40px;
-}
-
-
-/* =========================
-   NOTE CARD
-========================= */
-
-.note-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(50, 90, 140, 0.08);
-}
-
-.note-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #172033;
-    margin: 0 0 8px;
-}
-
-.note-date {
-    color: #60738c;
-    font-size: 14px;
-    margin-bottom: 18px;
-}
-
-.subject-badge {
-    display: inline-block;
-    background: #f1f3f5;
-    color: #60738c;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
-.note-content {
-    color: #374151;
-    font-size: 16px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    margin-bottom: 25px;
-}
-
-
-/* =========================
-   ATTACHMENT BOX
-========================= */
-
-.attachment-box {
-    background: #f6f8fb;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 20px;
-    margin-top: 20px;
-}
-
-.attachment-heading {
-    font-size: 18px;
-    font-weight: 700;
-    color: #172033;
-    margin-bottom: 8px;
-}
-
-.attachment-name {
-    color: #60738c;
-    font-size: 14px;
-    word-break: break-word;
-    margin-bottom: 15px;
-}
-
-.attachment-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-
-/* =========================
-   IMAGE VIEWER
-========================= */
-
-.image-viewer {
-    width: 100%;
-    min-height: 400px;
-
-    background: #ffffff;
-
-    border: 1px solid #dfe5ec;
-    border-radius: 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 15px;
-
-    box-sizing: border-box;
-
-    overflow: hidden;
-}
-
-.image-viewer img {
-    display: block;
-
-    max-width: 100%;
-    max-height: 75vh;
-
-    width: auto;
-    height: auto;
-
-    object-fit: contain;
-
-    border-radius: 6px;
-}
-
-
-/* =========================
-   PDF VIEWER
-========================= */
-
-.pdf-viewer {
-    width: 100%;
-    height: 75vh;
-
-    min-height: 500px;
-
-    border: 1px solid #dfe5ec;
-    border-radius: 12px;
-
-    background: #ffffff;
-}
-
-
-/* =========================
-   OTHER FILE
-========================= */
-
-.file-message {
-    background: #ffffff;
-
-    border: 1px solid #dfe5ec;
-
-    border-radius: 12px;
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #60738c;
-
-    font-size: 15px;
-}
-
-
-/* =========================
-   NOTE ACTIONS
-========================= */
-
-.note-actions {
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 25px;
-
-    flex-wrap: wrap;
-}
-
-.note-actions .btn {
-    min-width: 100px;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 576px) {
-
-    .note-detail-page {
-        padding: 10px 0 30px;
-    }
-
-    .note-card {
-        padding: 22px 18px;
-    }
-
-    .note-title {
-        font-size: 26px;
-    }
-
-    .note-content {
-        font-size: 15px;
-    }
-
-    .attachment-buttons {
-        flex-direction: column;
-    }
-
-    .attachment-buttons .btn {
-        width: 100%;
-    }
-
-    .image-viewer {
-        min-height: 250px;
-        padding: 8px;
-    }
-
-    .image-viewer img {
-        max-width: 100%;
-        max-height: 65vh;
-    }
-
-    .pdf-viewer {
-        height: 70vh;
-        min-height: 400px;
-    }
-
-    .note-actions {
-        flex-direction: column;
-    }
-
-    .note-actions .btn {
-        width: 100%;
-    }
-
-}
-
-</style>
-
-
-<div class="note-detail-page">
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ note.title }} - StudyBuddy</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+
+        /* =====================================================
+           NOTE PAGE
+        ===================================================== */
+
+        .note-container {
+            max-width: 850px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .note-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .note-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #212529;
+            margin: 0 0 10px 0;
+            word-break: break-word;
+        }
+
+        .subject-badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .note-date {
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-top: 10px;
+        }
+
+        .divider {
+            margin: 25px 0;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 12px;
+        }
+
+        .note-content {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #343a40;
+            min-height: 80px;
+        }
+
+
+        /* =====================================================
+           ATTACHMENT
+        ===================================================== */
+
+        .attachment-section {
+            margin-top: 28px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 14px;
+        }
+
+        .attachment-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .attachment-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .attachment-buttons .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+
+
+        /* =====================================================
+           PREVIEW MODAL
+        ===================================================== */
+
+        .preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* =====================================================
+           PREVIEW HEADER
+        ===================================================== */
+
+        .preview-header {
+            height: 58px;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            background: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .preview-header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #212529;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 75%;
+        }
+
+        .close-preview {
+            border: none;
+            background: #dc3545;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 9px 18px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .close-preview:hover {
+            background: #bb2d3b;
+        }
+
+
+        /* =====================================================
+           PREVIEW CONTENT
+        ===================================================== */
+
+        .preview-content {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #e9ecef;
+            overflow: hidden;
+            position: relative;
+        }
+
+
+        /* =====================================================
+           PDF
+        ===================================================== */
+
+        .pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: #ffffff;
+        }
+
+
+        /* =====================================================
+           OFFICE FILE
+        ===================================================== */
+
+        .office-frame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: #ffffff;
+        }
+
+
+        /* =====================================================
+           IMAGE
+        ===================================================== */
+
+        .image-preview-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+
+        /* =====================================================
+           OTHER DOCUMENT
+        ===================================================== */
+
+        .document-message {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .document-icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+        }
+
+        .document-message h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .document-message p {
+            max-width: 550px;
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           MAIN BUTTONS
+        ===================================================== */
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+        }
+
+        .button-row .btn {
+            border-radius: 10px;
+            padding: 10px 18px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 576px) {
+
+            .note-container {
+                margin: 25px auto;
+                padding: 0 12px;
+            }
+
+            .note-card {
+                padding: 20px;
+            }
+
+            .note-title {
+                font-size: 24px;
+            }
+
+            .attachment-buttons {
+                flex-direction: column;
+            }
+
+            .attachment-buttons .btn {
+                width: 100%;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .button-row .btn {
+                width: 100%;
+            }
+
+            .preview-modal {
+                padding: 4px;
+            }
+
+            .preview-header {
+                padding: 0 10px;
+            }
+
+            .preview-header-title {
+                font-size: 15px;
+                max-width: 60%;
+            }
+
+            .close-preview {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NOTE PAGE
+====================================================== -->
+
+<div class="note-container">
 
     <div class="note-card">
 
 
-        <!-- =========================
-             NOTE TITLE
-        ========================== -->
+        <!-- =================================================
+             TITLE
+        ================================================== -->
 
         <h1 class="note-title">
+
             {{ note.title }}
+
         </h1>
 
 
-        <!-- =========================
-             DATE
-        ========================== -->
-
-        <div class="note-date">
-            Updated {{ note.updated_at|date:"M d, Y" }}
-        </div>
-
-
-        <!-- =========================
+        <!-- =================================================
              SUBJECT
-        ========================== -->
+        ================================================== -->
 
         {% if note.subject %}
 
-        <div class="subject-badge">
-            {{ note.subject.name }}
-        </div>
+            <span class="subject-badge">
+
+                {{ note.subject.name }}
+
+            </span>
 
         {% endif %}
 
 
-        <!-- =========================
+        <!-- =================================================
+             DATE
+        ================================================== -->
+
+        <div class="note-date">
+
+            Created:
+            {{ note.created_at|date:"F d, Y" }}
+
+            <br>
+
+            Last updated:
+            {{ note.updated_at|date:"F d, Y - h:i A" }}
+
+        </div>
+
+
+        <div class="divider"></div>
+
+
+        <!-- =================================================
              NOTE CONTENT
-        ========================== -->
+        ================================================== -->
 
-        <div class="note-content">
-            {{ note.content }}
+        <div>
+
+            <div class="content-title">
+
+                Note
+
+            </div>
+
+
+            <div class="note-content">
+
+                {{ note.content }}
+
+            </div>
+
         </div>
 
 
-        <!-- =========================
+        <!-- =================================================
              ATTACHMENT
-        ========================== -->
+        ================================================== -->
 
-        {% if note.attachment %}
+        {% if note.attachment_url %}
 
-        <div class="attachment-box">
-
-
-            <div class="attachment-heading">
-                📎 Attachment
-            </div>
+            <div class="attachment-section">
 
 
-            <div class="attachment-name">
-                {{ note.attachment.name }}
-            </div>
+                <div class="attachment-title">
 
+                    📎 Attachment
 
-            <!-- =========================
-                 BUTTONS
-            ========================== -->
-
-            <div class="attachment-buttons">
-
-
-                <!-- DOWNLOAD -->
-
-                <a
-                    href="{{ note.attachment.url }}"
-                    class="btn btn-outline-primary"
-                    onclick="
-                        event.preventDefault();
-
-                        const url = this.href.replace(
-                            '/upload/',
-                            '/upload/fl_attachment/'
-                        );
-
-                        window.location.href = url;
-                    "
-                >
-                    Download
-                </a>
-
-
-                <!-- BACK TO NOTES -->
-
-                <a
-                    href="{% url 'notes' %}"
-                    class="btn btn-outline-secondary"
-                >
-                    Back to Notes
-                </a>
-
-            </div>
-
-
-            <!-- =========================
-                 IMAGE PREVIEW
-            ========================== -->
-
-            {% if '.jpg' in note.attachment.name|lower
-               or '.jpeg' in note.attachment.name|lower
-               or '.png' in note.attachment.name|lower
-               or '.gif' in note.attachment.name|lower
-               or '.webp' in note.attachment.name|lower %}
-
-            <div class="image-viewer">
-
-                <img
-                    src="{{ note.attachment.url }}"
-                    alt="{{ note.title }}"
-                >
-
-            </div>
-
-
-            <!-- =========================
-                 PDF PREVIEW
-            ========================== -->
-
-            {% elif '.pdf' in note.attachment.name|lower %}
-
-            <iframe
-                src="{{ note.attachment.url }}"
-                class="pdf-viewer"
-                title="PDF Preview"
-            >
-            </iframe>
-
-
-            <!-- =========================
-                 OTHER FILES
-            ========================== -->
-
-            {% else %}
-
-            <div class="file-message">
-
-                <div style="font-size: 40px; margin-bottom: 10px;">
-                    📄
                 </div>
 
-                <div>
-                    This file cannot be previewed in the browser.
+
+                <div class="attachment-buttons">
+
+
+                    <!-- VIEW -->
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="openPreview()"
+                    >
+
+                        👁 View
+
+                    </button>
+
+
+                    <!-- DOWNLOAD -->
+
+                    <a
+                        href="{{ download_url }}"
+                        class="btn btn-success"
+                    >
+
+                        ⬇ Download
+
+                    </a>
+
+
                 </div>
 
-                <div style="margin-top: 8px;">
-                    Click <strong>Download</strong> to open the file.
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="attachment-section">
+
+                <div class="attachment-title">
+
+                    📎 Attachment
+
+                </div>
+
+
+                <div class="text-muted">
+
+                    No attachment added to this note.
+
                 </div>
 
             </div>
 
-            {% endif %}
-
-
-        </div>
 
         {% endif %}
 
 
-        <!-- =========================
-             NOTE ACTIONS
-        ========================== -->
+        <!-- =================================================
+             MAIN BUTTONS
+        ================================================== -->
 
-        <div class="note-actions">
+        <div class="button-row">
 
 
             <a
                 href="{% url 'note_edit' note.pk %}"
-                class="btn btn-outline-primary"
+                class="btn btn-primary"
             >
-                Edit
-            </a>
 
+                Edit Note
 
-            <a
-                href="{% url 'notes' %}"
-                class="btn btn-outline-secondary"
-            >
-                Back to Notes
             </a>
 
 
@@ -437,7 +548,29 @@
                 href="{% url 'note_delete' note.pk %}"
                 class="btn btn-outline-danger"
             >
+
                 Delete
+
+            </a>
+
+
+            <a
+                href="{% url 'notes' %}"
+                class="btn btn-outline-secondary"
+            >
+
+                Back to Notes
+
+            </a>
+
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="btn btn-outline-secondary"
+            >
+
+                Dashboard
+
             </a>
 
 
@@ -448,4 +581,595 @@
 
 </div>
 
-{% endblock %}
+
+
+<!-- =====================================================
+     PREVIEW MODAL
+====================================================== -->
+
+{% if note.attachment_url %}
+
+<div
+    id="previewModal"
+    class="preview-modal"
+>
+
+
+    <div class="preview-box">
+
+
+        <!-- =================================================
+             PREVIEW HEADER
+        ================================================== -->
+
+        <div class="preview-header">
+
+
+            <div class="preview-header-title">
+
+                {{ note.title }}
+
+            </div>
+
+
+            <button
+                type="button"
+                class="close-preview"
+                onclick="closePreview()"
+            >
+
+                ✕ Close
+
+            </button>
+
+
+        </div>
+
+
+        <!-- =================================================
+             PREVIEW CONTENT
+        ================================================== -->
+
+        <div
+            id="previewContent"
+            class="preview-content"
+        >
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+<script>
+
+    // =====================================================
+    // ATTACHMENT URL
+    // =====================================================
+
+    const attachmentUrl =
+        "{{ note.attachment_url|escapejs }}";
+
+
+    // =====================================================
+    // ATTACHMENT NAME
+    // =====================================================
+
+    const attachmentName =
+        "{{ note.attachment.name|escapejs }}";
+
+
+    // =====================================================
+    // GET FILE EXTENSION
+    // =====================================================
+
+    function getFileExtension() {
+
+        let name =
+            attachmentName.toLowerCase();
+
+
+        /*
+         * If attachment name does not have
+         * an extension, use the URL.
+         */
+
+        if (
+            !name.includes(".")
+        ) {
+
+            name =
+                attachmentUrl
+                .split("?")[0]
+                .split("/")
+                .pop()
+                .toLowerCase();
+
+        }
+
+
+        if (
+            name.includes(".")
+        ) {
+
+            return name
+                .split(".")
+                .pop();
+
+        }
+
+
+        return "";
+
+    }
+
+
+    // =====================================================
+    // OPEN PREVIEW
+    // =====================================================
+
+    function openPreview() {
+
+        const modal =
+            document.getElementById(
+                "previewModal"
+            );
+
+
+        const content =
+            document.getElementById(
+                "previewContent"
+            );
+
+
+        if (
+            !modal ||
+            !content
+        ) {
+
+            return;
+
+        }
+
+
+        content.innerHTML = "";
+
+
+        const extension =
+            getFileExtension();
+
+
+        // =================================================
+        // PDF
+        // =================================================
+
+        if (
+            extension === "pdf"
+        ) {
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+
+            /*
+             * Fit PDF to available width.
+             */
+
+            iframe.src =
+                attachmentUrl +
+                "#zoom=page-width&view=FitH";
+
+
+            iframe.className =
+                "pdf-frame";
+
+
+            iframe.title =
+                "PDF Preview";
+
+
+            content.appendChild(
+                iframe
+            );
+
+        }
+
+
+        // =================================================
+        // IMAGE
+        // =================================================
+
+        else if (
+
+            extension === "jpg" ||
+            extension === "jpeg" ||
+            extension === "png" ||
+            extension === "gif" ||
+            extension === "webp" ||
+            extension === "bmp" ||
+            extension === "tiff" ||
+            extension === "svg"
+
+        ) {
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            wrapper.className =
+                "image-preview-wrapper";
+
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.src =
+                attachmentUrl;
+
+
+            image.className =
+                "image-preview";
+
+
+            image.alt =
+                "{{ note.title|escapejs }}";
+
+
+            wrapper.appendChild(
+                image
+            );
+
+
+            content.appendChild(
+                wrapper
+            );
+
+        }
+
+
+        // =================================================
+        // WORD
+        // =================================================
+
+        else if (
+
+            extension === "doc" ||
+            extension === "docx"
+
+        ) {
+
+            const officeViewerUrl =
+                "https://view.officeapps.live.com/op/view.aspx?src="
+                +
+                encodeURIComponent(
+                    attachmentUrl
+                );
+
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+
+            iframe.src =
+                officeViewerUrl;
+
+
+            iframe.className =
+                "office-frame";
+
+
+            iframe.title =
+                "Microsoft Word Preview";
+
+
+            iframe.allowFullscreen =
+                true;
+
+
+            content.appendChild(
+                iframe
+            );
+
+        }
+
+
+        // =================================================
+        // EXCEL
+        // =================================================
+
+        else if (
+
+            extension === "xls" ||
+            extension === "xlsx"
+
+        ) {
+
+            const officeViewerUrl =
+                "https://view.officeapps.live.com/op/view.aspx?src="
+                +
+                encodeURIComponent(
+                    attachmentUrl
+                );
+
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+
+            iframe.src =
+                officeViewerUrl;
+
+
+            iframe.className =
+                "office-frame";
+
+
+            iframe.title =
+                "Microsoft Excel Preview";
+
+
+            iframe.allowFullscreen =
+                true;
+
+
+            content.appendChild(
+                iframe
+            );
+
+        }
+
+
+        // =================================================
+        // POWERPOINT
+        // =================================================
+
+        else if (
+
+            extension === "ppt" ||
+            extension === "pptx"
+
+        ) {
+
+            const officeViewerUrl =
+                "https://view.officeapps.live.com/op/view.aspx?src="
+                +
+                encodeURIComponent(
+                    attachmentUrl
+                );
+
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+
+            iframe.src =
+                officeViewerUrl;
+
+
+            iframe.className =
+                "office-frame";
+
+
+            iframe.title =
+                "Microsoft PowerPoint Preview";
+
+
+            iframe.allowFullscreen =
+                true;
+
+
+            content.appendChild(
+                iframe
+            );
+
+        }
+
+
+        // =================================================
+        // TEXT
+        // =================================================
+
+        else if (
+
+            extension === "txt"
+
+        ) {
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+
+            iframe.src =
+                attachmentUrl;
+
+
+            iframe.className =
+                "office-frame";
+
+
+            iframe.title =
+                "Text File Preview";
+
+
+            content.appendChild(
+                iframe
+            );
+
+        }
+
+
+        // =================================================
+        // OTHER FILES
+        // =================================================
+
+        else {
+
+            content.innerHTML = `
+
+                <div class="document-message">
+
+                    <div class="document-icon">
+                        📄
+                    </div>
+
+
+                    <h3>
+                        Document Preview
+                    </h3>
+
+
+                    <p>
+
+                        This file type cannot be
+                        previewed directly in the browser.
+
+                        <br><br>
+
+                        Download the file to open it
+                        using a compatible application.
+
+                    </p>
+
+
+                    <a
+                        href="{{ download_url }}"
+                        class="btn btn-success"
+                    >
+
+                        ⬇ Download Document
+
+                    </a>
+
+                </div>
+
+            `;
+
+        }
+
+
+        // =================================================
+        // SHOW PREVIEW
+        // =================================================
+
+        modal.style.display =
+            "block";
+
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    // =====================================================
+    // CLOSE PREVIEW
+    // =====================================================
+
+    function closePreview() {
+
+        const modal =
+            document.getElementById(
+                "previewModal"
+            );
+
+
+        const content =
+            document.getElementById(
+                "previewContent"
+            );
+
+
+        if (modal) {
+
+            modal.style.display =
+                "none";
+
+        }
+
+
+        if (content) {
+
+            content.innerHTML =
+                "";
+
+        }
+
+
+        document.body.style.overflow =
+            "auto";
+
+    }
+
+
+    // =====================================================
+    // CLICK OUTSIDE TO CLOSE
+    // =====================================================
+
+    window.addEventListener(
+        "click",
+        function(event) {
+
+            const modal =
+                document.getElementById(
+                    "previewModal"
+                );
+
+
+            if (
+                modal &&
+                event.target === modal
+            ) {
+
+                closePreview();
+
+            }
+
+        }
+    );
+
+
+    // =====================================================
+    // ESC TO CLOSE
+    // =====================================================
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closePreview();
+
+            }
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>
