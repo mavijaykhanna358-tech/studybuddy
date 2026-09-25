@@ -21,22 +21,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
-
-      - name: Check production reminder tasks
-        run: |
-          python manage.py shell -c "from django.utils import timezone; from tasks.models import Task; tomorrow=timezone.localdate()+timezone.timedelta(days=1); print('Today:', timezone.localdate()); print('Tomorrow:', tomorrow); print('ALL TASKS:', list(Task.objects.values('id','title','due_date','status','reminder_sent_at','user__email'))); print('ELIGIBLE TASKS:', list(Task.objects.filter(due_date=tomorrow, reminder_sent_at__isnull=True).exclude(status='Completed').values('id','title','due_date','status','reminder_sent_at','user__email')))"
-
 
       - name: Send task reminders
         run: |
