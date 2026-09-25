@@ -32,12 +32,14 @@ class Command(BaseCommand):
             user = task.user
 
             if not user.email:
+
                 self.stdout.write(
                     self.style.WARNING(
                         f'Skipped "{task.title}" - '
                         f'user has no email address.'
                     )
                 )
+
                 continue
 
             subject_name = ''
@@ -80,9 +82,7 @@ StudyBuddy
                     subject=email_subject,
                     message=email_message,
                     from_email=None,
-                    recipient_list=[
-                        user.email
-                    ],
+                    recipient_list=[user.email],
                     fail_silently=False
                 )
 

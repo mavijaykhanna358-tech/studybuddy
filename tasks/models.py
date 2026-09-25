@@ -15,7 +15,8 @@ class Subject(models.Model):
     )
 
     description = models.TextField(
-        blank=True
+        blank=True,
+        default=''
     )
 
     created_at = models.DateTimeField(
@@ -35,16 +36,16 @@ class Subject(models.Model):
 
 class Task(models.Model):
 
-    PRIORITY_CHOICES = [
-        ('Low', 'Low'),
-        ('Medium', 'Medium'),
-        ('High', 'High'),
-    ]
-
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('In Progress', 'In Progress'),
         ('Completed', 'Completed'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
     ]
 
     user = models.ForeignKey(
@@ -54,7 +55,7 @@ class Task(models.Model):
     )
 
     subject = models.ForeignKey(
-        Subject,
+        'Subject',
         on_delete=models.CASCADE,
         related_name='tasks',
         null=True,
@@ -66,16 +67,18 @@ class Task(models.Model):
     )
 
     description = models.TextField(
-        blank=True
+        blank=True,
+        default=''
     )
 
     category = models.CharField(
-        max_length=100,
+        max_length=50,
+        default='General',
         blank=True
     )
 
     priority = models.CharField(
-        max_length=20,
+        max_length=10,
         choices=PRIORITY_CHOICES,
         default='Medium'
     )
@@ -86,7 +89,10 @@ class Task(models.Model):
         default='Pending'
     )
 
-    due_date = models.DateField()
+    due_date = models.DateField(
+        null=True,
+        blank=True
+    )
 
     reminder_sent_at = models.DateTimeField(
         null=True,
@@ -102,7 +108,40 @@ class Task(models.Model):
     )
 
     class Meta:
-        ordering = ['due_date', '-created_at']
+        ordering = [
+            'due_date',
+            'priority',
+            'title'
+        ]
+
+    @property
+    def is_completed(self):
+        return self.status == 'Completed'
+
+    def save(self, *args, **kwargs):
+
+        if self.pk:
+
+            old_task = Task.objects.filter(
+                pk=self.pk
+            ).first()
+
+            if old_task:
+
+                # If due date changes,
+                # allow a new reminder.
+                if old_task.due_date != self.due_date:
+                    self.reminder_sent_at = None
+
+                # If a completed task is reopened,
+                # allow a new reminder.
+                elif (
+                    old_task.status == 'Completed'
+                    and self.status != 'Completed'
+                ):
+                    self.reminder_sent_at = None
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -117,7 +156,7 @@ class Note(models.Model):
     )
 
     subject = models.ForeignKey(
-        Subject,
+        'Subject',
         on_delete=models.SET_NULL,
         related_name='notes',
         null=True,
@@ -132,12 +171,6 @@ class Note(models.Model):
 
     attachment = models.FileField(
         upload_to='notes/',
-        blank=True,
-        null=True
-    )
-
-    # Stores the exact Cloudinary URL returned after upload.
-    attachment_url = models.URLField(
         blank=True,
         null=True
     )
