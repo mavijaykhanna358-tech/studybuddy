@@ -3,9 +3,12 @@ name: Send Task Reminders
 on:
   schedule:
     - cron: '30 3 * * *'
+
   workflow_dispatch:
 
+
 jobs:
+
   send-reminders:
 
     runs-on: ubuntu-latest
@@ -17,17 +20,46 @@ jobs:
 
     steps:
 
+      # =====================================================
+      # CHECKOUT
+      # =====================================================
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # =====================================================
+      # PYTHON
+      # =====================================================
+
       - name: Set up Python
         uses: actions/setup-python@v5
+
         with:
           python-version: '3.12'
+
+
+      # =====================================================
+      # INSTALL DEPENDENCIES
+      # =====================================================
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+
+      # =====================================================
+      # CHECK PRODUCTION TASKS
+      # =====================================================
+
+      - name: Check production reminder tasks
+        run: |
+          python manage.py shell -c "from django.utils import timezone; from tasks.models import Task; tomorrow=timezone.localdate()+timezone.timedelta(days=1); print('Today:', timezone.localdate()); print('Tomorrow:', tomorrow); print('Eligible tasks:', list(Task.objects.filter(due_date=tomorrow, reminder_sent_at__isnull=True).exclude(status='Completed').values('id','title','due_date','status','reminder_sent_at')))"
+
+
+      # =====================================================
+      # SEND REMINDERS
+      # =====================================================
 
       - name: Send task reminders
         run: |

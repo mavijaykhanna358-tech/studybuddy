@@ -3,49 +3,46 @@
 {% block content %}
 
 <style>
-    .form-page {
+
+    .subject-form-container {
         max-width: 700px;
         margin: 0 auto;
     }
 
-    .form-card {
+    .subject-form-card {
         background: #fff;
         border: 1px solid #e9ecef;
         border-radius: 16px;
-        padding: 28px;
+        padding: 30px;
     }
 
-    .form-card h2 {
+    .subject-form-card h2 {
         font-weight: 700;
-        margin-bottom: 6px;
+        margin-bottom: 5px;
     }
 
-    .form-subtitle {
+    .subject-form-card .subtitle {
         color: #6c757d;
-        margin-bottom: 24px;
+        margin-bottom: 25px;
     }
 
-    .form-label {
+    .subject-form-card label {
         font-weight: 600;
     }
 
-    .form-control {
+    .subject-form-card .form-control {
         border-radius: 10px;
-        padding: 11px 13px;
-    }
-
-    textarea.form-control {
-        resize: vertical;
     }
 
     .form-actions {
         display: flex;
         gap: 10px;
-        margin-top: 8px;
+        margin-top: 25px;
     }
 
     @media (max-width: 576px) {
-        .form-card {
+
+        .subject-form-card {
             padding: 20px;
         }
 
@@ -56,67 +53,94 @@
         .form-actions .btn {
             width: 100%;
         }
+
     }
+
 </style>
 
 
-<div class="form-page">
+<div class="subject-form-container">
 
-    <div class="form-card">
+    <div class="subject-form-card">
 
-        {% if subject %}
-            <h2>Edit Subject</h2>
-            <p class="form-subtitle">
-                Update your subject details.
-            </p>
-        {% else %}
-            <h2>Add Subject</h2>
-            <p class="form-subtitle">
-                Add a new subject to organize your studies.
-            </p>
-        {% endif %}
+        <h2>
+            {{ title }}
+        </h2>
+
+        <p class="subtitle">
+            Add or update your study subject.
+        </p>
 
 
         <form method="post">
 
             {% csrf_token %}
 
-            {% for field in form %}
-
-                <div class="mb-3">
-
-                    <label
-                        for="{{ field.id_for_label }}"
-                        class="form-label"
-                    >
-                        {{ field.label }}
-                    </label>
-
-                    {{ field }}
-
-                    {% for error in field.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-            {% endfor %}
-
 
             {% if form.non_field_errors %}
 
-                <div class="text-danger small mb-3">
+                <div class="alert alert-danger">
 
-                    {% for error in form.non_field_errors %}
-                        <div>{{ error }}</div>
-                    {% endfor %}
+                    {{ form.non_field_errors }}
 
                 </div>
 
             {% endif %}
 
+
+            <!-- SUBJECT NAME -->
+
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.name.id_for_label }}"
+                    class="form-label"
+                >
+                    Subject Name
+                </label>
+
+                {{ form.name }}
+
+                {% if form.name.errors %}
+
+                    <div class="text-danger small mt-1">
+
+                        {{ form.name.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.description.id_for_label }}"
+                    class="form-label"
+                >
+                    Description
+                </label>
+
+                {{ form.description }}
+
+                {% if form.description.errors %}
+
+                    <div class="text-danger small mt-1">
+
+                        {{ form.description.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- BUTTONS -->
 
             <div class="form-actions">
 
@@ -124,35 +148,19 @@
                     type="submit"
                     class="btn btn-primary"
                 >
-                    {% if subject %}
-                        Update Subject
-                    {% else %}
-                        Save Subject
-                    {% endif %}
+                    {{ button_text }}
                 </button>
 
 
-                {% if subject %}
-
-                    <a
-                        href="{% url 'subject_detail' subject.pk %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'subjects' %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% endif %}
+                <a
+                    href="{% url 'subjects' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
 
             </div>
+
 
         </form>
 

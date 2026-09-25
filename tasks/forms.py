@@ -4,10 +4,13 @@ from django.utils import timezone
 from .models import Note, Subject, Task
 
 
+# ============================================================
+# SUBJECT FORM
+# ============================================================
+
 class SubjectForm(forms.ModelForm):
 
     class Meta:
-
         model = Subject
 
         fields = [
@@ -16,7 +19,6 @@ class SubjectForm(forms.ModelForm):
         ]
 
         widgets = {
-
             'name': forms.TextInput(
                 attrs={
                     'class': 'form-control',
@@ -41,7 +43,6 @@ class SubjectForm(forms.ModelForm):
         ).strip()
 
         if not name:
-
             raise forms.ValidationError(
                 'Subject name is required.'
             )
@@ -49,10 +50,13 @@ class SubjectForm(forms.ModelForm):
         return name
 
 
+# ============================================================
+# TASK FORM
+# ============================================================
+
 class TaskForm(forms.ModelForm):
 
     class Meta:
-
         model = Task
 
         fields = [
@@ -121,23 +125,28 @@ class TaskForm(forms.ModelForm):
 
         self.user = user
 
+        # Change --------- to Select Subject
+        self.fields['subject'].empty_label = 'Select Subject'
+
+        # Show only subjects belonging to
+        # the currently logged-in user
+        if user is not None:
+
+            self.fields['subject'].queryset = (
+                Subject.objects
+                .filter(user=user)
+                .order_by('name')
+            )
+
+        # Prevent selecting past dates
+        # when creating a new task
         today = timezone.localdate()
 
         if not self.instance.pk:
 
-            self.fields[
-                'due_date'
-            ].widget.attrs[
+            self.fields['due_date'].widget.attrs[
                 'min'
             ] = today.isoformat()
-
-        if user is not None:
-
-            self.fields[
-                'subject'
-            ].queryset = Subject.objects.filter(
-                user=user
-            )
 
     def clean_title(self):
 
@@ -166,6 +175,8 @@ class TaskForm(forms.ModelForm):
             'due_date'
         )
 
+        # Make sure the selected subject
+        # belongs to the logged-in user
         if (
             subject
             and self.user
@@ -177,6 +188,7 @@ class TaskForm(forms.ModelForm):
                 'Please select one of your subjects.'
             )
 
+        # Do not allow past dates for new tasks
         if (
             not self.instance.pk
             and due_date
@@ -191,10 +203,13 @@ class TaskForm(forms.ModelForm):
         return cleaned_data
 
 
+# ============================================================
+# NOTE FORM
+# ============================================================
+
 class NoteForm(forms.ModelForm):
 
     class Meta:
-
         model = Note
 
         fields = [
@@ -257,12 +272,17 @@ class NoteForm(forms.ModelForm):
             **kwargs
         )
 
+        self.user = user
+
+        # Show only the user's subjects
+        self.fields['subject'].empty_label = 'Select Subject'
+
         if user is not None:
 
-            self.fields[
-                'subject'
-            ].queryset = Subject.objects.filter(
-                user=user
+            self.fields['subject'].queryset = (
+                Subject.objects
+                .filter(user=user)
+                .order_by('name')
             )
 
     def clean_title(self):
@@ -294,3 +314,25 @@ class NoteForm(forms.ModelForm):
             )
 
         return content
+
+    def clean(self):
+
+        cleaned_data = super().clean()
+
+        subject = cleaned_data.get(
+            'subject'
+        )
+
+        # Security check
+        if (
+            subject
+            and self.user
+            and subject.user != self.user
+        ):
+
+            self.add_error(
+                'subject',
+                'Please select one of your subjects.'
+            )
+
+        return cleaned_data
