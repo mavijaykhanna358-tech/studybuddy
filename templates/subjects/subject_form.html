@@ -4,93 +4,225 @@
 
 <style>
 
-    .subject-form-container {
-        max-width: 700px;
-        margin: 0 auto;
+.subject-form-page {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 30px 20px 45px;
+    box-sizing: border-box;
+}
+
+/* =========================
+   FORM CARD
+========================= */
+
+.subject-form-card {
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 17px;
+    padding: 30px;
+    box-shadow: 0 3px 14px rgba(30, 60, 100, 0.07);
+}
+
+.subject-form-header {
+    margin-bottom: 25px;
+}
+
+.subject-form-header h1 {
+    margin: 0 0 6px;
+    color: #172033;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subject-form-header p {
+    margin: 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #273449;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    width: 100%;
+    border: 1px solid #d8e0e8;
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 14px;
+    color: #273449;
+    background: #ffffff;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+
+textarea.form-control {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.help-text {
+    margin-top: 6px;
+    color: #7a899b;
+    font-size: 12px;
+}
+
+.field-error {
+    margin-top: 6px;
+    color: #dc3545;
+    font-size: 13px;
+}
+
+.form-error-box {
+    background: #fff0f1;
+    border: 1px solid #f2c3c7;
+    color: #b02a37;
+    border-radius: 9px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #edf0f4;
+}
+
+.form-actions .btn {
+    min-width: 110px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .subject-form-page {
+        padding: 16px 14px 30px;
     }
 
     .subject-form-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 30px;
+        padding: 22px 18px;
     }
 
-    .subject-form-card h2 {
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .subject-form-card .subtitle {
-        color: #6c757d;
-        margin-bottom: 25px;
-    }
-
-    .subject-form-card label {
-        font-weight: 600;
-    }
-
-    .subject-form-card .form-control {
-        border-radius: 10px;
+    .subject-form-header h1 {
+        font-size: 25px;
     }
 
     .form-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 25px;
+        flex-direction: column-reverse;
     }
 
-    @media (max-width: 576px) {
-
-        .subject-form-card {
-            padding: 20px;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .form-actions .btn {
-            width: 100%;
-        }
-
+    .form-actions .btn {
+        width: 100%;
     }
+
+}
 
 </style>
 
 
-<div class="subject-form-container">
+<div class="subject-form-page">
 
     <div class="subject-form-card">
 
-        <h2>
-            {{ title }}
-        </h2>
 
-        <p class="subtitle">
-            Add or update your study subject.
-        </p>
+        <!-- =========================
+             HEADER
+        ========================= -->
+
+        <div class="subject-form-header">
+
+            {% if subject %}
+
+                <h1>
+                    Edit Subject
+                </h1>
+
+                <p>
+                    Update the details of {{ subject.name }}.
+                </p>
+
+            {% else %}
+
+                <h1>
+                    Add Subject
+                </h1>
+
+                <p>
+                    Create a subject to organize your tasks and notes.
+                </p>
+
+            {% endif %}
+
+        </div>
 
 
-        <form method="post">
+        <!-- =========================
+             FORM ERRORS
+        ========================= -->
+
+        {% if form.non_field_errors %}
+
+            <div class="form-error-box">
+
+                {% for error in form.non_field_errors %}
+
+                    {{ error }}
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =========================
+             FORM
+        ========================= -->
+
+        <form
+            method="post"
+            novalidate
+        >
 
             {% csrf_token %}
 
 
-            {% if form.non_field_errors %}
+            <!-- Subject Name -->
 
-                <div class="alert alert-danger">
-
-                    {{ form.non_field_errors }}
-
-                </div>
-
-            {% endif %}
-
-
-            <!-- SUBJECT NAME -->
-
-            <div class="mb-3">
+            <div class="form-group">
 
                 <label
                     for="{{ form.name.id_for_label }}"
@@ -99,24 +231,33 @@
                     Subject Name
                 </label>
 
+
                 {{ form.name }}
+
 
                 {% if form.name.errors %}
 
-                    <div class="text-danger small mt-1">
+                    {% for error in form.name.errors %}
 
-                        {{ form.name.errors }}
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
 
-                    </div>
+                    {% endfor %}
 
                 {% endif %}
+
+
+                <div class="help-text">
+                    Example: Mathematics, Python, Database Management
+                </div>
 
             </div>
 
 
-            <!-- DESCRIPTION -->
+            <!-- Description -->
 
-            <div class="mb-3">
+            <div class="form-group">
 
                 <label
                     for="{{ form.description.id_for_label }}"
@@ -125,39 +266,58 @@
                     Description
                 </label>
 
+
                 {{ form.description }}
+
 
                 {% if form.description.errors %}
 
-                    <div class="text-danger small mt-1">
+                    {% for error in form.description.errors %}
 
-                        {{ form.description.errors }}
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
 
-                    </div>
+                    {% endfor %}
 
                 {% endif %}
+
+
+                <div class="help-text">
+                    Optional description for this subject.
+                </div>
 
             </div>
 
 
-            <!-- BUTTONS -->
+            <!-- Actions -->
 
             <div class="form-actions">
+
+                <a
+                    href="{% if subject %}{% url 'subject_detail' subject.pk %}{% else %}{% url 'subjects' %}{% endif %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
 
                 <button
                     type="submit"
                     class="btn btn-primary"
                 >
-                    {{ button_text }}
+
+                    {% if subject %}
+
+                        Save Changes
+
+                    {% else %}
+
+                        Create Subject
+
+                    {% endif %}
+
                 </button>
-
-
-                <a
-                    href="{% url 'subjects' %}"
-                    class="btn btn-outline-secondary"
-                >
-                    Cancel
-                </a>
 
             </div>
 

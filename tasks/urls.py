@@ -5,20 +5,9 @@ from . import views
 
 urlpatterns = [
 
-    # =========================
-    # DASHBOARD
-    # =========================
-
-    path(
-        'dashboard/',
-        views.dashboard,
-        name='dashboard'
-    ),
-
-
-    # =========================
+    # =====================================================
     # SUBJECTS
-    # =========================
+    # =====================================================
 
     path(
         'subjects/',
@@ -41,7 +30,7 @@ urlpatterns = [
     path(
         'subjects/<int:pk>/edit/',
         views.subject_update,
-        name='subject_update'
+        name='subject_edit'
     ),
 
     path(
@@ -51,9 +40,9 @@ urlpatterns = [
     ),
 
 
-    # =========================
+    # =====================================================
     # TASKS
-    # =========================
+    # =====================================================
 
     path(
         'tasks/',
@@ -80,21 +69,21 @@ urlpatterns = [
     ),
 
     path(
-        'tasks/<int:pk>/delete/',
-        views.task_delete,
-        name='task_delete'
-    ),
-
-    path(
         'tasks/<int:pk>/complete/',
         views.task_complete,
         name='task_complete'
     ),
 
+    path(
+        'tasks/<int:pk>/delete/',
+        views.task_delete,
+        name='task_delete'
+    ),
 
-    # =========================
+
+    # =====================================================
     # NOTES
-    # =========================
+    # =====================================================
 
     path(
         'notes/',
@@ -118,6 +107,12 @@ urlpatterns = [
         'notes/<int:pk>/edit/',
         views.note_update,
         name='note_edit'
+    ),
+
+    path(
+        'notes/<int:pk>/download/',
+        views.note_attachment_download,
+        name='note_attachment_download'
     ),
 
     path(

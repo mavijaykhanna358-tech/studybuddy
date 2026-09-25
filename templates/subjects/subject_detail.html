@@ -3,125 +3,346 @@
 {% block content %}
 
 <style>
-    .subject-detail-header {
-        margin-bottom: 24px;
+
+.subject-detail-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    box-sizing: border-box;
+}
+
+/* =========================
+   TOP
+========================= */
+
+.subject-detail-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.back-link {
+    color: #60738c;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    color: #0d6efd;
+}
+
+.subject-detail-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+   SUBJECT HEADER
+========================= */
+
+.subject-header-card {
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 17px;
+    padding: 28px;
+    box-shadow: 0 3px 14px rgba(30, 60, 100, 0.07);
+    margin-bottom: 20px;
+}
+
+.subject-header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.subject-large-icon {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    border-radius: 15px;
+    background: #eef5ff;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+}
+
+.subject-header-text {
+    min-width: 0;
+}
+
+.subject-title {
+    margin: 0 0 7px;
+    color: #172033;
+    font-size: 30px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.subject-description {
+    margin: 0;
+    color: #66778d;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.subject-overview {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.overview-box {
+    background: #f7f9fc;
+    border-radius: 11px;
+    padding: 15px;
+}
+
+.overview-number {
+    display: block;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.overview-label {
+    color: #718096;
+    font-size: 13px;
+}
+
+/* =========================
+   CONTENT GRID
+========================= */
+
+.subject-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.content-card {
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 15px;
+    padding: 22px;
+    box-shadow: 0 2px 10px rgba(30, 60, 100, 0.05);
+    min-width: 0;
+}
+
+.content-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+.content-card-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* =========================
+   ITEMS
+========================= */
+
+.subject-item {
+    border: 1px solid #e8edf3;
+    border-radius: 11px;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: #fbfcfe;
+}
+
+.subject-item:last-child {
+    margin-bottom: 0;
+}
+
+.subject-item-title {
+    color: #172033;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    word-break: break-word;
+}
+
+.subject-item-meta {
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.subject-item-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.subject-item-link:hover .subject-item-title {
+    color: #0d6efd;
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 7px;
+}
+
+.status-completed {
+    background: #e9f8ef;
+    color: #198754;
+}
+
+.status-progress {
+    background: #eaf2ff;
+    color: #0d6efd;
+}
+
+.status-pending {
+    background: #fff4df;
+    color: #b77900;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.section-empty {
+    padding: 25px 10px;
+    text-align: center;
+    color: #7a899b;
+    font-size: 14px;
+}
+
+/* =========================
+   BOTTOM
+========================= */
+
+.subject-bottom-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 800px) {
+
+    .subject-content-grid {
+        grid-template-columns: 1fr;
     }
 
-    .subject-detail-header h2 {
-        font-weight: 700;
-        margin-bottom: 6px;
-        word-break: break-word;
+}
+
+@media (max-width: 600px) {
+
+    .subject-detail-page {
+        padding: 16px 14px 30px;
     }
 
-    .subject-description {
-        color: #6c757d;
-        margin-bottom: 0;
-        line-height: 1.6;
+    .subject-detail-top {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
-    .detail-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
+    .subject-detail-actions {
+        width: 100%;
     }
 
-    .detail-card h5 {
-        font-weight: 600;
-        margin-bottom: 16px;
+    .subject-detail-actions .btn {
+        flex: 1;
     }
 
-    .related-item {
-        padding: 13px 0;
-        border-bottom: 1px solid #f0f0f0;
+    .subject-header-card {
+        padding: 21px;
     }
 
-    .related-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
+    .subject-header-content {
+        gap: 13px;
     }
 
-    .related-item:first-child {
-        padding-top: 0;
+    .subject-large-icon {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        font-size: 22px;
     }
 
-    .related-title {
-        color: #212529;
-        text-decoration: none;
-        font-weight: 600;
-        word-break: break-word;
+    .subject-title {
+        font-size: 25px;
     }
 
-    .related-title:hover {
-        color: #0d6efd;
+    .subject-overview {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .related-meta {
-        font-size: 13px;
-        color: #6c757d;
-        margin-top: 4px;
+    .content-card {
+        padding: 18px;
     }
 
-    .empty-related {
-        color: #6c757d;
-        font-size: 14px;
-        margin-bottom: 0;
-        padding: 10px 0;
+    .subject-bottom-actions {
+        flex-direction: column;
     }
 
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
+    .subject-bottom-actions .btn {
+        width: 100%;
     }
 
-    @media (max-width: 576px) {
-        .action-buttons {
-            width: 100%;
-        }
+}
 
-        .action-buttons .btn {
-            flex: 1;
-        }
-
-        .detail-card {
-            padding: 18px;
-        }
-    }
 </style>
 
 
-<!-- Subject Header -->
+<div class="subject-detail-page">
 
-<div class="subject-detail-header">
+    <!-- =========================
+         TOP NAVIGATION
+    ========================= -->
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+    <div class="subject-detail-top">
 
-        <div>
-            <h2>{{ subject.name }}</h2>
+        <a
+            href="{% url 'subjects' %}"
+            class="back-link"
+        >
+            ← Back to Subjects
+        </a>
 
-            <p class="subject-description">
-                {% if subject.description %}
-                    {{ subject.description }}
-                {% else %}
-                    No subject description yet.
-                {% endif %}
-            </p>
-        </div>
 
-        <div class="action-buttons">
+        <div class="subject-detail-actions">
 
             <a
                 href="{% url 'subject_edit' subject.pk %}"
-                class="btn btn-outline-primary"
+                class="btn btn-outline-primary btn-sm"
             >
                 Edit
             </a>
 
             <a
                 href="{% url 'subject_delete' subject.pk %}"
-                class="btn btn-outline-danger"
+                class="btn btn-outline-danger btn-sm"
             >
                 Delete
             </a>
@@ -130,26 +351,103 @@
 
     </div>
 
-</div>
+
+    <!-- =========================
+         SUBJECT HEADER
+    ========================= -->
+
+    <div class="subject-header-card">
+
+        <div class="subject-header-content">
+
+            <div class="subject-large-icon">
+                📚
+            </div>
 
 
-<!-- Related Content -->
+            <div class="subject-header-text">
 
-<div class="row g-3">
+                <h1 class="subject-title">
+                    {{ subject.name }}
+                </h1>
 
-    <!-- Related Tasks -->
 
-    <div class="col-12 col-md-6">
+                <p class="subject-description">
 
-        <div class="detail-card">
+                    {% if subject.description %}
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
+                        {{ subject.description }}
 
-                <h5 class="mb-0">Related Tasks</h5>
+                    {% else %}
 
-                <span class="badge text-bg-light">
+                        No description provided.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Overview -->
+
+        <div class="subject-overview">
+
+            <div class="overview-box">
+
+                <span class="overview-number">
                     {{ tasks.count }}
                 </span>
+
+                <span class="overview-label">
+                    Tasks
+                </span>
+
+            </div>
+
+
+            <div class="overview-box">
+
+                <span class="overview-number">
+                    {{ notes.count }}
+                </span>
+
+                <span class="overview-label">
+                    Notes
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         TASKS + NOTES
+    ========================= -->
+
+    <div class="subject-content-grid">
+
+
+        <!-- TASKS -->
+
+        <div class="content-card">
+
+            <div class="content-card-header">
+
+                <h2>
+                    Tasks
+                </h2>
+
+                <a
+                    href="{% url 'task_create' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    + Add
+                </a>
 
             </div>
 
@@ -158,53 +456,87 @@
 
                 {% for task in tasks %}
 
-                    <div class="related-item">
+                    <a
+                        href="{% url 'task_detail' task.pk %}"
+                        class="subject-item-link"
+                    >
 
-                        <a
-                            href="{% url 'task_detail' task.pk %}"
-                            class="related-title"
-                        >
-                            {{ task.title }}
-                        </a>
+                        <div class="subject-item">
 
-                        <div class="related-meta">
-                            {{ task.status }} · {{ task.priority }}
+                            <div class="subject-item-title">
+                                {{ task.title }}
+                            </div>
 
-                            {% if task.due_date %}
-                                · Due {{ task.due_date|date:"M d, Y" }}
+
+                            <div class="subject-item-meta">
+
+                                {% if task.due_date %}
+
+                                    Due:
+                                    {{ task.due_date|date:"M d, Y" }}
+
+                                {% else %}
+
+                                    No due date
+
+                                {% endif %}
+
+                            </div>
+
+
+                            {% if task.status == 'Completed' %}
+
+                                <span class="status-badge status-completed">
+                                    Completed
+                                </span>
+
+                            {% elif task.status == 'In Progress' %}
+
+                                <span class="status-badge status-progress">
+                                    In Progress
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-pending">
+                                    Pending
+                                </span>
+
                             {% endif %}
+
                         </div>
 
-                    </div>
+                    </a>
 
                 {% endfor %}
 
             {% else %}
 
-                <p class="empty-related">
-                    No tasks in this subject yet.
-                </p>
+                <div class="section-empty">
+                    No tasks for this subject yet.
+                </div>
 
             {% endif %}
 
         </div>
 
-    </div>
 
+        <!-- NOTES -->
 
-    <!-- Related Notes -->
+        <div class="content-card">
 
-    <div class="col-12 col-md-6">
+            <div class="content-card-header">
 
-        <div class="detail-card">
+                <h2>
+                    Notes
+                </h2>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h5 class="mb-0">Related Notes</h5>
-
-                <span class="badge text-bg-light">
-                    {{ notes.count }}
-                </span>
+                <a
+                    href="{% url 'note_create' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    + Add
+                </a>
 
             </div>
 
@@ -213,48 +545,66 @@
 
                 {% for note in notes %}
 
-                    <div class="related-item">
+                    <a
+                        href="{% url 'note_detail' note.pk %}"
+                        class="subject-item-link"
+                    >
 
-                        <a
-                            href="{% url 'note_detail' note.pk %}"
-                            class="related-title"
-                        >
-                            {{ note.title }}
-                        </a>
+                        <div class="subject-item">
 
-                        <div class="related-meta">
-                            Updated {{ note.updated_at|date:"M d, Y" }}
+                            <div class="subject-item-title">
+                                {{ note.title }}
+                            </div>
+
+
+                            <div class="subject-item-meta">
+
+                                Updated
+                                {{ note.updated_at|date:"M d, Y" }}
+
+                                {% if note.attachment %}
+
+                                    <br>
+                                    📎 Attachment included
+
+                                {% endif %}
+
+                            </div>
+
                         </div>
 
-                    </div>
+                    </a>
 
                 {% endfor %}
 
             {% else %}
 
-                <p class="empty-related">
-                    No notes linked to this subject yet.
-                </p>
+                <div class="section-empty">
+                    No notes for this subject yet.
+                </div>
 
             {% endif %}
 
         </div>
 
+
     </div>
 
-</div>
 
+    <!-- =========================
+         BOTTOM ACTION
+    ========================= -->
 
-<!-- Back -->
+    <div class="subject-bottom-actions">
 
-<div class="mt-3">
+        <a
+            href="{% url 'subjects' %}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Subjects
+        </a>
 
-    <a
-        href="{% url 'subjects' %}"
-        class="btn btn-outline-secondary"
-    >
-        ← Back to Subjects
-    </a>
+    </div>
 
 </div>
 

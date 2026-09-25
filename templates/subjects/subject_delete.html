@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+.subject-delete-page {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 50px 20px;
+    box-sizing: border-box;
+}
+
+.delete-card {
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(30, 60, 100, 0.08);
+}
+
+.delete-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fff1f2;
+    color: #dc3545;
+
+    font-size: 28px;
+}
+
+.delete-title {
+    margin: 0 0 10px;
+
+    color: #172033;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.delete-message {
+    margin: 0 auto 8px;
+
+    color: #59697d;
+
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.subject-name {
+    display: inline-block;
+
+    margin: 10px 0 20px;
+
+    padding: 8px 14px;
+
+    background: #f1f4f8;
+
+    border-radius: 20px;
+
+    color: #172033;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.warning-box {
+    background: #fff8e8;
+
+    border: 1px solid #f3dfaa;
+
+    border-radius: 10px;
+
+    padding: 12px 14px;
+
+    margin-bottom: 24px;
+
+    color: #8a6700;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.delete-actions {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 10px;
+}
+
+.delete-actions .btn {
+    min-width: 120px;
+
+    border-radius: 9px;
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .subject-delete-page {
+        padding: 25px 14px 35px;
+    }
+
+    .delete-card {
+        padding: 25px 18px;
+    }
+
+    .delete-title {
+        font-size: 22px;
+    }
+
+    .delete-actions {
+        flex-direction: column;
+    }
+
+    .delete-actions .btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="subject-delete-page">
+
+    <div class="delete-card">
+
+
+        <!-- =========================
+             ICON
+        ========================= -->
+
+        <div class="delete-icon">
+            🗑️
+        </div>
+
+
+        <!-- =========================
+             TITLE
+        ========================= -->
+
+        <h1 class="delete-title">
+            Delete Subject?
+        </h1>
+
+
+        <!-- =========================
+             MESSAGE
+        ========================= -->
+
+        <p class="delete-message">
+            Are you sure you want to delete this subject?
+        </p>
+
+
+        <div class="subject-name">
+            {{ subject.name }}
+        </div>
+
+
+        <!-- =========================
+             WARNING
+        ========================= -->
+
+        <div class="warning-box">
+            This action cannot be undone. Make sure you really want to remove this subject.
+        </div>
+
+
+        <!-- =========================
+             FORM
+        ========================= -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <div class="delete-actions">
+
+
+                <a
+                    href="{% url 'subject_detail' subject.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Delete Subject
+                </button>
+
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

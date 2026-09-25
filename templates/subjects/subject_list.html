@@ -4,148 +4,281 @@
 
 <style>
 
-    .subject-header {
-        margin-bottom: 24px;
+.subjects-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    box-sizing: border-box;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.subjects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.subjects-heading h1 {
+    margin: 0;
+    color: #172033;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subjects-heading p {
+    margin: 5px 0 0;
+    color: #6b7b91;
+    font-size: 14px;
+}
+
+.add-subject-btn {
+    white-space: nowrap;
+    border-radius: 9px;
+    padding: 10px 18px;
+    font-weight: 600;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.subject-search-card {
+    background: #ffffff;
+    border: 1px solid #e6ebf1;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 10px rgba(30, 60, 100, 0.05);
+}
+
+.subject-search-form {
+    display: flex;
+    gap: 10px;
+}
+
+.subject-search-input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    border: 1px solid #d8e0e8;
+    border-radius: 9px;
+    padding: 0 14px;
+    font-size: 14px;
+    outline: none;
+}
+
+.subject-search-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+
+.search-btn {
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+/* =========================
+   SUBJECT GRID
+========================= */
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.subject-card {
+    background: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 3px 12px rgba(30, 60, 100, 0.06);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subject-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(30, 60, 100, 0.10);
+}
+
+.subject-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #eef5ff;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    margin-bottom: 15px;
+}
+
+.subject-name {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #172033;
+    word-break: break-word;
+}
+
+.subject-description {
+    color: #65758b;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 45px;
+    margin-bottom: 16px;
+}
+
+.subject-stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.subject-stat {
+    flex: 1;
+    background: #f7f9fc;
+    border-radius: 9px;
+    padding: 9px 10px;
+    text-align: center;
+}
+
+.subject-stat-number {
+    display: block;
+    color: #172033;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.subject-stat-label {
+    display: block;
+    color: #7a899b;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.subject-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.subject-actions .btn {
+    flex: 1;
+    min-width: 0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-subjects {
+    background: #ffffff;
+    border: 1px dashed #cfd8e3;
+    border-radius: 16px;
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.empty-subjects h3 {
+    margin: 0 0 7px;
+    color: #172033;
+    font-size: 21px;
+}
+
+.empty-subjects p {
+    margin: 0 0 20px;
+    color: #718096;
+    font-size: 14px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 992px) {
+
+    .subjects-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .subject-header h2 {
-        font-weight: 700;
-        margin-bottom: 4px;
+}
+
+@media (max-width: 650px) {
+
+    .subjects-page {
+        padding: 16px 14px 30px;
     }
 
-    .subject-header p {
-        margin: 0;
-        color: #6c757d;
-    }
-
-    .search-card {
-        border: 1px solid #e9ecef;
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 24px;
-        background: #fff;
-    }
-
-    .subject-card {
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
-        background: #fff;
-
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-    .subject-card:hover {
-        transform: translateY(-2px);
-
-        box-shadow:
-            0 6px 18px
-            rgba(0, 0, 0, 0.06);
-    }
-
-    .subject-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0;
-        word-break: break-word;
-    }
-
-    .task-count {
-        background: #f1f3f5;
-        color: #495057;
-
-        border-radius: 20px;
-
-        padding: 5px 10px;
-
-        font-size: 12px;
-
-        white-space: nowrap;
-    }
-
-    .subject-description {
-        color: #6c757d;
-
-        font-size: 14px;
-
-        line-height: 1.6;
-
-        min-height: 45px;
-
+    .subjects-header {
+        align-items: flex-start;
+        flex-direction: column;
         margin-bottom: 18px;
     }
 
-    .subject-actions {
-        display: flex;
-
-        gap: 8px;
-
-        flex-wrap: wrap;
+    .subjects-heading h1 {
+        font-size: 25px;
     }
 
-    .empty-state {
-        border: 1px dashed #ced4da;
-
-        border-radius: 16px;
-
-        padding: 45px 20px;
-
-        text-align: center;
-
-        color: #6c757d;
-
-        background: #fff;
+    .add-subject-btn {
+        width: 100%;
     }
 
-    @media (max-width: 576px) {
-
-        .subject-header {
-            margin-bottom: 18px;
-        }
-
-        .subject-header .btn {
-            width: 100%;
-        }
-
-        .search-card {
-            padding: 14px;
-        }
-
-        .subject-card {
-            padding: 18px;
-        }
-
-        .subject-actions .btn {
-            flex: 1;
-        }
-
+    .subject-search-form {
+        flex-direction: column;
     }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .subject-card {
+        padding: 19px;
+    }
+
+}
 
 </style>
 
 
-<div class="subject-header">
+<div class="subjects-page">
 
-    <div
-        class="d-flex
-               flex-column
-               flex-md-row
-               justify-content-between
-               align-items-md-center
-               gap-3"
-    >
+    <!-- =========================
+         HEADER
+    ========================= -->
 
-        <div>
+    <div class="subjects-header">
 
-            <h2>
-                Subjects
-            </h2>
+        <div class="subjects-heading">
+
+            <h1>Subjects</h1>
 
             <p>
-                Manage and organize your study subjects.
+                Organize your tasks and notes by subject.
             </p>
 
         </div>
@@ -153,169 +286,198 @@
 
         <a
             href="{% url 'subject_create' %}"
-            class="btn btn-primary"
+            class="btn btn-primary add-subject-btn"
         >
             + Add Subject
         </a>
 
     </div>
 
-</div>
 
+    <!-- =========================
+         SEARCH
+    ========================= -->
 
-<!-- SEARCH -->
+    <div class="subject-search-card">
 
-<div class="search-card">
+        <form
+            method="get"
+            action="{% url 'subjects' %}"
+            class="subject-search-form"
+        >
 
-    <form method="get">
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                class="subject-search-input"
+                placeholder="Search subjects..."
+            >
 
-        <div class="row g-2 align-items-end">
+            <button
+                type="submit"
+                class="btn btn-primary search-btn"
+            >
+                Search
+            </button>
 
-            <div class="col-12 col-md-10">
+            {% if q %}
 
-                <label
-                    for="subjectSearch"
-                    class="form-label fw-semibold"
+                <a
+                    href="{% url 'subjects' %}"
+                    class="btn btn-outline-secondary search-btn"
                 >
-                    Search Subjects
-                </label>
+                    Clear
+                </a>
 
-                <input
-                    type="text"
-                    id="subjectSearch"
-                    name="q"
-                    value="{{ q|default:'' }}"
-                    class="form-control"
-                    placeholder="Search by subject name"
-                >
+            {% endif %}
 
-            </div>
+        </form>
+
+    </div>
 
 
-            <div class="col-12 col-md-2">
+    <!-- =========================
+         SUBJECTS
+    ========================= -->
 
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                >
-                    Search
-                </button>
+    {% if subjects %}
 
-            </div>
+        <div class="subjects-grid">
 
-        </div>
+            {% for subject in subjects %}
 
-    </form>
+                <div class="subject-card">
 
-</div>
-
-
-<!-- SUBJECTS -->
-
-<div class="row g-3">
-
-    {% for subject in subjects %}
-
-        <div class="col-12 col-md-6 col-xl-4">
-
-            <div class="subject-card">
+                    <div class="subject-icon">
+                        📚
+                    </div>
 
 
-                <!-- SUBJECT NAME -->
-
-                <div
-                    class="d-flex
-                           justify-content-between
-                           align-items-start
-                           gap-2
-                           mb-3"
-                >
-
-                    <h5 class="subject-title">
+                    <h2 class="subject-name">
                         {{ subject.name }}
-                    </h5>
+                    </h2>
 
 
-                    <span class="task-count">
+                    <p class="subject-description">
 
-                        {{ subject.tasks.count }}
-                        task{{ subject.tasks.count|pluralize }}
+                        {% if subject.description %}
 
-                    </span>
+                            {{ subject.description|truncatechars:100 }}
+
+                        {% else %}
+
+                            No description provided.
+
+                        {% endif %}
+
+                    </p>
+
+
+                    <!-- Stats -->
+
+                    <div class="subject-stats">
+
+                        <div class="subject-stat">
+
+                            <span class="subject-stat-number">
+                                {{ subject.tasks.count }}
+                            </span>
+
+                            <span class="subject-stat-label">
+                                Tasks
+                            </span>
+
+                        </div>
+
+
+                        <div class="subject-stat">
+
+                            <span class="subject-stat-number">
+                                {{ subject.notes.count }}
+                            </span>
+
+                            <span class="subject-stat-label">
+                                Notes
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Actions -->
+
+                    <div class="subject-actions">
+
+                        <a
+                            href="{% url 'subject_detail' subject.pk %}"
+                            class="btn btn-outline-primary"
+                        >
+                            View
+                        </a>
+
+
+                        <a
+                            href="{% url 'subject_edit' subject.pk %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Edit
+                        </a>
+
+
+                        <a
+                            href="{% url 'subject_delete' subject.pk %}"
+                            class="btn btn-outline-danger"
+                        >
+                            Delete
+                        </a>
+
+                    </div>
 
                 </div>
 
+            {% endfor %}
 
-                <!-- DESCRIPTION -->
+        </div>
 
-                <p class="subject-description">
+    {% else %}
 
-                    {% if subject.description %}
+        <!-- =========================
+             EMPTY
+        ========================= -->
 
-                        {{ subject.description }}
+        <div class="empty-subjects">
 
-                    {% else %}
+            <div class="empty-icon">
+                📚
+            </div>
 
-                        No description added yet.
+            {% if q %}
 
-                    {% endif %}
+                <h3>
+                    No subjects found
+                </h3>
 
+                <p>
+                    No subjects match "{{ q }}".
                 </p>
 
+                <a
+                    href="{% url 'subjects' %}"
+                    class="btn btn-outline-primary"
+                >
+                    Clear Search
+                </a>
 
-                <!-- ACTIONS -->
+            {% else %}
 
-                <div class="subject-actions">
-
-
-                    <!-- VIEW -->
-
-                    <a
-                        href="{% url 'subject_detail' subject.pk %}"
-                        class="btn btn-sm btn-outline-primary"
-                    >
-                        View
-                    </a>
-
-
-                    <!-- EDIT -->
-
-                    <a
-                        href="{% url 'subject_update' subject.pk %}"
-                        class="btn btn-sm btn-outline-secondary"
-                    >
-                        Edit
-                    </a>
-
-
-                    <!-- DELETE -->
-
-                    <a
-                        href="{% url 'subject_delete' subject.pk %}"
-                        class="btn btn-sm btn-outline-danger"
-                    >
-                        Delete
-                    </a>
-
-
-                </div>
-
-            </div>
-
-        </div>
-
-    {% empty %}
-
-        <div class="col-12">
-
-            <div class="empty-state">
-
-                <h5 class="mb-2">
+                <h3>
                     No subjects yet
-                </h5>
+                </h3>
 
-                <p class="mb-3">
-                    Add your first subject to start organizing your studies.
+                <p>
+                    Create your first subject to start organizing your study work.
                 </p>
 
                 <a
@@ -325,11 +487,11 @@
                     + Add Subject
                 </a>
 
-            </div>
+            {% endif %}
 
         </div>
 
-    {% endfor %}
+    {% endif %}
 
 </div>
 

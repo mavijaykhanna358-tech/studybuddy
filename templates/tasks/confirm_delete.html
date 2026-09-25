@@ -1,57 +1,128 @@
 {% extends 'base.html' %}
 
+{% block title %}Confirm Delete - StudyBuddy{% endblock %}
+
 {% block content %}
 
 <style>
+
     .delete-page {
-        max-width: 550px;
+        max-width: 620px;
         margin: 60px auto;
+        padding: 20px;
     }
 
     .delete-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 30px;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 35px;
         text-align: center;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+        border: 1px solid #eef0f4;
     }
 
-    .delete-card h2 {
+    .delete-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: #fef2f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+    }
+
+    .delete-card h1 {
+        margin: 0 0 10px;
+        color: #172033;
+        font-size: 28px;
         font-weight: 700;
-        margin-bottom: 10px;
     }
 
-    .delete-message {
-        color: #6c757d;
+    .delete-card .warning-text {
+        color: #6b7280;
+        font-size: 15px;
         line-height: 1.6;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
+    }
+
+    .object-name {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 13px 16px;
+        margin: 20px 0 25px;
+        color: #172033;
+        font-weight: 700;
+        word-break: break-word;
     }
 
     .delete-actions {
         display: flex;
         justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 25px;
     }
 
-    @media (max-width: 576px) {
+    .cancel-btn,
+    .delete-confirm-btn {
+        border: none;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .cancel-btn {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .cancel-btn:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .delete-confirm-btn {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .delete-confirm-btn:hover {
+        background: #b91c1c;
+    }
+
+    @media (max-width: 600px) {
 
         .delete-page {
             margin: 30px auto;
+            padding: 15px;
         }
 
         .delete-card {
-            padding: 22px;
+            padding: 25px 20px;
+        }
+
+        .delete-card h1 {
+            font-size: 24px;
         }
 
         .delete-actions {
             flex-direction: column;
         }
 
-        .delete-actions .btn {
+        .cancel-btn,
+        .delete-confirm-btn {
             width: 100%;
+            text-align: center;
         }
+
     }
+
 </style>
 
 
@@ -59,22 +130,56 @@
 
     <div class="delete-card">
 
-        <h2>
+        <!-- Icon -->
+
+        <div class="delete-icon">
+            🗑️
+        </div>
+
+
+        <!-- Heading -->
+
+        <h1>
             Delete {{ object_type|title }}?
-        </h2>
+        </h1>
 
-        <p class="delete-message">
 
-            Are you sure you want to delete
+        <!-- Warning -->
 
-            <strong>{{ object }}</strong>?
-
+        <p class="warning-text">
+            Are you sure you want to delete this
+            {{ object_type }}?
             <br>
-
             This action cannot be undone.
-
         </p>
 
+
+        <!-- Object Name -->
+
+        <div class="object-name">
+
+            {% if object_type == 'task' %}
+
+                {{ object.title }}
+
+            {% elif object_type == 'note' %}
+
+                {{ object.title }}
+
+            {% elif object_type == 'subject' %}
+
+                {{ object.name }}
+
+            {% else %}
+
+                {{ object }}
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- Delete Form -->
 
         <form method="post">
 
@@ -82,20 +187,24 @@
 
             <div class="delete-actions">
 
-                <button
-                    type="submit"
-                    class="btn btn-danger"
-                >
-                    Yes, Delete
-                </button>
-
+                <!-- CANCEL -->
 
                 <a
                     href="{{ back_url }}"
-                    class="btn btn-outline-secondary"
+                    class="cancel-btn"
                 >
                     Cancel
                 </a>
+
+
+                <!-- DELETE -->
+
+                <button
+                    type="submit"
+                    class="delete-confirm-btn"
+                >
+                    Yes, Delete
+                </button>
 
             </div>
 
