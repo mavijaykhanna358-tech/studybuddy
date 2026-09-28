@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import os
+import re
 from contextlib import redirect_stderr
 from unittest import mock
 
@@ -40,6 +41,51 @@ CONSOLE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 PRODUCTION_DATABASE_URL = (
     'postgresql://unit-test:unit-test@db.example.invalid:5432/studybuddy'
 )
+
+# Never a real credential. The Resend API key is only ever compared
+# for presence, and a request is never actually made with it.
+PRODUCTION_RESEND_API_KEY = 're_unit_test_not_a_real_key'
+
+# A sending address on a domain that is not Resend's shared testing
+# domain, which only delivers to the account owner.
+PRODUCTION_SENDER = 'no-reply@studybuddy.example'
+
+
+def production_environment(**overrides):
+    """
+    A complete, correct production environment for a settings load.
+
+    Any production load that is not about a specific missing variable
+    starts from here, so a test that is about the database or about
+    DEBUG does not also collect an unrelated email complaint.
+    """
+    environment = {
+        'DJANGO_ENV': 'production',
+        'SECRET_KEY': STRONG_SECRET_KEY,
+        'RESEND_API_KEY': PRODUCTION_RESEND_API_KEY,
+        'DEFAULT_FROM_EMAIL': PRODUCTION_SENDER,
+    }
+
+    environment.update(overrides)
+
+    return environment
+
+
+def reset_path_from(body):
+    """The site-relative reset URL from an emailed body.
+
+    The link is absolute and points at the public site, so only the
+    path is usable against the test client.
+    """
+    match = re.search(r'https?://[^\s/]+(/reset/\S+)', body)
+
+    if match is None:
+
+        raise AssertionError(
+            f'no reset link in the email body: {body!r}'
+        )
+
+    return match.group(1)
 
 
 def load_settings(**environment):
@@ -87,10 +133,10 @@ def load_settings(**environment):
 class EmailSettingsTest(SimpleTestCase):
     def test_resend_is_used_when_an_api_key_is_present(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
-            RESEND_API_KEY='re_test_key',
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                RESEND_API_KEY='re_test_key',
+            )
         )
 
         self.assertEqual(
@@ -98,11 +144,10 @@ class EmailSettingsTest(SimpleTestCase):
             'users.email_backend.ResendEmailBackend',
         )
 
-    def test_console_backend_is_the_fallback_without_an_api_key(self):
+    def test_console_backend_is_used_in_development(self):
+        """Locally, mail is printed to the terminal. That is fine."""
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            DJANGO_ENV='development',
             RESEND_API_KEY=None,
         )
 
@@ -111,19 +156,127 @@ class EmailSettingsTest(SimpleTestCase):
             CONSOLE_BACKEND,
         )
 
+    def test_production_never_falls_back_to_the_console(self):
+        """The console backend is what made this fail silently.
+
+        In production it printed the reset email into the gunicorn
+        log, threw it away, and the user was still redirected to the
+        "check your inbox" page. Production must therefore keep the
+        Resend backend even with no key, so the send fails loudly and
+        the deployment check names the missing variable.
+        """
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                RESEND_API_KEY=None,
+            )
+        )
+
+        self.assertEqual(
+            settings.EMAIL_BACKEND,
+            'users.email_backend.ResendEmailBackend',
+        )
+
+    def test_a_missing_api_key_is_reported_in_production(self):
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                RESEND_API_KEY=None,
+            )
+        )
+
+        self.assertIn(
+            'RESEND_API_KEY',
+            [
+                identifier
+                for identifier, _ in settings.DEPLOYMENT_ERRORS
+            ],
+        )
+
+    def test_a_missing_api_key_is_not_reported_in_development(self):
+        """No key is the expected local setup, so nothing is recorded."""
+        settings = load_settings(
+            DJANGO_ENV='development',
+            RESEND_API_KEY=None,
+        )
+
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
+
+    def test_the_testing_sender_is_reported_in_production(self):
+        """Resend's shared domain only delivers to the account owner.
+
+        Sending a reset from it to a real user is rejected with a 403,
+        so a deployment still pointing at it cannot work.
+        """
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                DEFAULT_FROM_EMAIL='onboarding@resend.dev',
+            )
+        )
+
+        identifiers = [
+            identifier
+            for identifier, _ in settings.DEPLOYMENT_ERRORS
+        ]
+
+        self.assertIn('DEFAULT_FROM_EMAIL', identifiers)
+
+    def test_a_verified_sender_is_not_reported(self):
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
+        )
+
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
+
     def test_explicit_email_backend_wins(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
-            RESEND_API_KEY='re_test_key',
-            EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+            )
         )
 
         self.assertEqual(
             settings.EMAIL_BACKEND,
             'django.core.mail.backends.locmem.EmailBackend',
         )
+
+    def test_a_backend_that_cannot_deliver_is_reported(self):
+        """Naming a console backend is the same failure as none.
+
+        On Render its output goes to a log nobody reads, so the reset
+        email is discarded while the page reports success. The
+        variable is honoured, but the deployment is reported.
+        """
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                EMAIL_BACKEND=CONSOLE_BACKEND,
+            )
+        )
+
+        self.assertEqual(settings.EMAIL_BACKEND, CONSOLE_BACKEND)
+
+        self.assertIn(
+            'EMAIL_BACKEND',
+            [
+                identifier
+                for identifier, _ in settings.DEPLOYMENT_ERRORS
+            ],
+        )
+
+    def test_a_delivering_backend_is_not_reported(self):
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+                EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
+            )
+        )
+
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
 
 
 class DebugSettingsTest(SimpleTestCase):
@@ -137,20 +290,20 @@ class DebugSettingsTest(SimpleTestCase):
 
     def test_debug_is_off_by_default_for_production(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            DEBUG=None,
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DEBUG=None,
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         self.assertFalse(settings.DEBUG)
 
     def test_debug_can_be_forced_on_for_a_production_env(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            DEBUG='True',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DEBUG='True',
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         self.assertTrue(settings.DEBUG)
@@ -185,9 +338,9 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_production_url_resolves_to_postgresql(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         self.assertEqual(
@@ -197,9 +350,9 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_production_url_keeps_the_connection_reuse_settings(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         default = settings.DATABASES['default']
@@ -215,10 +368,10 @@ class DatabaseSettingsTest(SimpleTestCase):
         "Unknown command: 'collectstatic'".
         """
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=None,
-            DATABASE_FALLBACK_ENGINE=None,
+            **production_environment(
+                DATABASE_URL=None,
+                DATABASE_FALLBACK_ENGINE=None,
+            )
         )
 
         self.assertEqual(
@@ -234,10 +387,10 @@ class DatabaseSettingsTest(SimpleTestCase):
         in and the system check stops the command instead.
         """
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=None,
-            DATABASE_FALLBACK_ENGINE=None,
+            **production_environment(
+                DATABASE_URL=None,
+                DATABASE_FALLBACK_ENGINE=None,
+            )
         )
 
         self.assertEqual(
@@ -247,9 +400,7 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_production_with_a_malformed_url_is_reported(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL='not-a-url',
+            **production_environment(DATABASE_URL='not-a-url')
         )
 
         self.assertEqual(
@@ -264,9 +415,7 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_production_with_a_malformed_url_never_uses_sqlite(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL='not-a-url',
+            **production_environment(DATABASE_URL='not-a-url')
         )
 
         self.assertEqual(
@@ -276,9 +425,9 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_a_correct_production_load_records_nothing(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
@@ -298,10 +447,10 @@ class DatabaseSettingsTest(SimpleTestCase):
 
     def test_sqlite_can_be_forced_back_on_in_production(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=None,
-            DATABASE_FALLBACK_ENGINE='django.db.backends.sqlite3',
+            **production_environment(
+                DATABASE_URL=None,
+                DATABASE_FALLBACK_ENGINE='django.db.backends.sqlite3',
+            )
         )
 
         self.assertEqual(
@@ -316,10 +465,10 @@ class DatabaseSettingsTest(SimpleTestCase):
         the default must leave the URL alone.
         """
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL='postgresql://user:pass@dpg-abc123/studybuddy',
-            DATABASE_SSL_REQUIRE=None,
+            **production_environment(
+                DATABASE_URL='postgresql://user:pass@dpg-abc123/studybuddy',
+                DATABASE_SSL_REQUIRE=None,
+            )
         )
 
         options = settings.DATABASES['default'].get('OPTIONS') or {}
@@ -329,13 +478,13 @@ class DatabaseSettingsTest(SimpleTestCase):
     def test_sslmode_in_the_url_is_always_honoured(self):
         """Render's external string carries `?sslmode=require`."""
         settings = load_settings(
-            DJANGO_ENV='production',
-            SECRET_KEY=STRONG_SECRET_KEY,
-            DATABASE_URL=(
-                'postgresql://user:pass@db.example.com:5432/studybuddy'
-                '?sslmode=require'
-            ),
-            DATABASE_SSL_REQUIRE=None,
+            **production_environment(
+                DATABASE_URL=(
+                    'postgresql://user:pass@db.example.com:5432/studybuddy'
+                    '?sslmode=require'
+                ),
+                DATABASE_SSL_REQUIRE=None,
+            )
         )
 
         options = settings.DATABASES['default'].get('OPTIONS') or {}
@@ -353,10 +502,11 @@ class ProductionSecretsTest(SimpleTestCase):
         command list, and the real reason never reached the log.
         """
         settings = load_settings(
-            DJANGO_ENV='production',
-            DEBUG=None,
-            SECRET_KEY='insecure',
-            DATABASE_URL=PRODUCTION_DATABASE_URL,
+            **production_environment(
+                DEBUG=None,
+                SECRET_KEY='insecure',
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
         )
 
         self.assertIn(
@@ -389,11 +539,13 @@ class DeploymentReportTest(SimpleTestCase):
 
     def test_a_broken_production_load_still_imports(self):
         settings = load_settings(
-            DJANGO_ENV='production',
-            DEBUG=None,
-            SECRET_KEY='insecure',
-            DATABASE_URL=None,
-            DATABASE_FALLBACK_ENGINE=None,
+            **production_environment(
+                DEBUG=None,
+                SECRET_KEY='insecure',
+                DATABASE_URL=None,
+                DATABASE_FALLBACK_ENGINE=None,
+                RESEND_API_KEY=None,
+            )
         )
 
         self.assertEqual(
@@ -401,7 +553,7 @@ class DeploymentReportTest(SimpleTestCase):
                 identifier
                 for identifier, _ in settings.DEPLOYMENT_ERRORS
             ),
-            ['DATABASE_URL', 'SECRET_KEY'],
+            ['DATABASE_URL', 'RESEND_API_KEY', 'SECRET_KEY'],
         )
 
     def test_the_check_is_registered(self):
@@ -720,3 +872,247 @@ class PasswordResetFlowTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('login'))
+
+    def test_the_new_password_actually_takes_effect(self):
+        """The link must really replace the old password.
+
+        Everything else in this flow is a page that renders, so the
+        only honest proof is that the stored hash changed and the new
+        password logs in while the old one no longer does.
+        """
+        user = get_user_model().objects.create_user(
+            username='roundtrip',
+            email='roundtrip@example.com',
+            password='OldPassword123!'
+        )
+
+        with override_settings(
+            EMAIL_BACKEND=(
+                'django.core.mail.backends.locmem.EmailBackend'
+            ),
+        ):
+
+            self.client.post(
+                reverse('password_reset'),
+                {'email': 'roundtrip@example.com'},
+            )
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        # Django moves the token out of the URL and into the session,
+        # so the GET is followed and the form is posted to wherever it
+        # landed.
+
+        confirmation = self.client.get(
+            reset_path_from(mail.outbox[0].body)
+        )
+
+        self.assertEqual(confirmation.status_code, 302)
+
+        self.client.post(
+            confirmation['Location'],
+            {
+                'new_password1': 'BrandNewPassword123!',
+                'new_password2': 'BrandNewPassword123!',
+            },
+        )
+
+        user.refresh_from_db()
+
+        self.assertTrue(
+            user.check_password('BrandNewPassword123!')
+        )
+
+        self.assertFalse(
+            user.check_password('OldPassword123!')
+        )
+
+        self.assertTrue(
+            self.client.login(
+                username='roundtrip',
+                password='BrandNewPassword123!',
+            )
+        )
+
+
+class PasswordResetDeliveryTest(TestCase):
+    """A reset email that was never sent must not look like success.
+
+    Django 5.2 sends the message inside a `try/except` that only
+    logs, so an invalid API key, an unverified sender or a Resend
+    testing-domain restriction all produced a redirect to "check your
+    inbox" for a message that did not exist. These tests pin the
+    behaviour that replaced it.
+    """
+
+    def setUp(self):
+
+        self.user = get_user_model().objects.create_user(
+            username='delivery',
+            email='delivery@example.com',
+            password='OldPassword123!'
+        )
+
+    def submit(self):
+        return self.client.post(
+            reverse('password_reset'),
+            {'email': 'delivery@example.com'},
+        )
+
+    def test_a_rejected_send_is_not_reported_as_success(self):
+        # Regression test. Before the fix this returned a 302 to
+        # /password-reset/done/ and no email, which is the exact
+        # symptom that was reported.
+
+        with override_settings(
+            EMAIL_BACKEND=(
+                'users.email_backend.ResendEmailBackend'
+            ),
+            RESEND_API_KEY='re_unit_test_not_a_real_key',
+        ):
+
+            with mock.patch(
+                'resend.Emails.send'
+            ) as send:
+
+                send.side_effect = OSError('Connection refused')
+
+                response = self.submit()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(
+            response.get('Location'),
+            reverse('password_reset_done'),
+        )
+
+    def test_a_rejected_send_tells_the_user_on_the_form(self):
+        with override_settings(
+            EMAIL_BACKEND=(
+                'users.email_backend.ResendEmailBackend'
+            ),
+            RESEND_API_KEY='re_unit_test_not_a_real_key',
+        ):
+
+            with mock.patch(
+                'resend.Emails.send'
+            ) as send:
+
+                send.side_effect = OSError('Connection refused')
+
+                response = self.submit()
+
+        self.assertContains(
+            response,
+            'could not send the reset email',
+        )
+
+    def test_a_rejected_send_never_reaches_the_done_page(self):
+        with override_settings(
+            EMAIL_BACKEND=(
+                'users.email_backend.ResendEmailBackend'
+            ),
+            RESEND_API_KEY='re_unit_test_not_a_real_key',
+        ):
+
+            with mock.patch(
+                'resend.Emails.send'
+            ) as send:
+
+                send.side_effect = OSError('Connection refused')
+
+                response = self.submit(
+                )
+
+        self.assertNotContains(
+            response,
+            'Check your email',
+            status_code=200,
+        )
+
+    def test_a_successful_send_still_reaches_the_done_page(self):
+        with override_settings(
+            EMAIL_BACKEND=(
+                'users.email_backend.ResendEmailBackend'
+            ),
+            RESEND_API_KEY='re_unit_test_not_a_real_key',
+        ):
+
+            with mock.patch(
+                'resend.Emails.send'
+            ) as send:
+
+                send.return_value = {'id': 'msg_test'}
+
+                response = self.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response['Location'],
+            reverse('password_reset_done'),
+        )
+
+    def test_the_email_is_multipart_with_a_plain_text_part(self):
+        # Without a .txt template the HTML was the text/plain body and
+        # the mail rendered as raw markup.
+
+        with override_settings(
+            EMAIL_BACKEND=(
+                'django.core.mail.backends.locmem.EmailBackend'
+            ),
+        ):
+
+            self.submit()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        sent = mail.outbox[0]
+
+        self.assertIn('text/html', sent.alternatives[0][1])
+        self.assertNotIn('<p>', sent.body)
+        self.assertNotIn('<a ', sent.body)
+        self.assertIn('/reset/', sent.body)
+        self.assertIn('/reset/', sent.alternatives[0][0])
+
+    def test_the_confirmation_form_shows_field_errors(self):
+        # The confirm template iterated `form.fields.items()`, which
+        # yields (name, Field) pairs, so the inner loop tried to
+        # iterate a Field and the page raised a TypeError the moment a
+        # password failed validation.
+
+        user = self.user
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        confirmation = self.client.get(
+            reverse(
+                'password_reset_confirm',
+                kwargs={'uidb64': uid, 'token': token},
+            )
+        )
+
+        self.assertEqual(confirmation.status_code, 302)
+
+        rejected = self.client.post(
+            confirmation['Location'],
+            {
+                'new_password1': 'Short1!',
+                'new_password2': 'Different2!',
+            },
+        )
+
+        self.assertEqual(rejected.status_code, 200)
+        self.assertContains(rejected, 'password fields didn')
+
+        # A password the validators reject must render the same way
+        # rather than raising.
+
+        too_weak = self.client.post(
+            confirmation['Location'],
+            {
+                'new_password1': 'password',
+                'new_password2': 'password',
+            },
+        )
+
+        self.assertEqual(too_weak.status_code, 200)
+

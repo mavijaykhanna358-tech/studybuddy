@@ -12,6 +12,8 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
+from django.template import loader
 
 
 logger = logging.getLogger(__name__)
@@ -155,15 +157,40 @@ class RegistrationForm(forms.Form):
 # PASSWORD RESET FORM
 # ============================================================
 
+class PasswordResetEmailError(Exception):
+
+    """
+    The reset email could not be handed to the mail provider.
+
+    Raised instead of letting the failure pass unnoticed, so the view
+    can tell the user their request did not work rather than showing
+    a "check your inbox" page for a message that was never sent.
+    """
+
+
 class StyledPasswordResetForm(BasePasswordResetForm):
     """`PasswordResetForm` with the project input classes applied
     and without the silent failure on send.
 
-    Django's version logs an exception and carries on, so a
-    misconfigured mail provider leaves the user staring at a
-    "check your inbox" page for a message that will never arrive.
-    Here the error is re-raised, which surfaces the problem
-    instead of hiding it.
+    Django 5.2 builds the message and sends it inside `send_mail`
+    with the call wrapped in a bare `try/except` that only logs:
+
+        try:
+            email_message.send()
+        except Exception:
+            logger.exception("Failed to send password reset email")
+
+    Nothing is re-raised, so a rejected send still redirects to the
+    "check your inbox" page. That is why an invalid API key, an
+    unverified sender or a Resend testing-domain restriction looked
+    exactly like a successful request for months. This override
+    rebuilds the message the same way and sends it without that
+    blanket `except`, so the failure is observable.
+
+    The message construction mirrors Django 5.2's `send_mail` on
+    purpose. `PasswordResetForm` no longer has a `template_mail`
+    helper to delegate to, and the signature below must stay
+    positionally compatible with the call in `save`.
     """
 
     def __init__(self, *args, **kwargs):
@@ -176,19 +203,67 @@ class StyledPasswordResetForm(BasePasswordResetForm):
             'placeholder': 'you@example.com',
         })
 
-    def send_mail(self, *args, **kwargs):
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+
+        subject = loader.render_to_string(
+            subject_template_name,
+            context
+        )
+
+        # An email subject must not contain newlines.
+
+        subject = ''.join(subject.splitlines())
+
+        body = loader.render_to_string(
+            email_template_name,
+            context
+        )
+
+        email_message = EmailMultiAlternatives(
+            subject,
+            body,
+            from_email,
+            [to_email]
+        )
+
+        if html_email_template_name is not None:
+
+            html_email = loader.render_to_string(
+                html_email_template_name,
+                context
+            )
+
+            email_message.attach_alternative(
+                html_email,
+                'text/html'
+            )
 
         try:
 
-            super().send_mail(*args, **kwargs)
+            email_message.send()
 
-        except Exception:
+        except Exception as error:
 
-            logger.exception(
-                'Failed to send the password reset email.'
+            # The backend has already logged the provider's reason,
+            # redacted. This adds the context that it cannot know.
+
+            logger.error(
+                'The password reset email could not be sent. '
+                'The provider rejected the request or was '
+                'unreachable.'
             )
 
-            raise
+            raise PasswordResetEmailError(
+                'The password reset email could not be sent.'
+            ) from error
 
     def save(self, **kwargs):
 

@@ -9,6 +9,8 @@ response shape.
 
 from unittest import mock
 
+import resend
+import resend.exceptions
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.test import SimpleTestCase, override_settings
 
@@ -24,6 +26,13 @@ class ResendEmailBackendTests(SimpleTestCase):
     def build_backend(self, **kwargs):
 
         return ResendEmailBackend(**kwargs)
+
+    def logged(self, logger):
+        """Everything the backend wrote to the error log."""
+        return ' '.join(
+            str(call)
+            for call in logger.error.call_args_list
+        )
 
     def test_no_messages_returns_zero_without_calling_the_api(self):
         with mock.patch('resend.Emails.send') as send:
@@ -208,7 +217,141 @@ class ResendEmailBackendTests(SimpleTestCase):
                 ).send_messages([self.message()])
 
         self.assertEqual(result, 0)
-        logger.exception.assert_called_once()
+        logger.error.assert_called_once()
+
+    def test_a_failure_is_logged_with_error_not_exception(self):
+        # `logger.exception` would print the raw ResendError message
+        # in the traceback, and Resend quotes the recipient inside
+        # that message. The reason is logged explicitly instead, and
+        # the traceback is kept for DEBUG, which production does not
+        # emit.
+
+        with mock.patch('resend.Emails.send') as send:
+
+            send.side_effect = OSError('Connection refused')
+
+            with mock.patch(
+                'users.email_backend.logger'
+            ) as logger:
+
+                self.build_backend(
+                    fail_silently=True
+                ).send_messages([self.message()])
+
+        logger.exception.assert_not_called()
+
+    def test_a_resend_rejection_is_logged_with_its_own_reason(self):
+        # This is the log line that explains a reset email which was
+        # never delivered: the provider's code and message.
+
+        rejection = resend.exceptions.ResendError(
+            code=403,
+            error_type='validation_error',
+            message='Domain is not verified.',
+            suggested_action='Verify the domain first.',
+        )
+
+        with mock.patch('resend.Emails.send') as send:
+
+            send.side_effect = rejection
+
+            with mock.patch(
+                'users.email_backend.logger'
+            ) as logger:
+
+                with self.assertRaises(resend.exceptions.ResendError):
+
+                    self.build_backend().send_messages([
+                        self.message()
+                    ])
+
+        logged = self.logged(logger)
+
+        self.assertIn('403', logged)
+        self.assertIn('validation_error', logged)
+        self.assertIn('Domain is not verified.', logged)
+
+    def test_the_logged_reason_never_contains_the_recipient(self):
+        # Resend replies with the address it rejected, for example
+        # "You can only send testing emails to your own email
+        # address (student@example.com)". That must not be written to
+        # the log.
+
+        rejection = resend.exceptions.ResendError(
+            code=403,
+            error_type='validation_error',
+            message=(
+                'You can only send testing emails to your own '
+                'email address (student@example.com).'
+            ),
+            suggested_action='Use a verified domain.',
+        )
+
+        with mock.patch('resend.Emails.send') as send:
+
+            send.side_effect = rejection
+
+            with mock.patch(
+                'users.email_backend.logger'
+            ) as logger:
+
+                with self.assertRaises(resend.exceptions.ResendError):
+
+                    self.build_backend().send_messages([
+                        self.message()
+                    ])
+
+        logged = self.logged(logger)
+
+        self.assertNotIn('student@example.com', logged)
+        self.assertIn('[address redacted]', logged)
+
+    def test_the_logged_reason_never_contains_the_api_key(self):
+        rejection = resend.exceptions.ResendError(
+            code=401,
+            error_type='invalid_api_key',
+            message='API key is invalid: re_test_key',
+            suggested_action='Check the key.',
+        )
+
+        with mock.patch('resend.Emails.send') as send:
+
+            send.side_effect = rejection
+
+            with mock.patch(
+                'users.email_backend.logger'
+            ) as logger:
+
+                with self.assertRaises(resend.exceptions.ResendError):
+
+                    self.build_backend().send_messages([
+                        self.message()
+                    ])
+
+        logged = self.logged(logger)
+
+        self.assertNotIn('re_test_key', logged)
+        self.assertIn('[api key redacted]', logged)
+
+    def test_an_accepted_message_is_logged_with_its_id(self):
+        # The id is the only proof that Resend really took the
+        # message, and it identifies nobody.
+
+        with mock.patch('resend.Emails.send') as send:
+
+            send.return_value = {'id': 'msg_123'}
+
+            with mock.patch(
+                'users.email_backend.logger'
+            ) as logger:
+
+                self.build_backend().send_messages([self.message()])
+
+        message, *arguments = logger.info.call_args[0]
+
+        self.assertIn('Resend accepted', message)
+        self.assertIn('msg_123', arguments)
+        self.assertIn(1, arguments)
 
     def test_one_failure_does_not_stop_the_batch(self):
         with mock.patch('resend.Emails.send') as send:

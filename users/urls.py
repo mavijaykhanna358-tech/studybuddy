@@ -43,7 +43,18 @@ urlpatterns = [
             template_name=(
                 'registration/password_reset_form.html'
             ),
+
+            # The plain text part. Django used this one for the
+            # text/plain body, which meant the HTML below was sent as
+            # plain text and the mail rendered as raw markup in any
+            # client without HTML support.
             email_template_name=(
+                'registration/password_reset_email.txt'
+            ),
+
+            # The HTML part. Naming it separately makes Django build a
+            # real multipart/alternative message.
+            html_email_template_name=(
                 'registration/password_reset_email.html'
             ),
             success_url=reverse_lazy(

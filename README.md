@@ -87,8 +87,8 @@ file.
 | `CSRF_TRUSTED_ORIGINS` | the deployed domains | Needed for HTTPS domains. |
 | `DATABASE_URL` | unset (SQLite) in development, required in production | Any `dj-database-url` URL. |
 | `DATABASE_SSL_REQUIRE` | `False` | Set `True` only for a managed database that demands encryption. A `?sslmode=require` in `DATABASE_URL` is always honoured either way. |
-| `RESEND_API_KEY` | unset | Without it, email prints to the console. |
-| `DEFAULT_FROM_EMAIL` | `onboarding@resend.dev` | Sender address. |
+| `RESEND_API_KEY` | unset | Without it, email prints to the console. **Required** in production. |
+| `DEFAULT_FROM_EMAIL` | `onboarding@resend.dev` | Sender address. Must be on a domain verified in Resend. |
 | `FRONTEND_BASE_URL` | `http://localhost:8000` | Public address; password reset links are built from it. |
 | `CLOUDINARY_*` | unset | Leave empty to store attachments on local disk. |
 
@@ -104,11 +104,53 @@ and `X-Frame-Options: DENY`.
 
 ## Email
 
-With `RESEND_API_KEY` set, mail goes out through the Resend HTTP
-API (`users/email_backend.py`). Without it, Django's console
-backend prints messages instead of dropping them. Set
-`FRONTEND_BASE_URL` to the real https address so reset links work
-off-site.
+Mail goes out through the Resend HTTP API
+(`users/email_backend.py`), which needs two things on Render:
+
+1. `RESEND_API_KEY`, from <https://resend.com/api-keys>.
+2. `DEFAULT_FROM_EMAIL` set to an address on a domain you have
+   verified in Resend.
+
+The second one is easy to miss. Resend's shared testing address,
+`onboarding@resend.dev`, only delivers to the account owner's own
+inbox and is rejected with a `403` for everyone else, so a password
+reset sent from it never arrives. A production deployment that still
+uses it fails the system check, which is the point.
+
+`check` reports both problems as `studybuddy.resend_api_key` and
+`studybuddy.default_from_email`, so a misconfigured service is
+refused at build time rather than quietly dropping every email.
+
+Outside production the console backend prints messages to the
+terminal, which is all a local run needs. In production it is never
+selected, because a printed-and-discarded email is indistinguishable
+from one that was delivered.
+
+Set `FRONTEND_BASE_URL` to the real https address so reset links
+work off-site.
+
+### When a reset email does not arrive
+
+The backend logs the provider's own answer, so the Render log says
+what Resend objected to:
+
+```
+INFO  users.email_backend: Resend accepted the message (id=... recipients=1 sender=no-reply@...)
+ERROR users.email_backend: Resend rejected the email: code=403; type=validation_error; message=... (recipients=1 sender=no-reply@...)
+ERROR users.forms: The password reset email could not be sent. The provider rejected the request or was unreachable.
+```
+
+`Resend accepted` with a message id is the proof of real delivery.
+The rejected line is the diagnosis. Recipients, tokens, reset links
+and the API key are redacted before anything is written, so these
+lines are safe to paste into a bug report.
+
+A failed send re-renders the form with "We could not send the reset
+email just now" instead of redirecting to the "check your inbox"
+page. Django's own `PasswordResetForm` logs the failure and carries
+on, which shows a success page for a message that was never sent;
+`StyledPasswordResetForm` sends without that blanket `except` so the
+failure is visible.
 
 ## Task reminders
 
@@ -164,18 +206,19 @@ Set these environment variables on the service:
 | `DATABASE_URL` | Required. Render fills this in once a PostgreSQL database is linked under **Dashboard > Connect**. |
 | `ALLOWED_HOSTS` | Your Render hostname. |
 | `CSRF_TRUSTED_ORIGINS` | Same hostname, with `https://`. |
-| `RESEND_API_KEY` | Needed for password reset email. |
-| `DEFAULT_FROM_EMAIL` | Sender shown on outgoing mail. |
+| `RESEND_API_KEY` | Required. Without it the build stops: no email can be sent. |
+| `DEFAULT_FROM_EMAIL` | Required. Must be on a domain verified in Resend, not `onboarding@resend.dev`. |
 | `FRONTEND_BASE_URL` | Public `https://` address, used to build reset links. |
 
 A PostgreSQL database is **not** declared in this repository, so
 applying a Blueprint will not create or replace one. Link the
 existing database to the service in the Render dashboard.
 
-If `DATABASE_URL` is missing or malformed, or `SECRET_KEY` is
-missing or shorter than 50 characters, the build stops there and
-names the variable, instead of failing later with
-`Please supply the ENGINE value` or with the far less useful
+If `DATABASE_URL` is missing or malformed, `SECRET_KEY` is
+missing or shorter than 50 characters, `RESEND_API_KEY` is unset, or
+`DEFAULT_FROM_EMAIL` is still Resend's shared testing address, the
+build stops there and names the variable, instead of failing later
+with `Please supply the ENGINE value` or with the far less useful
 `Unknown command: 'collectstatic'`.
 
 That second message is worth explaining, because it is misleading.
@@ -232,10 +275,11 @@ media/       attachments when Cloudinary is not configured
 python manage.py test
 ```
 
-215 tests cover the models, forms, views, ownership isolation
+232 tests cover the models, forms, views, ownership isolation
 between accounts, login requirements, the dashboard statistics,
-the reminder command, the Resend backend, and the deployment
-configuration of the settings module.
+the reminder command, the Resend backend and its log redaction, the
+whole password reset flow including a rejected send, and the
+deployment configuration of the settings module.
 
 ## Interface
 

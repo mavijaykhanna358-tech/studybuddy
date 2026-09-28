@@ -592,8 +592,15 @@ RESEND_API_KEY = os.getenv(
 
 # The Resend backend talks to an HTTP API, so the SMTP settings
 # below only apply if EMAIL_BACKEND is overridden to an SMTP
-# backend. Without a Resend key, mail is written to the console
-# instead of silently disappearing.
+# backend.
+#
+# The console backend is a development convenience only. Selecting it
+# in production is what made "Forgot password" fail silently: the
+# reset email was printed into the gunicorn log, discarded, and the
+# user was still redirected to the "check your inbox" page. In
+# production the Resend backend is therefore always selected, and a
+# missing API key is reported as a deployment problem rather than
+# quietly downgraded to console output.
 
 if os.getenv('EMAIL_BACKEND'):
 
@@ -601,7 +608,7 @@ if os.getenv('EMAIL_BACKEND'):
 
 else:
 
-    if RESEND_API_KEY:
+    if RESEND_API_KEY or DJANGO_ENV == 'production':
 
         EMAIL_BACKEND = (
             'users.email_backend.ResendEmailBackend'
@@ -613,6 +620,33 @@ else:
             'django.core.mail.backends.console.'
             'EmailBackend'
         )
+
+
+# Backends that put a message somewhere other than a mailbox. On
+# Render their output goes to a log nobody reads, so the mail is lost
+# while the page reports success, which is the identical failure to
+# having no backend at all. Selecting one is legitimate locally, so
+# only production objects.
+
+EMAIL_BACKENDS_THAT_DO_NOT_DELIVER = (
+    'django.core.mail.backends.console.EmailBackend',
+    'django.core.mail.backends.locmem.EmailBackend',
+    'django.core.mail.backends.filebased.EmailBackend',
+    'django.core.mail.backends.dummy.EmailBackend',
+)
+
+if (
+    DJANGO_ENV == 'production'
+    and EMAIL_BACKEND in EMAIL_BACKENDS_THAT_DO_NOT_DELIVER
+):
+
+    _record(
+        'EMAIL_BACKEND',
+        f'is set to {EMAIL_BACKEND}, which prints mail instead of\n'
+        'delivering it, so password reset emails are discarded.\n'
+        'Unset EMAIL_BACKEND to use the Resend backend, or point it\n'
+        'at a backend that really sends.'
+    )
 
 
 EMAIL_HOST = os.getenv(
@@ -648,6 +682,50 @@ DEFAULT_FROM_EMAIL = os.getenv(
     'DEFAULT_FROM_EMAIL',
     'onboarding@resend.dev'
 )
+
+
+# Both problems below only matter in production. Locally the console
+# backend is the intended default and no API key is needed, so
+# nothing is recorded outside production.
+#
+# `onboarding@resend.dev` is Resend's shared testing domain. Resend
+# only lets it deliver to the account owner's own address; any other
+# recipient is rejected with a 403. That rejection is the single most
+# common reason a "Forgot password" mail never arrives, so leaving
+# the default in place is recorded and surfaced by
+# project/deployment.py instead of being discovered from a support
+# ticket.
+
+RESEND_TESTING_SENDER = 'onboarding@resend.dev'
+
+if DJANGO_ENV == 'production':
+
+    if not RESEND_API_KEY:
+
+        _record(
+            'RESEND_API_KEY',
+            'is not set, so no email can be sent. Password reset\n'
+            'and any other mail will fail instead of being delivered.\n'
+            'Create an API key at https://resend.com/api-keys and set\n'
+            'it on the service. The console fallback is disabled in\n'
+            'production on purpose, because a discarded email looks\n'
+            'exactly like a successful one.'
+        )
+
+    elif DEFAULT_FROM_EMAIL.strip().lower() == (
+        RESEND_TESTING_SENDER
+    ):
+
+        _record(
+            'DEFAULT_FROM_EMAIL',
+            f'is still Resend\'s shared testing address\n'
+            f'({RESEND_TESTING_SENDER}). Resend only delivers from it\n'
+            'to the account owner\'s own email address and rejects every\n'
+            'other recipient, so resets for real users will not arrive.\n'
+            'Verify a sending domain in the Resend dashboard and set\n'
+            'DEFAULT_FROM_EMAIL to an address on it, for example\n'
+            'no-reply@your-verified-domain.'
+        )
 
 # The public address of the site. Password reset links are built
 # from it, so the emailed link keeps working when the app is

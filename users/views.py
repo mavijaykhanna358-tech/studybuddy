@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
 from .forms import (
+    PasswordResetEmailError,
     RegistrationForm,
     StyledPasswordResetForm,
     StyledSetPasswordForm,
@@ -20,6 +21,32 @@ class CustomPasswordResetView(
     # FRONTEND_BASE_URL.
 
     form_class = StyledPasswordResetForm
+
+    # Shown when the provider rejected the send. Django would
+    # otherwise redirect to "check your inbox" for a message that
+    # does not exist, which is the failure this whole flow exists to
+    # avoid.
+
+    delivery_failed_message = (
+        'We could not send the reset email just now. '
+        'Please try again in a few minutes, or contact support '
+        'if it keeps happening.'
+    )
+
+    def form_valid(self, form):
+
+        try:
+
+            return super().form_valid(form)
+
+        except PasswordResetEmailError:
+
+            form.add_error(
+                None,
+                self.delivery_failed_message
+            )
+
+            return self.form_invalid(form)
 
 
 class CustomPasswordResetConfirmView(
