@@ -30,7 +30,7 @@ that can actually show them:
 import sys
 
 from django.conf import settings
-from django.core.checks import Error, Tags, register
+from django.core.checks import Error, Tags, Warning, register
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -51,33 +51,68 @@ def problems():
     )
 
 
+def warnings():
+
+    """
+    Return the misconfigurations the settings already corrected for.
+    """
+
+    return getattr(
+        settings,
+        'DEPLOYMENT_WARNINGS',
+        ()
+    )
+
+
 # =========================================================
 # SYSTEM CHECK
 # =========================================================
+
+HINT = (
+    'StudyBuddy is configured entirely from environment '
+    'variables. See .env.example for the names and the '
+    'Deployment section of README.md.'
+)
+
 
 @register(Tags.staticfiles)
 def deployment_configuration(app_configs, **kwargs):
 
     """
-    Turn every recorded problem into a check error.
+    Report every recorded problem through one system check.
 
-    A check error stops the command with the reason attached, so
-    `collectstatic` and `migrate` fail with the actual cause instead
-    of a downstream symptom.
+    An `Error` is a problem no code path can repair, such as a
+    missing DATABASE_URL or a short SECRET_KEY, so the command stops
+    with the reason attached rather than failing later with a
+    downstream symptom.
+
+    A `Warning` is misconfiguration the settings have already worked
+    around, currently a stale EMAIL_BACKEND pointing at a backend
+    that cannot deliver. Production ignores that value and uses
+    Resend, so the deployment is already behaving correctly and the
+    build should not be held hostage. The warning exists so the
+    variable does not stay on the dashboard pretending to work.
     """
 
-    return [
+    reported = [
         Error(
             f'{identifier} {detail}',
-            hint=(
-                'StudyBuddy is configured entirely from environment '
-                'variables. See .env.example for the names and the '
-                'Deployment section of README.md.'
-            ),
+            hint=HINT,
             id=f'studybuddy.{identifier.lower()}',
         )
         for identifier, detail in problems()
     ]
+
+    reported += [
+        Warning(
+            f'{identifier} {detail}',
+            hint=HINT,
+            id=f'studybuddy.{identifier.lower()}_ignored',
+        )
+        for identifier, detail in warnings()
+    ]
+
+    return reported
 
 
 # =========================================================
@@ -88,6 +123,10 @@ def refuse_to_start():
 
     """
     Stop a WSGI/ASGI server from booting a broken deployment.
+
+    Only unrepairable problems stop the server. A warning describes
+    something the settings already worked around, so refusing on it
+    would take down a deployment that is in fact running correctly.
     """
 
     found = problems()

@@ -117,14 +117,31 @@ inbox and is rejected with a `403` for everyone else, so a password
 reset sent from it never arrives. A production deployment that still
 uses it fails the system check, which is the point.
 
-`check` reports both problems as `studybuddy.resend_api_key` and
-`studybuddy.default_from_email`, so a misconfigured service is
-refused at build time rather than quietly dropping every email.
+`check` reports the first problem as `studybuddy.resend_api_key` and
+the second as `studybuddy.default_from_email`, both of which stop a
+build that could not deliver mail.
 
-Outside production the console backend prints messages to the
-terminal, which is all a local run needs. In production it is never
-selected, because a printed-and-discarded email is indistinguishable
-from one that was delivered.
+`EMAIL_BACKEND` is not something production gets to choose. A value
+naming a backend that cannot deliver — console, locmem, filebased or
+dummy — is **ignored in production** and the Resend backend is used
+instead, for the same reason `DATABASE_URL` cannot fall back to
+SQLite: a value that can only produce a broken deployment is not a
+deployment decision worth honouring. A backend that genuinely sends,
+such as SMTP, is still honoured, so leaving Resend entirely is allowed.
+
+That override is reported as a warning, not an error:
+
+```
+?: (studybuddy.email_backend_ignored) EMAIL_BACKEND is set to
+django.core.mail.backends.console.EmailBackend, which prints mail
+instead of delivering it ... Delete EMAIL_BACKEND from the service to
+stop this being reported.
+```
+
+The build passes, the mail is delivered, and the warning exists only
+so the stale variable does not stay on the dashboard looking
+effective. Outside production the console backend prints messages to
+the terminal, which is all a local run needs.
 
 Set `FRONTEND_BASE_URL` to the real https address so reset links
 work off-site.
@@ -221,6 +238,13 @@ build stops there and names the variable, instead of failing later
 with `Please supply the ENGINE value` or with the far less useful
 `Unknown command: 'collectstatic'`.
 
+`EMAIL_BACKEND` is handled differently. A stale value pointing at a
+backend that cannot deliver is ignored in production rather than
+being fatal, because the offending value lives in the Render
+dashboard and not in this repository, so failing the build would
+leave no way forward from here. Production uses Resend regardless and
+reports the override as `studybuddy.email_backend_ignored`.
+
 That second message is worth explaining, because it is misleading.
 `collectstatic` is contributed by `django.contrib.staticfiles`, and
 Django only finds it through the app registry. When the settings
@@ -275,7 +299,7 @@ media/       attachments when Cloudinary is not configured
 python manage.py test
 ```
 
-232 tests cover the models, forms, views, ownership isolation
+240 tests cover the models, forms, views, ownership isolation
 between accounts, login requirements, the dashboard statistics,
 the reminder command, the Resend backend and its log redaction, the
 whole password reset flow including a rejected send, and the

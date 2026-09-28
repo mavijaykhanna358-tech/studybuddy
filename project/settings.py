@@ -252,13 +252,34 @@ DATABASE_FALLBACK_ENGINE = os.getenv(
 # project/deployment.py reports it as a system check, which every
 # management command runs before it does any work. That keeps the
 # refusal while letting `collectstatic` reach its real state.
+#
+# Two lists, because not every finding is equally final.
+#
+# DEPLOYMENT_ERRORS holds problems no code path can repair, so the
+# check reports them as errors and the command stops: a missing
+# DATABASE_URL, a short SECRET_KEY, a missing RESEND_API_KEY.
+#
+# DEPLOYMENT_WARNINGS holds misconfiguration the code has already
+# corrected for itself. They are reported as warnings, which keeps
+# them in the build log without stopping a deploy that is already
+# behaving correctly. A stale EMAIL_BACKEND is the example: the
+# console backend cannot deliver, so production ignores it and uses
+# Resend instead, and the operator still needs to know the variable
+# is lying on the dashboard.
 
 DEPLOYMENT_ERRORS = []
+
+DEPLOYMENT_WARNINGS = []
 
 
 def _record(identifier, detail):
 
     DEPLOYMENT_ERRORS.append((identifier, detail))
+
+
+def _warn(identifier, detail):
+
+    DEPLOYMENT_WARNINGS.append((identifier, detail))
 
 
 DATABASE_URL_HELP = (
@@ -597,36 +618,11 @@ RESEND_API_KEY = os.getenv(
 # The console backend is a development convenience only. Selecting it
 # in production is what made "Forgot password" fail silently: the
 # reset email was printed into the gunicorn log, discarded, and the
-# user was still redirected to the "check your inbox" page. In
-# production the Resend backend is therefore always selected, and a
-# missing API key is reported as a deployment problem rather than
-# quietly downgraded to console output.
-
-if os.getenv('EMAIL_BACKEND'):
-
-    EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-
-else:
-
-    if RESEND_API_KEY or DJANGO_ENV == 'production':
-
-        EMAIL_BACKEND = (
-            'users.email_backend.ResendEmailBackend'
-        )
-
-    else:
-
-        EMAIL_BACKEND = (
-            'django.core.mail.backends.console.'
-            'EmailBackend'
-        )
-
-
-# Backends that put a message somewhere other than a mailbox. On
-# Render their output goes to a log nobody reads, so the mail is lost
-# while the page reports success, which is the identical failure to
-# having no backend at all. Selecting one is legitimate locally, so
-# only production objects.
+# user was still redirected to the "check your inbox" page.
+#
+# Backends that put a message somewhere other than a mailbox are
+# listed below. Locally they are a perfectly good default, because a
+# developer wants to read the message in the terminal.
 
 EMAIL_BACKENDS_THAT_DO_NOT_DELIVER = (
     'django.core.mail.backends.console.EmailBackend',
@@ -635,17 +631,60 @@ EMAIL_BACKENDS_THAT_DO_NOT_DELIVER = (
     'django.core.mail.backends.dummy.EmailBackend',
 )
 
+RESEND_BACKEND = 'users.email_backend.ResendEmailBackend'
+
+
+def _can_deliver_mail(backend):
+
+    """Whether a backend can put a message in a real inbox."""
+
+    return backend not in EMAIL_BACKENDS_THAT_DO_NOT_DELIVER
+
+
+# In production the choice is not left to the environment. An
+# EMAIL_BACKEND naming a backend that cannot deliver is ignored and
+# the Resend backend is used instead, for the same reason production
+# refuses to fall back to SQLite: a value that can only produce a
+# broken deployment is not a deployment decision worth honouring.
+# Ignoring it rather than failing the build keeps a stale dashboard
+# variable from holding the site hostage, and the override is
+# reported as a warning so the variable does not stay there.
+#
+# A backend that genuinely sends, such as SMTP, is still honoured, so
+# an operator is free to leave Resend entirely.
+
+_requested_backend = os.getenv('EMAIL_BACKEND')
+
 if (
     DJANGO_ENV == 'production'
-    and EMAIL_BACKEND in EMAIL_BACKENDS_THAT_DO_NOT_DELIVER
+    and _requested_backend
+    and not _can_deliver_mail(_requested_backend)
 ):
 
-    _record(
+    _warn(
         'EMAIL_BACKEND',
-        f'is set to {EMAIL_BACKEND}, which prints mail instead of\n'
-        'delivering it, so password reset emails are discarded.\n'
-        'Unset EMAIL_BACKEND to use the Resend backend, or point it\n'
-        'at a backend that really sends.'
+        f'is set to {_requested_backend}, which prints mail instead of\n'
+        'delivering it, so password reset emails would be discarded.\n'
+        'The value is being ignored in production and\n'
+        f'{RESEND_BACKEND} is being used instead. Delete\n'
+        'EMAIL_BACKEND from the service to stop this being reported.'
+    )
+
+    EMAIL_BACKEND = RESEND_BACKEND
+
+elif _requested_backend:
+
+    EMAIL_BACKEND = _requested_backend
+
+elif RESEND_API_KEY or DJANGO_ENV == 'production':
+
+    EMAIL_BACKEND = RESEND_BACKEND
+
+else:
+
+    EMAIL_BACKEND = (
+        'django.core.mail.backends.console.'
+        'EmailBackend'
     )
 
 

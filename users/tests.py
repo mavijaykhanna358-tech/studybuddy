@@ -10,6 +10,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core import checks, mail
 from django.core.checks import Tags
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management import call_command
+from django.core.management.base import SystemCheckError
 from django.test import (
     SimpleTestCase,
     TestCase,
@@ -231,25 +233,13 @@ class EmailSettingsTest(SimpleTestCase):
 
         self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
 
-    def test_explicit_email_backend_wins(self):
-        settings = load_settings(
-            **production_environment(
-                DATABASE_URL=PRODUCTION_DATABASE_URL,
-                EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-            )
-        )
+    def test_a_backend_that_cannot_deliver_is_ignored(self):
+        """This is the variable that broke the live deployment.
 
-        self.assertEqual(
-            settings.EMAIL_BACKEND,
-            'django.core.mail.backends.locmem.EmailBackend',
-        )
-
-    def test_a_backend_that_cannot_deliver_is_reported(self):
-        """Naming a console backend is the same failure as none.
-
-        On Render its output goes to a log nobody reads, so the reset
-        email is discarded while the page reports success. The
-        variable is honoured, but the deployment is reported.
+        Render had EMAIL_BACKEND set to the console backend, which
+        printed every reset email into the gunicorn log and discarded
+        it. Production now ignores that value and delivers through
+        Resend, the same way it refuses to fall back to SQLite.
         """
         settings = load_settings(
             **production_environment(
@@ -258,17 +248,48 @@ class EmailSettingsTest(SimpleTestCase):
             )
         )
 
-        self.assertEqual(settings.EMAIL_BACKEND, CONSOLE_BACKEND)
-
-        self.assertIn(
-            'EMAIL_BACKEND',
-            [
-                identifier
-                for identifier, _ in settings.DEPLOYMENT_ERRORS
-            ],
+        self.assertEqual(
+            settings.EMAIL_BACKEND,
+            'users.email_backend.ResendEmailBackend',
         )
 
-    def test_a_delivering_backend_is_not_reported(self):
+        # Not a fatal error, because the code has already corrected
+        # for it, but it is still reported.
+
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
+
+        self.assertEqual(
+            [
+                identifier
+                for identifier, _ in settings.DEPLOYMENT_WARNINGS
+            ],
+            ['EMAIL_BACKEND'],
+        )
+
+    def test_every_backend_that_cannot_deliver_is_ignored(self):
+        for backend in (
+            'django.core.mail.backends.console.EmailBackend',
+            'django.core.mail.backends.locmem.EmailBackend',
+            'django.core.mail.backends.filebased.EmailBackend',
+            'django.core.mail.backends.dummy.EmailBackend',
+        ):
+
+            with self.subTest(backend=backend):
+
+                settings = load_settings(
+                    **production_environment(
+                        DATABASE_URL=PRODUCTION_DATABASE_URL,
+                        EMAIL_BACKEND=backend,
+                    )
+                )
+
+                self.assertEqual(
+                    settings.EMAIL_BACKEND,
+                    'users.email_backend.ResendEmailBackend',
+                )
+
+    def test_a_backend_that_delivers_is_still_honoured(self):
+        """An operator must be free to leave Resend for SMTP."""
         settings = load_settings(
             **production_environment(
                 DATABASE_URL=PRODUCTION_DATABASE_URL,
@@ -276,7 +297,32 @@ class EmailSettingsTest(SimpleTestCase):
             )
         )
 
+        self.assertEqual(
+            settings.EMAIL_BACKEND,
+            'django.core.mail.backends.smtp.EmailBackend',
+        )
+
         self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
+        self.assertEqual(settings.DEPLOYMENT_WARNINGS, [])
+
+    def test_development_honours_an_explicit_console_backend(self):
+        """The override is a production rule, not a global one."""
+        settings = load_settings(
+            DJANGO_ENV='development',
+            EMAIL_BACKEND=CONSOLE_BACKEND,
+        )
+
+        self.assertEqual(settings.EMAIL_BACKEND, CONSOLE_BACKEND)
+        self.assertEqual(settings.DEPLOYMENT_WARNINGS, [])
+
+    def test_a_correct_production_load_records_no_warnings(self):
+        settings = load_settings(
+            **production_environment(
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
+            )
+        )
+
+        self.assertEqual(settings.DEPLOYMENT_WARNINGS, [])
 
 
 class DebugSettingsTest(SimpleTestCase):
@@ -629,6 +675,82 @@ class DeploymentReportTest(SimpleTestCase):
                 refuse_to_start()
 
         self.assertEqual(captured.getvalue(), '')
+
+    def test_a_warning_is_reported_as_a_warning_not_an_error(self):
+        """A warning must not stop the build.
+
+        A stale EMAIL_BACKEND used to fail the whole Render build with
+        a problem the repository could not fix, because the offending
+        value lives in the Render dashboard. The settings now correct
+        for it, so the check reports it without stopping anything.
+        """
+        with override_settings(
+            DEPLOYMENT_ERRORS=[],
+            DEPLOYMENT_WARNINGS=[
+                ('EMAIL_BACKEND', 'is being ignored'),
+            ],
+        ):
+            reported = deployment_configuration(app_configs=None)
+
+        self.assertEqual(len(reported), 1)
+
+        self.assertIsInstance(reported[0], checks.Warning)
+        self.assertNotIsInstance(reported[0], checks.Error)
+        self.assertEqual(
+            reported[0].id,
+            'studybuddy.email_backend_ignored',
+        )
+
+    def test_errors_and_warnings_are_reported_together(self):
+        with override_settings(
+            DEPLOYMENT_ERRORS=[('DATABASE_URL', 'is not set')],
+            DEPLOYMENT_WARNINGS=[('EMAIL_BACKEND', 'is being ignored')],
+        ):
+            reported = deployment_configuration(app_configs=None)
+
+        self.assertEqual(
+            [(type(item).__name__, item.id) for item in reported],
+            [
+                ('Error', 'studybuddy.database_url'),
+                ('Warning', 'studybuddy.email_backend_ignored'),
+            ],
+        )
+
+    def test_the_web_server_starts_despite_a_warning(self):
+        """A warning describes something already worked around.
+
+        Refusing to boot on it would take down a deployment that is
+        in fact running correctly.
+        """
+        captured = io.StringIO()
+
+        with override_settings(
+            DEPLOYMENT_ERRORS=[],
+            DEPLOYMENT_WARNINGS=[
+                ('EMAIL_BACKEND', 'is being ignored'),
+            ],
+        ):
+            with redirect_stderr(captured):
+                refuse_to_start()
+
+        self.assertEqual(captured.getvalue(), '')
+
+    def test_check_exits_zero_with_only_a_warning(self):
+        """`manage.py check` must pass, or the build never completes."""
+        with override_settings(
+            DEPLOYMENT_ERRORS=[],
+            DEPLOYMENT_WARNINGS=[('EMAIL_BACKEND', 'is being ignored')],
+        ):
+            try:
+
+                call_command('check')
+
+            except SystemCheckError as error:
+
+                self.fail(
+                    'check failed on a warning: '
+                    f'{error.messages}'
+                )
 
 
 class AuthFlowTest(TestCase):
