@@ -24,6 +24,15 @@ STRONG_SECRET_KEY = 'unit-test-secret-key-that-is-long-enough-to-pass-checks-012
 
 CONSOLE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# A production settings load refuses to run without a DATABASE_URL,
+# because a deployment with no database would fall back to SQLite on
+# an ephemeral disk. The tests below simulate a production environment
+# to check DEBUG and email behaviour, so they need a syntactically
+# valid URL. Nothing ever connects to it.
+PRODUCTION_DATABASE_URL = (
+    'postgresql://unit-test:unit-test@db.example.invalid:5432/studybuddy'
+)
+
 
 def load_settings(**environment):
     """
@@ -72,6 +81,7 @@ class EmailSettingsTest(SimpleTestCase):
         settings = load_settings(
             DJANGO_ENV='production',
             SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
             RESEND_API_KEY='re_test_key',
         )
 
@@ -84,6 +94,7 @@ class EmailSettingsTest(SimpleTestCase):
         settings = load_settings(
             DJANGO_ENV='production',
             SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
             RESEND_API_KEY=None,
         )
 
@@ -96,6 +107,7 @@ class EmailSettingsTest(SimpleTestCase):
         settings = load_settings(
             DJANGO_ENV='production',
             SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
             RESEND_API_KEY='re_test_key',
             EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
         )
@@ -120,6 +132,7 @@ class DebugSettingsTest(SimpleTestCase):
             DJANGO_ENV='production',
             DEBUG=None,
             SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
         )
 
         self.assertFalse(settings.DEBUG)
@@ -129,6 +142,7 @@ class DebugSettingsTest(SimpleTestCase):
             DJANGO_ENV='production',
             DEBUG='True',
             SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
         )
 
         self.assertTrue(settings.DEBUG)
@@ -143,6 +157,114 @@ class DebugSettingsTest(SimpleTestCase):
         self.assertFalse(settings.DEBUG)
 
 
+class DatabaseSettingsTest(SimpleTestCase):
+    """The deployment must resolve to a real database, never to nothing."""
+
+    def test_production_url_resolves_to_postgresql(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
+        )
+
+        self.assertEqual(
+            settings.DATABASES['default']['ENGINE'],
+            'django.db.backends.postgresql',
+        )
+
+    def test_production_url_keeps_the_connection_reuse_settings(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
+        )
+
+        default = settings.DATABASES['default']
+
+        self.assertEqual(default['CONN_MAX_AGE'], 600)
+        self.assertTrue(default['CONN_HEALTH_CHECKS'])
+
+    def test_production_without_a_url_is_refused(self):
+        with self.assertRaises(ImproperlyConfigured) as caught:
+            load_settings(
+                DJANGO_ENV='production',
+                SECRET_KEY=STRONG_SECRET_KEY,
+                DATABASE_URL=None,
+                DATABASE_FALLBACK_ENGINE=None,
+            )
+
+        self.assertIn('DATABASE_URL', str(caught.exception))
+
+    def test_production_with_a_malformed_url_is_refused(self):
+        with self.assertRaises(ImproperlyConfigured) as caught:
+            load_settings(
+                DJANGO_ENV='production',
+                SECRET_KEY=STRONG_SECRET_KEY,
+                DATABASE_URL='not-a-url',
+            )
+
+        self.assertIn('could not be parsed', str(caught.exception))
+
+    def test_development_falls_back_to_sqlite(self):
+        settings = load_settings(
+            DJANGO_ENV='development',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=None,
+            DATABASE_FALLBACK_ENGINE=None,
+        )
+
+        self.assertEqual(
+            settings.DATABASES['default']['ENGINE'],
+            'django.db.backends.sqlite3',
+        )
+
+    def test_sqlite_can_be_forced_back_on_in_production(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=None,
+            DATABASE_FALLBACK_ENGINE='django.db.backends.sqlite3',
+        )
+
+        self.assertEqual(
+            settings.DATABASES['default']['ENGINE'],
+            'django.db.backends.sqlite3',
+        )
+
+    def test_internal_render_url_does_not_force_sslmode(self):
+        """Render's internal database does not terminate TLS.
+
+        Forcing `sslmode=require` there would fail the connection, so
+        the default must leave the URL alone.
+        """
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL='postgresql://user:pass@dpg-abc123/studybuddy',
+            DATABASE_SSL_REQUIRE=None,
+        )
+
+        options = settings.DATABASES['default'].get('OPTIONS') or {}
+
+        self.assertIsNone(options.get('sslmode'))
+
+    def test_sslmode_in_the_url_is_always_honoured(self):
+        """Render's external string carries `?sslmode=require`."""
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=(
+                'postgresql://user:pass@db.example.com:5432/studybuddy'
+                '?sslmode=require'
+            ),
+            DATABASE_SSL_REQUIRE=None,
+        )
+
+        options = settings.DATABASES['default'].get('OPTIONS') or {}
+
+        self.assertEqual(options.get('sslmode'), 'require')
+
+
 class ProductionSecretsTest(SimpleTestCase):
     def test_weak_secret_key_is_rejected_when_debug_is_off(self):
         with self.assertRaises(ImproperlyConfigured):
@@ -150,6 +272,7 @@ class ProductionSecretsTest(SimpleTestCase):
                 DJANGO_ENV='production',
                 DEBUG=None,
                 SECRET_KEY='insecure',
+                DATABASE_URL=PRODUCTION_DATABASE_URL,
             )
 
     def test_weak_secret_key_is_allowed_while_debug_is_on(self):

@@ -85,7 +85,7 @@ file.
 | `SECRET_KEY` | insecure dev key | **Required** when `DEBUG` is off; at least 50 characters. |
 | `ALLOWED_HOSTS` | `127.0.0.1,localhost,...` | Comma separated. |
 | `CSRF_TRUSTED_ORIGINS` | the deployed domains | Needed for HTTPS domains. |
-| `DATABASE_URL` | unset (SQLite) | Any `dj-database-url` URL. |
+| `DATABASE_URL` | unset (SQLite) in development, required in production | Any `dj-database-url` URL. |
 | `DATABASE_SSL_REQUIRE` | `True` | Set `False` for a local database without TLS. |
 | `RESEND_API_KEY` | unset | Without it, email prints to the console. |
 | `DEFAULT_FROM_EMAIL` | `onboarding@resend.dev` | Sender address. |
@@ -142,6 +142,42 @@ The included `Procfile` runs gunicorn:
 web: gunicorn project.wsgi --bind 0.0.0.0:$PORT
 ```
 
+### Render
+
+`build.sh` is the build step. Set the Render **Build Command** to
+`bash build.sh` (or leave it blank, which auto-detects the file).
+It installs dependencies, collects static files and applies
+migrations, in that order:
+
+```bash
+pip install -r requirements.txt
+python manage.py collectstatic --noinput
+python manage.py migrate --noinput
+```
+
+Set these environment variables on the service:
+
+| Variable | Notes |
+| --- | --- |
+| `DJANGO_ENV` | `production`. Render does not set this for you. |
+| `SECRET_KEY` | At least 50 characters. Changing it signs everyone out. |
+| `DATABASE_URL` | Required. Render fills this in once a PostgreSQL database is linked under **Dashboard > Connect**. |
+| `ALLOWED_HOSTS` | Your Render hostname. |
+| `CSRF_TRUSTED_ORIGINS` | Same hostname, with `https://`. |
+| `RESEND_API_KEY` | Needed for password reset email. |
+| `DEFAULT_FROM_EMAIL` | Sender shown on outgoing mail. |
+| `FRONTEND_BASE_URL` | Public `https://` address, used to build reset links. |
+
+A PostgreSQL database is **not** declared in this repository, so
+applying a Blueprint will not create or replace one. Link the
+existing database to the service in the Render dashboard.
+
+If `DATABASE_URL` is missing or malformed, the process refuses to
+start and prints the reason, instead of failing later with
+`Please supply the ENGINE value`.
+
+### Other hosts
+
 Set `DJANGO_ENV=production` and the variables above in your host's
 dashboard, then collect static files:
 
@@ -151,7 +187,9 @@ python manage.py collectstatic --noinput
 
 WhiteNoise serves the collected files. The `static/` directory
 holds the stylesheet and scripts and is tracked in git;
-`staticfiles/` is generated output and is not.
+`staticfiles/` is generated output and is not. Re-run
+`collectstatic` after any change under `static/`, otherwise the
+deployed stylesheet is the stale one.
 
 ## Project layout
 

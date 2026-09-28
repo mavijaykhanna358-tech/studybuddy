@@ -15,10 +15,14 @@ tzdata==2026.3
 python-dotenv==1.2.3
 dj-database-url==3.1.2
 
-# SQLite is bundled with Python. Add a driver only if
-# DATABASE_URL points somewhere else:
-#   psycopg2-binary==2.9.13   # PostgreSQL
-#   mysqlclient==2.3.0       # MySQL (needs system headers)
+# PostgreSQL driver. Required on any host where DATABASE_URL points at
+# Postgres, which includes Render. Without it Django resolves
+# ENGINE=django.db.backends.postgresql and then fails to import the
+# driver, raising "Error loading psycopg2 or psycopg module".
+psycopg2-binary==2.9.13
+
+# SQLite needs no driver; it is bundled with Python. If DATABASE_URL
+# is ever pointed at MySQL instead, add mysqlclient here as well.
 
 # --- Email (Resend HTTP API) ---
 resend==2.47.0
