@@ -377,13 +377,36 @@ media/       attachments when Cloudinary is not configured
 python manage.py test
 ```
 
-281 tests cover the models, forms, views, ownership isolation
+An admin option is a name that is only resolved when its page is
+built, so a mistake in one is invisible until somebody opens that
+page, which is how a single 500 reached production. The admin tests
+therefore load the changelist of every registered model, resolve
+every name used by `list_display`, `search_fields`, `list_filter`,
+`fields`, `fieldsets`, `ordering` and `list_select_related`, and
+compile each changelist query rather than only building it. Two
+500s were found this way:
+
+* `CustomUserAdmin.list_select_related` named `date_joined`, a plain
+  column rather than a relation. `select_related()` can only join a
+  `ForeignKey` or `OneToOne`, and the resulting `FieldError` is
+  raised while compiling the SQL rather than when the option is
+  read, so the admin index rendered while the Users changelist
+  returned a 500.
+* `SubjectAdmin.get_queryset` called `admin.models.Count`, which
+  `django.contrib.admin.models` has never exported. `Count` lives in
+  `django.db.models`, so every request to the Subjects changelist
+  raised `AttributeError`.
+
+The tests also assert that ordinary accounts are still refused by
+the admin, so a fix here cannot quietly widen access.
+
+306 tests cover the models, forms, views, ownership isolation
 between accounts, login requirements, the dashboard statistics, the
 reminder command, the Resend backend and its log redaction, the
 whole password reset flow including a rejected send, the deployment
-configuration of the settings module, and the admin provisioning
+configuration of the settings module, the admin provisioning
 command including that it never reaches a second account or echoes
-a password.
+a password, and every admin page.
 
 ## Interface
 

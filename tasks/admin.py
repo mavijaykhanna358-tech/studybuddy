@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import Note, Subject, Task
 
@@ -32,11 +33,17 @@ class SubjectAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
+        # Count comes from django.db.models. It was reached here as
+        # admin.models.Count, which django.contrib.admin.models has
+        # never exported, so this raised AttributeError as soon as
+        # the queryset was built and every request for this
+        # changelist returned a 500.
+
         return super().get_queryset(
             request
         ).annotate(
-            task_total=admin.models.Count('tasks'),
-            note_total=admin.models.Count('notes'),
+            task_total=Count('tasks'),
+            note_total=Count('notes'),
         )
 
     @admin.display(
