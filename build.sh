@@ -29,4 +29,15 @@ python manage.py collectstatic --no-input
 echo "---- Applying migrations ----"
 python manage.py migrate --noinput
 
+# Render Shell is a paid feature, so this is the only way to reach
+# the production database from a build. With no ADMIN_USERNAME set
+# the command does nothing and exits successfully, which is why it
+# is safe to leave wired in permanently: set ADMIN_USERNAME,
+# ADMIN_EMAIL and ADMIN_PASSWORD once, deploy, then delete them and
+# this step goes back to doing nothing. No credential is stored in
+# the repository, and the command never writes the password to the
+# build log.
+echo "---- Provisioning administrator, if configured ----"
+python manage.py provision_admin
+
 echo "---- Build complete ----"

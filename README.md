@@ -266,6 +266,83 @@ from two places, both of which see the reason.
 connection, which is why it can now be used to diagnose a deployment
 whose database settings are still wrong.
 
+### Creating an admin on Render
+
+Render Shell is a paid feature, so on a free plan the only way to
+reach the production database is a command that runs during a build.
+`provision_admin` is that command, and `build.sh` already calls it.
+
+```bash
+python manage.py provision_admin
+```
+
+It reads three environment variables and nothing else:
+
+| Variable | Needed | Notes |
+| --- | --- | --- |
+| `ADMIN_USERNAME` | Always, to do anything | Without it the command does nothing. |
+| `ADMIN_EMAIL` | Always, when the username is set | The address on the account. |
+| `ADMIN_PASSWORD` | Only to create the account | Not needed to promote an existing one. |
+
+**To create your first admin:**
+
+1. On the Render service, under **Environment**, add the three
+   variables. Set **Sync: No** on each one so the change applies to
+   the next deploy rather than restarting the running container.
+2. Pick a password that passes Django's validators: at least 8
+   characters, not a common password, not all digits, and not
+   similar to the username. A build is a good place for that to be
+   enforced, so the command refuses a weak one and tells you which
+   validator objected.
+3. **Manual Deploy > Deploy latest commit**, or push any commit.
+4. Watch the build log. A line like this means it worked:
+
+   ```
+   Created "siteadmin" (admin@studybuddy.example) as an active superuser.
+   ```
+
+5. Sign in at `https://<your-host>/admin/`.
+
+**Then remove them.** Delete `ADMIN_PASSWORD` and redeploy
+immediately; the next run reports the account is already an active
+superuser and changes nothing. Once that is confirmed, delete
+`ADMIN_USERNAME` and `ADMIN_EMAIL` too. The command stays in
+`build.sh` and does nothing from then on, so it is not a way back
+into the database.
+
+The command is deliberately hard to misuse:
+
+* **It does nothing at all without `ADMIN_USERNAME`,** and exits
+  successfully, so a build can never be blocked by it and it leaves
+  no working backdoor once the variables are gone.
+* **It only ever touches one account.** Every query is filtered to a
+  single row, so no other user can be read or written.
+* **It never sets the password of an account that already exists.**
+  A stale `ADMIN_PASSWORD` left on the service would otherwise reset
+  the administrator's password on every deploy. Changing it needs
+  the explicit `--reset-password` flag.
+* **The password is never written to the build log,** not on success
+  and not in the error a rejected password produces.
+* **It refuses to create a second administrator on an address that
+  already belongs to a staff account,** which is the duplicate the
+  command exists to prevent.
+* **It promotes `is_active` as well as `is_staff` and
+  `is_superuser`,** because an inactive account cannot sign in
+  however it is flagged.
+
+Preview first with `--dry-run`, which reports what would change and
+writes nothing. To change an existing password on purpose:
+
+```bash
+python manage.py provision_admin --reset-password
+```
+
+The command connects through the same `DATABASE_URL` the
+application already uses and issues only portable ORM calls, so it
+behaves identically on the Render PostgreSQL database. It is safe to
+run in a normal development shell too, where it warns that it is
+not the production database.
+
 ### Other hosts
 
 Set `DJANGO_ENV=production` and the variables above in your host's
@@ -285,7 +362,8 @@ deployed stylesheet is the stale one.
 
 ```
 project/     settings, deployment checks, urls, wsgi/asgi
-users/       auth, registration, profile, Resend backend
+users/       auth, registration, profile, Resend backend,
+             provision_admin command
 tasks/       Subject, Task, Note models, forms, views, urls
 dashboard/   dashboard view and stats
 templates/   base shell, per-app templates, shared includes
@@ -299,11 +377,13 @@ media/       attachments when Cloudinary is not configured
 python manage.py test
 ```
 
-240 tests cover the models, forms, views, ownership isolation
-between accounts, login requirements, the dashboard statistics,
-the reminder command, the Resend backend and its log redaction, the
-whole password reset flow including a rejected send, and the
-deployment configuration of the settings module.
+281 tests cover the models, forms, views, ownership isolation
+between accounts, login requirements, the dashboard statistics, the
+reminder command, the Resend backend and its log redaction, the
+whole password reset flow including a rejected send, the deployment
+configuration of the settings module, and the admin provisioning
+command including that it never reaches a second account or echoes
+a password.
 
 ## Interface
 
