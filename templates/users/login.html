@@ -1,212 +1,135 @@
 {% extends 'base.html' %}
 
+{% block title %}Log in - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
-    .login-page {
-        min-height: calc(100vh - 70px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px 15px;
-    }
 
-    .login-wrapper {
-        width: 100%;
-        max-width: 430px;
-    }
+<div class="sb-auth">
 
-    .brand {
-        text-align: center;
-        margin-bottom: 18px;
-    }
+    <div class="sb-auth__card">
 
-    .brand h1 {
-        margin: 0;
-        font-size: 36px;
-        font-weight: 700;
-        color: #172033;
-    }
-
-    .brand h1 span {
-        color: #146ef5;
-    }
-
-    .brand p {
-        margin: 5px 0 0;
-        color: #7890ad;
-        font-size: 13px;
-    }
-
-    .login-card {
-        background: white;
-        border-radius: 18px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(50, 90, 140, 0.12);
-    }
-
-    .login-card h2 {
-        text-align: center;
-        margin-bottom: 5px;
-        font-size: 30px;
-        color: #172033;
-    }
-
-    .welcome {
-        text-align: center;
-        color: #7890ad;
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-
-    .form-label {
-        font-weight: 600;
-    }
-
-    .form-control {
-        height: 46px;
-        border-radius: 10px;
-    }
-
-    .login-btn {
-        height: 46px;
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-    .login-links {
-        text-align: center;
-        margin-top: 16px;
-        font-size: 14px;
-    }
-
-    .login-links a {
-        color: #146ef5;
-        text-decoration: none;
-    }
-
-    .login-links a:hover {
-        text-decoration: underline;
-    }
-
-    @media (max-width: 576px) {
-        .login-page {
-            min-height: calc(100dvh - 70px);
-            padding: 15px 12px;
-        }
-
-        .brand {
-            margin-bottom: 12px;
-        }
-
-        .brand h1 {
-            font-size: 31px;
-        }
-
-        .brand p {
-            font-size: 11px;
-        }
-
-        .login-card {
-            padding: 22px 20px;
-        }
-
-        .login-card h2 {
-            font-size: 27px;
-        }
-
-        .welcome {
-            margin-bottom: 15px;
-        }
-    }
-</style>
-
-
-<div class="login-page">
-
-    <div class="login-wrapper">
-
-        <div class="brand">
-            <h1>Study<span>Buddy</span></h1>
-            <p>Plan &nbsp; | &nbsp; Learn &nbsp; | &nbsp; Achieve</p>
+        <div
+            class="sb-auth__mark"
+            aria-hidden="true"
+        >
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5A2.5 2.5 0 0 1 4 20.5z"></path><path d="M9 7.5h7"></path></svg>
         </div>
 
 
-        <div class="login-card">
+        <h1 class="sb-auth__title">
+            Welcome back
+        </h1>
 
-            <h2>Login</h2>
+        <p class="sb-auth__sub">
+            Log in to pick up where you left off.
+        </p>
 
-            <p class="welcome">
-                Welcome back! Glad to see you again.
-            </p>
 
-            {% if form.errors %}
-                <div class="alert alert-danger">
-                    Invalid username or password.
-                </div>
-            {% endif %}
+        {% if form.errors %}
 
-            <form method="post" class="row g-3">
+            <div
+                class="sb-form-error"
+                role="alert"
+            >
+                Your username or password is not correct.
+            </div>
 
-                {% csrf_token %}
+        {% endif %}
 
-                <div class="col-12">
-                    <label for="id_username" class="form-label">
-                        Username
-                    </label>
 
-                    <input
-                        type="text"
-                        name="username"
-                        id="id_username"
-                        class="form-control"
-                        required>
-                </div>
+        <form
+            method="post"
+            action="{% url 'login' %}"
+            novalidate
+        >
 
-                <div class="col-12">
-                    <label for="id_password" class="form-label">
-                        Password
-                    </label>
+            {% csrf_token %}
 
-                    <input
-                        type="password"
-                        name="password"
-                        id="id_password"
-                        class="form-control"
-                        required>
-                </div>
+            <input
+                type="hidden"
+                name="next"
+                value="{{ next }}"
+            >
 
-                <div class="col-12">
-                    <button
-                        type="submit"
-                        class="btn btn-primary login-btn w-100">
-                        Login
-                    </button>
-                </div>
 
-            </form>
+            <div class="sb-field">
 
-            <div class="login-links">
+                <label
+                    class="sb-label"
+                    for="id_username"
+                >
+                    Username
+                </label>
 
-                <p class="mb-2">
-                    <a href="{% url 'password_reset' %}">
-                        Forgot password?
-                    </a>
-                </p>
-
-                <p class="mb-0">
-                    No account yet?
-                    <a href="{% url 'register' %}">
-                        Register here
-                    </a>
-                </p>
+                <input
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    class="sb-input"
+                    value="{{ form.username.value|default:'' }}"
+                    autocomplete="username"
+                    autofocus
+                    required
+                >
 
             </div>
+
+
+            <div class="sb-field">
+
+                <label
+                    class="sb-label"
+                    for="id_password"
+                >
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    class="sb-input"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <div class="sb-form-actions">
+
+                <button
+                    type="submit"
+                    class="sb-btn sb-btn--primary sb-btn--lg sb-btn--block"
+                >
+                    Log in
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div class="sb-auth__links">
+
+            <span>Forgot your password?</span>
+
+            <a href="{% url 'password_reset' %}">
+                Reset it
+            </a>
+
+            <span aria-hidden="true">&middot;</span>
+
+            <a href="{% url 'register' %}">
+                Create an account
+            </a>
 
         </div>
 
     </div>
 
 </div>
+
 
 {% endblock %}

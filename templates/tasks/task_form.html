@@ -1,183 +1,236 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {% if task %}Edit task{% else %}New task{% endif %} - StudyBuddy
+{% endblock %}
+
 {% block content %}
 
-<style>
-    .task-form-page {
-        max-width: 750px;
-        margin: 0 auto;
-    }
 
-    .task-form-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 28px;
-    }
-
-    .task-form-card h2 {
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .form-subtitle {
-        color: #6c757d;
-        margin-bottom: 24px;
-    }
-
-    .form-label {
-        font-weight: 600;
-    }
-
-    .form-control,
-    .form-select {
-        border-radius: 10px;
-        padding: 11px 13px;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 8px;
-    }
-
-    @media (max-width: 576px) {
-        .task-form-card {
-            padding: 20px;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .form-actions .btn {
-            width: 100%;
-        }
-    }
-</style>
+<a
+    href="{% if task %}{% url 'task_detail' task.pk %}{% else %}{% url 'tasks' %}{% endif %}"
+    class="sb-backlink"
+>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M11 18l-6-6 6-6"></path></svg>
+    {% if task %}Back to task{% else %}Back to tasks{% endif %}
+</a>
 
 
-<div class="task-form-page">
+<div class="sb-narrow">
 
-    <div class="task-form-card">
 
-        {% if task %}
+    <div class="sb-page-head">
 
-            <h2>Edit Task</h2>
+        <div>
 
-            <p class="form-subtitle">
-                Update your task details.
+            <span class="sb-page-head__eyebrow">
+                {% if task %}Editing{% else %}New{% endif %}
+            </span>
+
+            <h1>
+                {% if task %}
+                    Edit task
+                {% else %}
+                    Create a task
+                {% endif %}
+            </h1>
+
+            <p>
+                Set a due date and a priority so nothing slips.
             </p>
 
-        {% else %}
+        </div>
 
-            <h2>Add Task</h2>
-
-            <p class="form-subtitle">
-                Create a task to manage your academic workload.
-            </p>
-
-        {% endif %}
+    </div>
 
 
-        <form method="post">
+    <section class="sb-card sb-card--pad-lg">
+
+        <form
+            method="post"
+            novalidate
+        >
 
             {% csrf_token %}
 
 
-            {% for field in form %}
-
-                <div class="mb-3">
-
-                    <label
-                        for="{{ field.id_for_label }}"
-                        class="form-label"
-                    >
-                        {{ field.label }}
-                    </label>
-
-                    {{ field }}
-
-
-                    {% if field.help_text %}
-
-                        <small class="form-text text-muted">
-                            {{ field.help_text }}
-                        </small>
-
-                    {% endif %}
-
-
-                    {% for error in field.errors %}
-
-                        <div class="text-danger small mt-1">
-                            {{ error }}
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% endfor %}
-
-
             {% if form.non_field_errors %}
 
-                <div class="text-danger small mb-3">
+                <div class="sb-form-error" role="alert">
 
-                    {% for error in form.non_field_errors %}
-                        <div>{{ error }}</div>
-                    {% endfor %}
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
 
                 </div>
 
             {% endif %}
 
 
-            <div class="form-actions">
+            <!-- =============================================
+                 TITLE
+            ============================================= -->
+
+            <div class="sb-field {% if form.title.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.title.id_for_label }}"
+                >
+                    Title
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.title }}
+
+                {% for error in form.title.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <!-- =============================================
+                 SUBJECT
+            ============================================= -->
+
+            <div class="sb-field {% if form.subject.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.subject.id_for_label }}"
+                >
+                    Subject
+                </label>
+
+                {{ form.subject }}
+
+                {% for error in form.subject.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+                <p class="sb-help">
+                    Optional. Group the task with related notes and
+                    other tasks.
+                </p>
+
+            </div>
+
+
+            <!-- =============================================
+                 DESCRIPTION
+            ============================================= -->
+
+            <div class="sb-field {% if form.description.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.description.id_for_label }}"
+                >
+                    Description
+                </label>
+
+                {{ form.description }}
+
+                {% for error in form.description.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <!-- =============================================
+                 DUE DATE, PRIORITY AND STATUS
+            ============================================= -->
+
+            <div class="sb-grid-2">
+
+                <div class="sb-field {% if form.due_date.errors %}has-error{% endif %}">
+
+                    <label
+                        class="sb-label"
+                        for="{{ form.due_date.id_for_label }}"
+                    >
+                        Due date
+                    </label>
+
+                    {{ form.due_date }}
+
+                    {% for error in form.due_date.errors %}
+                        <p class="sb-error-text">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="sb-field {% if form.priority.errors %}has-error{% endif %}">
+
+                    <label
+                        class="sb-label"
+                        for="{{ form.priority.id_for_label }}"
+                    >
+                        Priority
+                    </label>
+
+                    {{ form.priority }}
+
+                    {% for error in form.priority.errors %}
+                        <p class="sb-error-text">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="sb-field {% if form.status.errors %}has-error{% endif %}">
+
+                    <label
+                        class="sb-label"
+                        for="{{ form.status.id_for_label }}"
+                    >
+                        Status
+                    </label>
+
+                    {{ form.status }}
+
+                    {% for error in form.status.errors %}
+                        <p class="sb-error-text">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div class="sb-form-actions">
 
                 <button
                     type="submit"
-                    class="btn btn-primary"
+                    class="sb-btn sb-btn--primary sb-btn--lg"
                 >
                     {% if task %}
-                        Update Task
+                        Save changes
                     {% else %}
-                        Save Task
+                        Create task
                     {% endif %}
                 </button>
 
 
-                {% if task %}
-
-                    <a
-                        href="{% url 'task_detail' task.pk %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'tasks' %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% endif %}
+                <a
+                    href="{% if task %}{% url 'task_detail' task.pk %}{% else %}{% url 'tasks' %}{% endif %}"
+                    class="sb-btn sb-btn--ghost sb-btn--lg"
+                >
+                    Cancel
+                </a>
 
             </div>
 
         </form>
 
-    </div>
+    </section>
 
 </div>
+
 
 {% endblock %}

@@ -1,348 +1,87 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ subject.name }} - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
 
-.subject-detail-page {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 24px 20px 40px;
-    box-sizing: border-box;
-}
-
-/* =========================
-   TOP
-========================= */
-
-.subject-detail-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.back-link {
-    color: #60738c;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.back-link:hover {
-    color: #0d6efd;
-}
-
-.subject-detail-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* =========================
-   SUBJECT HEADER
-========================= */
-
-.subject-header-card {
-    background: #ffffff;
-    border: 1px solid #e5eaf0;
-    border-radius: 17px;
-    padding: 28px;
-    box-shadow: 0 3px 14px rgba(30, 60, 100, 0.07);
-    margin-bottom: 20px;
-}
-
-.subject-header-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 18px;
-}
-
-.subject-large-icon {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    border-radius: 15px;
-    background: #eef5ff;
-    color: #0d6efd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-}
-
-.subject-header-text {
-    min-width: 0;
-}
-
-.subject-title {
-    margin: 0 0 7px;
-    color: #172033;
-    font-size: 30px;
-    font-weight: 700;
-    word-break: break-word;
-}
-
-.subject-description {
-    margin: 0;
-    color: #66778d;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-/* =========================
-   STATS
-========================= */
-
-.subject-overview {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 24px;
-}
-
-.overview-box {
-    background: #f7f9fc;
-    border-radius: 11px;
-    padding: 15px;
-}
-
-.overview-number {
-    display: block;
-    color: #172033;
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.overview-label {
-    color: #718096;
-    font-size: 13px;
-}
-
-/* =========================
-   CONTENT GRID
-========================= */
-
-.subject-content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-}
-
-.content-card {
-    background: #ffffff;
-    border: 1px solid #e5eaf0;
-    border-radius: 15px;
-    padding: 22px;
-    box-shadow: 0 2px 10px rgba(30, 60, 100, 0.05);
-    min-width: 0;
-}
-
-.content-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 17px;
-}
-
-.content-card-header h2 {
-    margin: 0;
-    color: #172033;
-    font-size: 19px;
-    font-weight: 700;
-}
-
-/* =========================
-   ITEMS
-========================= */
-
-.subject-item {
-    border: 1px solid #e8edf3;
-    border-radius: 11px;
-    padding: 14px;
-    margin-bottom: 10px;
-    background: #fbfcfe;
-}
-
-.subject-item:last-child {
-    margin-bottom: 0;
-}
-
-.subject-item-title {
-    color: #172033;
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 5px;
-    word-break: break-word;
-}
-
-.subject-item-meta {
-    color: #718096;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.subject-item-link {
-    text-decoration: none;
-    color: inherit;
-}
-
-.subject-item-link:hover .subject-item-title {
-    color: #0d6efd;
-}
-
-/* =========================
-   BADGES
-========================= */
-
-.status-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-top: 7px;
-}
-
-.status-completed {
-    background: #e9f8ef;
-    color: #198754;
-}
-
-.status-progress {
-    background: #eaf2ff;
-    color: #0d6efd;
-}
-
-.status-pending {
-    background: #fff4df;
-    color: #b77900;
-}
-
-/* =========================
-   EMPTY
-========================= */
-
-.section-empty {
-    padding: 25px 10px;
-    text-align: center;
-    color: #7a899b;
-    font-size: 14px;
-}
-
-/* =========================
-   BOTTOM
-========================= */
-
-.subject-bottom-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 800px) {
-
-    .subject-content-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-@media (max-width: 600px) {
-
-    .subject-detail-page {
-        padding: 16px 14px 30px;
-    }
-
-    .subject-detail-top {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .subject-detail-actions {
-        width: 100%;
-    }
-
-    .subject-detail-actions .btn {
-        flex: 1;
-    }
-
-    .subject-header-card {
-        padding: 21px;
-    }
-
-    .subject-header-content {
-        gap: 13px;
-    }
-
-    .subject-large-icon {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        font-size: 22px;
-    }
-
-    .subject-title {
-        font-size: 25px;
-    }
-
-    .subject-overview {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .content-card {
-        padding: 18px;
-    }
-
-    .subject-bottom-actions {
-        flex-direction: column;
-    }
-
-    .subject-bottom-actions .btn {
-        width: 100%;
-    }
-
-}
-
-</style>
+<a
+    href="{% url 'subjects' %}"
+    class="sb-backlink"
+>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M11 18l-6-6 6-6"></path></svg>
+    All subjects
+</a>
 
 
-<div class="subject-detail-page">
+<!-- =========================================================
+     SUBJECT HEADER
+========================================================= -->
 
-    <!-- =========================
-         TOP NAVIGATION
-    ========================= -->
+<section class="sb-card sb-card--pad-lg">
 
-    <div class="subject-detail-top">
+    <div class="sb-row sb-row--wrap sb-row--gap-lg">
 
-        <a
-            href="{% url 'subjects' %}"
-            class="back-link"
+        <span
+            class="sb-avatar sb-avatar--lg"
+            aria-hidden="true"
         >
-            ← Back to Subjects
-        </a>
+            {{ subject.name|first|upper }}
+        </span>
 
 
-        <div class="subject-detail-actions">
+        <div class="sb-grow">
+
+            <span class="sb-page-head__eyebrow">
+                Subject
+            </span>
+
+            <h1 class="sb-detail-title">
+                {{ subject.name }}
+            </h1>
+
+            <p class="sb-sub">
+                {% if subject.description %}
+                    {{ subject.description }}
+                {% else %}
+                    <span class="sb-dim">No description provided.</span>
+                {% endif %}
+            </p>
+
+        </div>
+
+
+        <div class="sb-row sb-row--wrap">
+
+            <a
+                href="{% url 'task_create' %}?subject={{ subject.pk }}"
+                class="sb-btn sb-btn--primary"
+            >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                Add task
+            </a>
+
+
+            <a
+                href="{% url 'note_create' %}?subject={{ subject.pk }}"
+                class="sb-btn sb-btn--accent"
+            >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"></path><path d="M14 4v5h5"></path></svg>
+                Add note
+            </a>
+
 
             <a
                 href="{% url 'subject_edit' subject.pk %}"
-                class="btn btn-outline-primary btn-sm"
+                class="sb-btn sb-btn--outline"
             >
                 Edit
             </a>
 
+
             <a
                 href="{% url 'subject_delete' subject.pk %}"
-                class="btn btn-outline-danger btn-sm"
+                class="sb-btn sb-btn--tint-danger"
             >
                 Delete
             </a>
@@ -352,260 +91,204 @@
     </div>
 
 
-    <!-- =========================
-         SUBJECT HEADER
-    ========================= -->
+    <div class="sb-divider"></div>
 
-    <div class="subject-header-card">
 
-        <div class="subject-header-content">
+    <div class="sb-stats sb-mb-0">
 
-            <div class="subject-large-icon">
-                📚
+        <article class="sb-stat sb-stat--blue">
+
+            <div class="sb-stat__label">
+                Tasks
             </div>
 
+            <div class="sb-stat__value">
+                {{ tasks|length }}
+            </div>
 
-            <div class="subject-header-text">
+            <div class="sb-stat__foot">
+                <a href="{% url 'tasks' %}?subject={{ subject.pk }}">
+                    View in tasks
+                </a>
+            </div>
 
-                <h1 class="subject-title">
-                    {{ subject.name }}
-                </h1>
+        </article>
 
 
-                <p class="subject-description">
+        <article class="sb-stat sb-stat--pink">
 
-                    {% if subject.description %}
+            <div class="sb-stat__label">
+                Notes
+            </div>
 
-                        {{ subject.description }}
+            <div class="sb-stat__value">
+                {{ notes|length }}
+            </div>
 
+            <div class="sb-stat__foot">
+                <a href="{% url 'notes' %}?subject={{ subject.pk }}">
+                    View in notes
+                </a>
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     TASKS AND NOTES
+========================================================= -->
+
+<div class="sb-grid sb-grid--2 sb-mt">
+
+
+    <!-- =====================================================
+         TASKS
+    ===================================================== -->
+
+    <section class="sb-card">
+
+        <div class="sb-card__head">
+
+            <h2 class="sb-card__title">
+                Tasks
+            </h2>
+
+            <a
+                href="{% url 'task_create' %}?subject={{ subject.pk }}"
+                class="sb-btn sb-btn--quiet sb-btn--sm"
+            >
+                Add
+            </a>
+
+        </div>
+
+
+        {% for task in tasks %}
+
+            <a
+                href="{% url 'task_detail' task.pk %}"
+                class="sb-list-row"
+            >
+
+                <span
+                    class="sb-list-row__marker sb-list-row__marker--{% if task.priority == 'High' %}high{% elif task.priority == 'Medium' %}medium{% else %}low{% endif %}"
+                    aria-hidden="true"
+                ></span>
+
+                <span class="sb-list-row__body">
+
+                    <span class="sb-list-row__title sb-clamp-1 {% if task.status == 'Completed' %}sb-dim{% endif %}">
+                        {{ task.title }}
+                    </span>
+
+                    <span class="sb-list-row__meta">
+                        {% if task.due_date %}
+                            Due {{ task.due_date|date:"M d, Y" }}
+                        {% else %}
+                            No due date
+                        {% endif %}
+                        {% if task.is_overdue %}
+                            <span class="sb-badge sb-badge--high">Overdue</span>
+                        {% endif %}
+                    </span>
+
+                </span>
+
+                <span class="sb-list-row__end">
+                    {% if task.status == 'Completed' %}
+                        <span class="sb-badge sb-badge--low">Done</span>
+                    {% elif task.status == 'In Progress' %}
+                        <span class="sb-badge sb-badge--progress">In progress</span>
                     {% else %}
-
-                        No description provided.
-
+                        <span class="sb-badge sb-badge--neutral">Pending</span>
                     {% endif %}
+                </span>
 
-                </p>
+            </a>
 
+        {% empty %}
+
+            <div class="sb-inline-empty">
+                No tasks for this subject yet.
             </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- =====================================================
+         NOTES
+    ===================================================== -->
+
+    <section class="sb-card">
+
+        <div class="sb-card__head">
+
+            <h2 class="sb-card__title">
+                Notes
+            </h2>
+
+            <a
+                href="{% url 'note_create' %}?subject={{ subject.pk }}"
+                class="sb-btn sb-btn--quiet sb-btn--sm"
+            >
+                Add
+            </a>
 
         </div>
 
 
-        <!-- Overview -->
+        {% for note in notes %}
 
-        <div class="subject-overview">
+            <a
+                href="{% url 'note_detail' note.pk %}"
+                class="sb-list-row"
+            >
 
-            <div class="overview-box">
-
-                <span class="overview-number">
-                    {{ tasks.count }}
-                </span>
-
-                <span class="overview-label">
-                    Tasks
-                </span>
-
-            </div>
-
-
-            <div class="overview-box">
-
-                <span class="overview-number">
-                    {{ notes.count }}
-                </span>
-
-                <span class="overview-label">
-                    Notes
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================
-         TASKS + NOTES
-    ========================= -->
-
-    <div class="subject-content-grid">
-
-
-        <!-- TASKS -->
-
-        <div class="content-card">
-
-            <div class="content-card-header">
-
-                <h2>
-                    Tasks
-                </h2>
-
-                <a
-                    href="{% url 'task_create' %}"
-                    class="btn btn-sm btn-outline-primary"
+                <span
+                    class="sb-avatar sb-avatar--sm sb-avatar--blue"
+                    aria-hidden="true"
                 >
-                    + Add
-                </a>
+                    {{ note.title|first|upper }}
+                </span>
 
+                <span class="sb-list-row__body">
+
+                    <span class="sb-list-row__title sb-clamp-1">
+                        {{ note.title }}
+                    </span>
+
+                    <span class="sb-list-row__meta">
+                        Updated {{ note.updated_at|date:"M d, Y" }}
+                        {% if note.attachment %}
+                            <span aria-hidden="true">&middot;</span>
+                            <span class="sb-inline-flex">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-3-3l7-7"></path></svg>
+                                Attachment
+                            </span>
+                        {% endif %}
+                    </span>
+
+                </span>
+
+            </a>
+
+        {% empty %}
+
+            <div class="sb-inline-empty">
+                No notes for this subject yet.
             </div>
 
+        {% endfor %}
 
-            {% if tasks %}
-
-                {% for task in tasks %}
-
-                    <a
-                        href="{% url 'task_detail' task.pk %}"
-                        class="subject-item-link"
-                    >
-
-                        <div class="subject-item">
-
-                            <div class="subject-item-title">
-                                {{ task.title }}
-                            </div>
-
-
-                            <div class="subject-item-meta">
-
-                                {% if task.due_date %}
-
-                                    Due:
-                                    {{ task.due_date|date:"M d, Y" }}
-
-                                {% else %}
-
-                                    No due date
-
-                                {% endif %}
-
-                            </div>
-
-
-                            {% if task.status == 'Completed' %}
-
-                                <span class="status-badge status-completed">
-                                    Completed
-                                </span>
-
-                            {% elif task.status == 'In Progress' %}
-
-                                <span class="status-badge status-progress">
-                                    In Progress
-                                </span>
-
-                            {% else %}
-
-                                <span class="status-badge status-pending">
-                                    Pending
-                                </span>
-
-                            {% endif %}
-
-                        </div>
-
-                    </a>
-
-                {% endfor %}
-
-            {% else %}
-
-                <div class="section-empty">
-                    No tasks for this subject yet.
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- NOTES -->
-
-        <div class="content-card">
-
-            <div class="content-card-header">
-
-                <h2>
-                    Notes
-                </h2>
-
-                <a
-                    href="{% url 'note_create' %}"
-                    class="btn btn-sm btn-outline-primary"
-                >
-                    + Add
-                </a>
-
-            </div>
-
-
-            {% if notes %}
-
-                {% for note in notes %}
-
-                    <a
-                        href="{% url 'note_detail' note.pk %}"
-                        class="subject-item-link"
-                    >
-
-                        <div class="subject-item">
-
-                            <div class="subject-item-title">
-                                {{ note.title }}
-                            </div>
-
-
-                            <div class="subject-item-meta">
-
-                                Updated
-                                {{ note.updated_at|date:"M d, Y" }}
-
-                                {% if note.attachment %}
-
-                                    <br>
-                                    📎 Attachment included
-
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-                    </a>
-
-                {% endfor %}
-
-            {% else %}
-
-                <div class="section-empty">
-                    No notes for this subject yet.
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-    </div>
-
-
-    <!-- =========================
-         BOTTOM ACTION
-    ========================= -->
-
-    <div class="subject-bottom-actions">
-
-        <a
-            href="{% url 'subjects' %}"
-            class="btn btn-outline-secondary"
-        >
-            Back to Subjects
-        </a>
-
-    </div>
+    </section>
 
 </div>
+
 
 {% endblock %}

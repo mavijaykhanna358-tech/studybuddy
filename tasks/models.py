@@ -1,8 +1,25 @@
+from datetime import date
+
 from django.conf import settings
 from django.db import models
 
 
 class Subject(models.Model):
+
+    # Subjects are a per user workspace. Case insensitive unique
+    # names stop the same subject being created twice.
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'user',
+                    'name',
+                ],
+                name='unique_subject_name_per_user',
+            ),
+        ]
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -26,9 +43,6 @@ class Subject(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
-
-    class Meta:
-        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -108,15 +122,73 @@ class Task(models.Model):
     )
 
     class Meta:
+        # priority is a CharField, so a plain ordering sorts it
+        # alphabetically (High, Low, Medium). This orders by real
+        # urgency and puts tasks without a due date last.
+
         ordering = [
+            models.Case(
+                models.When(
+                    due_date__isnull=True,
+                    then=1
+                ),
+                default=0,
+                output_field=models.IntegerField(),
+            ),
             'due_date',
-            'priority',
-            'title'
+            models.Case(
+                models.When(
+                    priority='High',
+                    then=0
+                ),
+                models.When(
+                    priority='Medium',
+                    then=1
+                ),
+                default=2,
+                output_field=models.IntegerField(),
+            ),
+            'title',
+        ]
+
+        indexes = [
+            models.Index(
+                fields=[
+                    'user',
+                    'status',
+                ],
+                name='task_user_status_idx',
+            ),
+
+            models.Index(
+                fields=[
+                    'user',
+                    'due_date',
+                ],
+                name='task_user_due_idx',
+            ),
         ]
 
     @property
     def is_completed(self):
         return self.status == 'Completed'
+
+    @property
+    def is_overdue(self):
+        if not self.due_date:
+            return False
+
+        if self.status == 'Completed':
+            return False
+
+        return self.due_date < date.today()
+
+    @property
+    def days_until_due(self):
+        if not self.due_date:
+            return None
+
+        return (self.due_date - date.today()).days
 
     def save(self, *args, **kwargs):
 

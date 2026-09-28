@@ -1,33 +1,162 @@
 {% extends 'base.html' %}
 
+{% block title %}Create an account - StudyBuddy{% endblock %}
+
 {% block content %}
-<div class="card auth-card">
-    <h2>Create Account</h2>
-    {% if error %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
-    {% endif %}
-    <form method="post" class="row g-3">
-        {% csrf_token %}
-        <div class="col-12">
-            <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" required>
+
+
+<div class="sb-auth sb-auth--wide">
+
+    <div class="sb-auth__card">
+
+        <div
+            class="sb-auth__mark"
+            aria-hidden="true"
+        >
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M18 8v6"></path><path d="M15 11h6"></path></svg>
         </div>
-        <div class="col-12">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" required>
+
+
+        <h1 class="sb-auth__title">
+            Create your account
+        </h1>
+
+        <p class="sb-auth__sub">
+            Subjects, tasks and notes in one place.
+        </p>
+
+
+        {% if form.non_field_errors %}
+
+            <div class="sb-form-error" role="alert">
+
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+        {% endif %}
+
+
+        <form
+            method="post"
+            action="{% url 'register' %}"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            <div class="sb-field {% if form.username.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.username.id_for_label }}"
+                >
+                    Username
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.username }}
+
+                {% for error in form.username.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="sb-field {% if form.email.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.email.id_for_label }}"
+                >
+                    Email
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.email }}
+
+                {% for error in form.email.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+                <p class="sb-help">
+                    Only used for password resets.
+                </p>
+
+            </div>
+
+
+            <div class="sb-field {% if form.password1.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.password1.id_for_label }}"
+                >
+                    Password
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.password1 }}
+
+                {% for error in form.password1.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="sb-field {% if form.password2.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
+                    for="{{ form.password2.id_for_label }}"
+                >
+                    Confirm password
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.password2 }}
+
+                {% for error in form.password2.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="sb-form-actions">
+
+                <button
+                    type="submit"
+                    class="sb-btn sb-btn--primary sb-btn--lg sb-btn--block"
+                >
+                    Create account
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div class="sb-auth__foot">
+
+            Already have an account?
+
+            <a href="{% url 'login' %}">
+                Log in
+            </a>
+
         </div>
-        <div class="col-12">
-            <label class="form-label">Password</label>
-            <input type="password" name="password1" class="form-control" required>
-        </div>
-        <div class="col-12">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" name="password2" class="form-control" required>
-        </div>
-        <div class="col-12">
-            <button type="submit" class="btn btn-success w-100">Register</button>
-        </div>
-    </form>
-    <p class="text-center mb-0 mt-3">Already have an account? <a href="{% url 'login' %}">Login</a>.</p>
+
+    </div>
+
 </div>
+
+
 {% endblock %}

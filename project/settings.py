@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 import cloudinary
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 
 # =========================================================
@@ -24,15 +25,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # LOAD .ENV
 # =========================================================
 
+# Real environment variables (shell, CI, hosting) win over the
+# local `.env` file, so a deployment cannot be silently
+# overridden by a checked-out development file.
+
 load_dotenv(
     BASE_DIR / '.env',
-    override=True
+    override=False
 )
 
 
 # =========================================================
 # SECURITY
 # =========================================================
+
+# A deployment sets DJANGO_ENV=production. Everywhere else DEBUG
+# stays on so a fresh clone runs with `manage.py runserver`
+# without extra configuration, and can still be turned off
+# explicitly by setting DEBUG=False in .env.
+
+DJANGO_ENV = os.getenv(
+    'DJANGO_ENV',
+    'development'
+).lower()
+
 
 SECRET_KEY = os.getenv(
     'SECRET_KEY',
@@ -42,15 +58,22 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv(
     'DEBUG',
-    'True'
+    'True' if DJANGO_ENV != 'production' else 'False'
 ).lower() == 'true'
 
 
+# Hosts are configurable so a new deployment does not need a code change.
+# A safe local default is used when the variable is missing.
+
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'studybuddy-9bug.onrender.com',
-    'studybuddyapp.in.net',
+    host.strip()
+    for host in os.getenv(
+        'ALLOWED_HOSTS',
+        '127.0.0.1,localhost,'
+        'studybuddy-9bug.onrender.com,'
+        'studybuddyapp.in.net'
+    ).split(',')
+    if host.strip()
 ]
 
 
@@ -59,8 +82,13 @@ ALLOWED_HOSTS = [
 # =========================================================
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://studybuddy-9bug.onrender.com',
-    'https://studybuddyapp.in.net',
+    origin.strip()
+    for origin in os.getenv(
+        'CSRF_TRUSTED_ORIGINS',
+        'https://studybuddy-9bug.onrender.com,'
+        'https://studybuddyapp.in.net'
+    ).split(',')
+    if origin.strip()
 ]
 
 
@@ -76,10 +104,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-
-    # Cloudinary
-    'cloudinary_storage',
-    'cloudinary',
 
     # Static files
     'django.contrib.staticfiles',
@@ -148,7 +172,17 @@ TEMPLATES = [
 
                 'django.contrib.messages.context_processors.messages',
 
+                # Study streak and notifications shown in the top
+                # bar on every signed in page.
+
+                'dashboard.context_processors.studybuddy_context',
+
             ],
+
+            # Invalid template variables render as an empty
+            # string instead of "None" appearing on the page.
+
+            'string_if_invalid': '',
         },
     },
 ]
@@ -172,12 +206,21 @@ DATABASE_URL = os.getenv(
 
 if DATABASE_URL:
 
+    # Managed databases need TLS, but a local Postgres or MySQL
+    # usually does not offer it, so this is opt-out rather than
+    # always on.
+
+    DATABASE_SSL_REQUIRE = os.getenv(
+        'DATABASE_SSL_REQUIRE',
+        'True'
+    ).lower() == 'true'
+
     DATABASES = {
 
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=DATABASE_SSL_REQUIRE
         )
 
     }
@@ -268,11 +311,9 @@ else:
     STATICFILES_DIRS = []
 
 
-# WhiteNoise storage
-
-STATICFILES_STORAGE = (
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-)
+# The actual staticfiles backend is configured in STORAGES below.
+# The legacy STATICFILES_STORAGE setting was removed in Django 5.1,
+# so it must not be defined here any more.
 
 
 # =========================================================
@@ -282,6 +323,15 @@ STATICFILES_STORAGE = (
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Only reached when Cloudinary is not configured, which is the
+# case for local development.
+
+MEDIA_ROOT.mkdir(
+    parents=True,
+    exist_ok=True
+)
 
 
 # =========================================================
@@ -318,6 +368,19 @@ CLOUDINARY_STORAGE = {
 }
 
 
+# Only treat Cloudinary as configured when every credential is present.
+# Without this check a local install without the env vars would fail on
+# every attachment upload instead of falling back to local storage.
+
+CLOUDINARY_IS_CONFIGURED = all(
+    [
+        CLOUDINARY_CLOUD_NAME,
+        CLOUDINARY_API_KEY,
+        CLOUDINARY_API_SECRET,
+    ]
+)
+
+
 # Configure Cloudinary SDK
 
 cloudinary.config(
@@ -337,19 +400,41 @@ cloudinary.config(
 # DJANGO STORAGE
 # =========================================================
 
+if CLOUDINARY_IS_CONFIGURED:
+
+    DEFAULT_FILE_STORAGE_BACKEND = (
+        'cloudinary_storage.storage.RawMediaCloudinaryStorage'
+    )
+
+else:
+
+    # Local development fallback so attachment uploads keep working
+    # without Cloudinary credentials.
+
+    DEFAULT_FILE_STORAGE_BACKEND = (
+        'django.core.files.storage.FileSystemStorage'
+    )
+
+
 STORAGES = {
 
     'default': {
 
-        'BACKEND':
-            'cloudinary_storage.storage.RawMediaCloudinaryStorage',
+        'BACKEND': DEFAULT_FILE_STORAGE_BACKEND,
 
     },
 
     'staticfiles': {
 
-        'BACKEND':
-            'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        # The hashed manifest is only useful in production. In debug
+        # mode the plain backend keeps missing-file errors away while
+        # editing templates.
+
+        'BACKEND': (
+            'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            if not DEBUG
+            else 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        ),
 
     },
 
@@ -374,29 +459,90 @@ LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
 
+# Password reset links must point at the public site, not at
+# the request host, because the email is read off-site.
+
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
+
+
 # =========================================================
 # EMAIL / RESEND
 # =========================================================
 
-EMAIL_BACKEND = (
-    'users.email_backend.ResendEmailBackend'
-)
-
-EMAIL_HOST = 'smtp.resend.com'
-
-EMAIL_PORT = 587
-
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = 'resend'
-
-EMAIL_HOST_PASSWORD = os.getenv(
+RESEND_API_KEY = os.getenv(
     'RESEND_API_KEY'
 )
 
-DEFAULT_FROM_EMAIL = (
+
+# The Resend backend talks to an HTTP API, so the SMTP settings
+# below only apply if EMAIL_BACKEND is overridden to an SMTP
+# backend. Without a Resend key, mail is written to the console
+# instead of silently disappearing.
+
+if os.getenv('EMAIL_BACKEND'):
+
+    EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+
+else:
+
+    if RESEND_API_KEY:
+
+        EMAIL_BACKEND = (
+            'users.email_backend.ResendEmailBackend'
+        )
+
+    else:
+
+        EMAIL_BACKEND = (
+            'django.core.mail.backends.console.'
+            'EmailBackend'
+        )
+
+
+EMAIL_HOST = os.getenv(
+    'EMAIL_HOST',
+    'smtp.resend.com'
+)
+
+EMAIL_PORT = int(
+    os.getenv(
+        'EMAIL_PORT',
+        587
+    )
+)
+
+EMAIL_USE_TLS = (
+    os.getenv(
+        'EMAIL_USE_TLS',
+        'True'
+    ).lower() == 'true'
+)
+
+EMAIL_HOST_USER = os.getenv(
+    'EMAIL_HOST_USER',
+    'resend'
+)
+
+EMAIL_HOST_PASSWORD = os.getenv(
+    'EMAIL_HOST_PASSWORD',
+    RESEND_API_KEY
+)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL',
     'onboarding@resend.dev'
 )
+
+# The public address of the site. Password reset links are built
+# from it, so the emailed link keeps working when the app is
+# reached through a hostname other than the one the form was
+# submitted on.
+
+FRONTEND_BASE_URL = os.getenv(
+    'FRONTEND_BASE_URL',
+    'http://localhost:8000'
+).rstrip('/')
+
 
 EMAIL_TIMEOUT = 20
 
@@ -407,18 +553,50 @@ EMAIL_TIMEOUT = 20
 
 if not DEBUG:
 
+    # A weak key in production invalidates sessions, signed cookies
+    # and password reset tokens, so fail loudly instead of silently.
+
+    if (
+        SECRET_KEY
+        == 'django-insecure-development-key'
+        or len(SECRET_KEY) < 50
+    ):
+
+        raise ImproperlyConfigured(
+            'SECRET_KEY is missing or too short. Set a long random '
+            'value of at least 50 characters before running with '
+            'DEBUG=False.'
+        )
+
     SECURE_SSL_REDIRECT = True
 
     SESSION_COOKIE_SECURE = True
 
     CSRF_COOKIE_SECURE = True
 
-    SECURE_BROWSER_XSS_FILTER = True
-
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    SECURE_HSTS_SECONDS = 31536000
+
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+    SECURE_HSTS_PRELOAD = True
+
+    SECURE_PROXY_SSL_HEADER = (
+        'HTTP_X_FORWARDED_PROTO',
+        'https'
+    )
 
     X_FRAME_OPTIONS = 'DENY'
 
+else:
+
+    # In development `runserver` talks plain HTTP, so forcing a
+    # redirect or a secure cookie would lock the developer out.
+
+    SESSION_COOKIE_SECURE = False
+
+    CSRF_COOKIE_SECURE = False
 
 # =========================================================
 # FILE UPLOAD LIMIT
@@ -426,10 +604,57 @@ if not DEBUG:
 
 # 50 MB
 
+# 30 MB. NoteForm enforces a 25 MB attachment limit, so this
+# leaves headroom for the rest of the multipart body without
+# allowing an unbounded request.
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = (
-    50 * 1024 * 1024
+    30 * 1024 * 1024
 )
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = (
-    50 * 1024 * 1024
+    30 * 1024 * 1024
 )
+
+# Stop oversized POST bodies before they are parsed.
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+
+# =========================================================
+# LOGGING
+# =========================================================
+
+LOGGING = {
+
+    'version': 1,
+
+    'disable_existing_loggers': False,
+
+    'formatters': {
+
+        'simple': {
+            'format': (
+                '[{asctime}] {levelname} '
+                '{name}: {message}'
+            ),
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+
+    'loggers': {
+
+        'users': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}

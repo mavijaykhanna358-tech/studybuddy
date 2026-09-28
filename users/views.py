@@ -1,41 +1,74 @@
-from django.contrib.auth import authenticate, login
+from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
+from .forms import (
+    RegistrationForm,
+    StyledPasswordResetForm,
+    StyledSetPasswordForm,
+)
 
-class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+
+class CustomPasswordResetView(
+    auth_views.PasswordResetView
+):
+
+    # The domain and scheme of the emailed link are handled by
+    # StyledPasswordResetForm, which defaults them to
+    # FRONTEND_BASE_URL.
+
+    form_class = StyledPasswordResetForm
+
+
+class CustomPasswordResetConfirmView(
+    auth_views.PasswordResetConfirmView
+):
+    form_class = StyledSetPasswordForm
     success_url = reverse_lazy('login')
 
 
 def register(request):
-    error = None
 
     if request.method == 'POST':
-        username = (request.POST.get('username') or '').strip()
-        email = (request.POST.get('email') or '').strip()
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
 
-        if not username:
-            error = 'Username is required.'
-        elif User.objects.filter(username=username).exists():
-            error = 'This username is already taken.'
-        elif not password1 or not password2:
-            error = 'Please enter and confirm your password.'
-        elif password1 != password2:
-            error = 'Passwords do not match.'
-        elif len(password1) < 8:
-            error = 'Password must be at least 8 characters long.'
-        else:
-            User.objects.create_user(username=username, email=email, password=password1)
+        form = RegistrationForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                'Account created. '
+                'You can now log in.'
+            )
+
             return redirect('login')
 
-    return render(request, 'users/register.html', {'error': error})
+    else:
+
+        form = RegistrationForm()
+
+    return render(
+        request,
+        'users/register.html',
+        {
+            'form': form
+        }
+    )
 
 
 @login_required
 def profile(request):
-    return render(request, 'users/profile.html', {'user': request.user})
+
+    return render(
+        request,
+        'users/profile.html',
+        {
+            'user': request.user
+        }
+    )

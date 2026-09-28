@@ -1,175 +1,68 @@
 {% extends 'base.html' %}
 
+{% block title %}Profile - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
-    .profile-page {
-        max-width: 850px;
-        margin: 0 auto;
-    }
 
-    .profile-header {
-        margin-bottom: 24px;
-    }
+<div class="sb-page-head">
 
-    .profile-header h1 {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
+    <div>
 
-    .profile-header p {
-        color: #6c757d;
-        margin: 0;
-    }
+        <span class="sb-page-head__eyebrow">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+            Account
+        </span>
 
-    .profile-card {
-        background: #ffffff;
-        border: 1px solid #e4e8ee;
-        border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-    }
-
-    .profile-top {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        padding-bottom: 24px;
-        margin-bottom: 24px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .profile-avatar {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        background: #0d6efd;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .profile-name {
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-
-    .profile-username {
-        color: #6c757d;
-        margin: 0;
-    }
-
-    .profile-info {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-
-    .info-item {
-        border: 1px solid #e4e8ee;
-        border-radius: 10px;
-        padding: 16px;
-        background: #fafbfc;
-    }
-
-    .info-label {
-        font-size: 13px;
-        color: #6c757d;
-        margin-bottom: 6px;
-    }
-
-    .info-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: #172033;
-        word-break: break-word;
-    }
-
-    .profile-actions {
-        margin-top: 24px;
-        display: flex;
-        gap: 10px;
-    }
-
-    @media (max-width: 576px) {
-
-        .profile-card {
-            padding: 20px;
-        }
-
-        .profile-header h1 {
-            font-size: 27px;
-        }
-
-        .profile-top {
-            align-items: flex-start;
-        }
-
-        .profile-avatar {
-            width: 58px;
-            height: 58px;
-            font-size: 23px;
-        }
-
-        .profile-name {
-            font-size: 19px;
-        }
-
-        .profile-info {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-actions {
-            flex-direction: column;
-        }
-
-        .profile-actions .btn {
-            width: 100%;
-        }
-    }
-</style>
-
-
-<div class="profile-page">
-
-    <!-- Header -->
-    <div class="profile-header">
-
-        <h1>
-            Profile
-        </h1>
+        <h1>Profile</h1>
 
         <p>
-            View your StudyBuddy account information.
+            Your account details and workspace shortcuts.
         </p>
 
     </div>
 
 
-    <!-- Profile Card -->
-    <div class="profile-card">
+    <div class="sb-page-head__actions">
 
-        <!-- User Header -->
-        <div class="profile-top">
+        <a
+            href="{% url 'dashboard' %}"
+            class="sb-btn sb-btn--outline"
+        >
+            Back to dashboard
+        </a>
 
-            <div class="profile-avatar">
+    </div>
+
+</div>
+
+
+<div class="sb-grid sb-grid--2">
+
+
+    <!-- =====================================================
+         ACCOUNT CARD
+    ===================================================== -->
+
+    <section class="sb-card sb-card--pad-lg">
+
+        <div class="sb-row sb-row--wrap sb-row--gap-lg">
+
+            <span
+                class="sb-avatar sb-avatar--lg"
+                aria-hidden="true"
+            >
                 {{ user.username|first|upper }}
-            </div>
+            </span>
 
-            <div>
+            <div class="sb-grow">
 
-                <div class="profile-name">
+                <h2 class="sb-profile__name">
                     {{ user.username }}
-                </div>
+                </h2>
 
-                <p class="profile-username">
-                    StudyBuddy Account
+                <p class="sb-profile__sub">
+                    StudyBuddy account
                 </p>
 
             </div>
@@ -177,67 +70,168 @@
         </div>
 
 
-        <!-- User Information -->
-        <div class="profile-info">
+        <div class="sb-divider"></div>
 
-            <!-- Username -->
-            <div class="info-item">
 
-                <div class="info-label">
-                    Username
-                </div>
+        <div class="sb-kv">
 
-                <div class="info-value">
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Username</span>
+
+                <span class="sb-kv__value">
                     {{ user.username }}
-                </div>
+                </span>
 
             </div>
 
 
-            <!-- Email -->
-            <div class="info-item">
+            <div class="sb-kv__item">
 
-                <div class="info-label">
-                    Email
-                </div>
+                <span class="sb-kv__key">Email</span>
 
-                <div class="info-value">
-                    {{ user.email|default:'Not provided' }}
-                </div>
+                <span class="sb-kv__value">
+                    {% if user.email %}
+                        {{ user.email }}
+                    {% else %}
+                        <span class="sb-dim">Not provided</span>
+                    {% endif %}
+                </span>
 
             </div>
 
 
-            <!-- Joined -->
-            <div class="info-item">
+            <div class="sb-kv__item">
 
-                <div class="info-label">
-                    Joined
-                </div>
+                <span class="sb-kv__key">Joined</span>
 
-                <div class="info-value">
-                    {{ user.date_joined|date:'M d, Y' }}
-                </div>
+                <span class="sb-kv__value">
+                    {{ user.date_joined|date:"M d, Y" }}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Last login</span>
+
+                <span class="sb-kv__value">
+                    {% if user.last_login %}
+                        {{ user.last_login|date:"M d, Y \a\t H:i" }}
+                    {% else %}
+                        <span class="sb-dim">This is your first visit</span>
+                    {% endif %}
+                </span>
 
             </div>
 
         </div>
 
 
-        <!-- Actions -->
-        <div class="profile-actions">
+        <div class="sb-divider"></div>
+
+
+        <div class="sb-row sb-row--wrap">
+
+            <a
+                href="{% url 'password_reset' %}"
+                class="sb-btn sb-btn--tint"
+            >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                Change password
+            </a>
+
 
             <a
                 href="{% url 'dashboard' %}"
-                class="btn btn-outline-primary"
+                class="sb-btn sb-btn--ghost"
             >
-                Back to Dashboard
+                Back to dashboard
             </a>
 
         </div>
 
-    </div>
+    </section>
+
+
+    <!-- =====================================================
+         SHORTCUTS
+    ===================================================== -->
+
+    <section class="sb-card sb-card--pad-lg">
+
+        <div class="sb-card__head">
+
+            <h2 class="sb-card__title">
+                Workspace shortcuts
+            </h2>
+
+        </div>
+
+
+        <div class="sb-quick">
+
+            <a
+                href="{% url 'subjects' %}"
+                class="sb-quick__item sb-quick__item--amber"
+            >
+                <span class="sb-quick__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"></path><path d="M9 7.5h7"></path></svg>
+                </span>
+
+                <span class="sb-quick__label">
+                    Subjects
+                </span>
+            </a>
+
+
+            <a
+                href="{% url 'tasks' %}"
+                class="sb-quick__item sb-quick__item--violet"
+            >
+                <span class="sb-quick__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"></path><path d="M9 12h11"></path><path d="M9 18h11"></path><path d="M4 6l1 1 2-2"></path></svg>
+                </span>
+
+                <span class="sb-quick__label">
+                    Tasks
+                </span>
+            </a>
+
+
+            <a
+                href="{% url 'notes' %}"
+                class="sb-quick__item sb-quick__item--teal"
+            >
+                <span class="sb-quick__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"></path><path d="M14 4v5h5"></path></svg>
+                </span>
+
+                <span class="sb-quick__label">
+                    Notes
+                </span>
+            </a>
+
+
+            <a
+                href="{% url 'tasks' %}?status=Pending"
+                class="sb-quick__item sb-quick__item--rose"
+            >
+                <span class="sb-quick__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                </span>
+
+                <span class="sb-quick__label">
+                    Pending work
+                </span>
+            </a>
+
+        </div>
+
+    </section>
 
 </div>
+
 
 {% endblock %}

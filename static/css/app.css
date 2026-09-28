@@ -1,0 +1,4224 @@
+/* =========================================================
+   STUDYBUDDY  ·  THE ARCANUM DESIGN SYSTEM
+   ------------------------------------------------------------
+   One stylesheet, loaded by base.html. Every template composes
+   the classes below instead of shipping its own inline CSS.
+
+   The look is dark, academic and magical: candlelit library
+   light, aged gold leaf on deep navy and walnut, parchment
+   inserts. No external fonts, no image files, no JavaScript
+   libraries. Atmosphere is built from gradients and a handful
+   of CSS shapes so the page stays fast.
+
+   CONTENTS
+   1.  Tokens
+   2.  Reset and base
+   3.  Typography
+   4.  Layout shell
+   5.  Top bar
+   6.  Sidebar
+   7.  Buttons
+   8.  Forms
+   9.  Cards and panels
+   10. Page headers
+   11. Badges and chips
+   12. Alerts and toasts
+   13. Stats
+   14. Progress
+   15. Empty states
+   16. Pagination
+   17. Avatars
+   18. Hero
+   19. Dashboard grids
+   20. Task and note rows
+   21. Task health
+   22. Quick actions
+   23. Tiles
+   24. Toolbars, filters and tabs
+   25. Key / value lists
+   26. Attachments and viewer
+   27. Authentication pages
+   28. Confirm and danger panels
+   29. Calendar
+   30. Parchment and quotes
+   31. Notifications
+   32. Utilities
+   33. Responsive
+   ========================================================= */
+
+
+/* =========================================================
+   1. TOKENS
+   ========================================================= */
+
+:root {
+
+    color-scheme: dark;
+
+    /* Surfaces: near black, deep navy, dark walnut. */
+
+    --sb-void: #05070c;
+    --sb-night: #080b13;
+    --sb-navy: #0c1220;
+    --sb-navy-2: #111a2c;
+    --sb-navy-3: #17223a;
+    --sb-walnut: #16100c;
+    --sb-walnut-2: #20160f;
+
+    /* Gold leaf. Used for headings, icons, borders, highlights. */
+
+    --sb-gold-100: #fbf1d6;
+    --sb-gold-200: #f2dda9;
+    --sb-gold-300: #e0c078;
+    --sb-gold-400: #c9a24d;
+    --sb-gold-500: #a5813a;
+    --sb-gold-600: #7a5f27;
+
+    /* Accents. Used sparingly. */
+
+    --sb-burgundy-200: #eab0ab;
+    --sb-burgundy-300: #d1776f;
+    --sb-burgundy-400: #b23a35;
+    --sb-burgundy-500: #8a2622;
+    --sb-burgundy-600: #5f1a17;
+
+    --sb-emerald-200: #a9e0c3;
+    --sb-emerald-300: #6cc294;
+    --sb-emerald-400: #359a67;
+    --sb-emerald-500: #24714a;
+
+    --sb-arcane-200: #c3b5f2;
+    --sb-arcane-300: #9a83e0;
+    --sb-arcane-400: #6f52c4;
+
+    --sb-azure-200: #a8c9ec;
+    --sb-azure-300: #6fa3d8;
+    --sb-azure-400: #3d75ad;
+
+    --sb-ember-300: #e8a367;
+    --sb-ember-400: #c97a34;
+
+    --sb-rose-300: #dda0b4;
+    --sb-rose-400: #b45c78;
+
+    --sb-indigo-300: #8f9ede;
+    --sb-indigo-400: #5a67ad;
+
+    /* Text. Every step of this ramp clears 4.5:1 against the lightest
+       surface it can land on: the gold wash on the sidebar, the
+       walnut edge of the sidebar gradient, and the glass cards. */
+
+    --sb-text: #ece6da;
+    --sb-text-soft: #c3bba9;
+    --sb-text-mute: #a49d8c;
+    --sb-text-faint: #958f81;
+    --sb-text-on-dark: #f6f1e6;
+
+    --sb-success: var(--sb-emerald-300);
+    --sb-warning: var(--sb-gold-300);
+    --sb-danger: var(--sb-burgundy-300);
+    --sb-info: var(--sb-azure-300);
+
+    /* Glass and parchment surfaces. */
+
+    --sb-glass: rgba(17, 26, 44, 0.72);
+    --sb-glass-2: rgba(23, 34, 58, 0.60);
+    --sb-glass-3: rgba(12, 18, 32, 0.86);
+    --sb-line: rgba(224, 192, 120, 0.14);
+    --sb-line-soft: rgba(224, 192, 120, 0.08);
+    --sb-line-strong: rgba(224, 192, 120, 0.30);
+
+    /* Translucent washes for highlighted rows. Kept as tokens so the
+       light theme can thin them out instead of laying a dark tint
+       over pale paper. */
+
+    --sb-wash-burgundy: rgba(138, 38, 34, 0.32);
+    --sb-wash-gold: rgba(201, 162, 77, 0.10);
+
+    --sb-parchment: #f0e2c0;
+    --sb-parchment-2: #e6d5ad;
+    --sb-parchment-ink: #2a2118;
+    --sb-parchment-ink-soft: #5b4c37;
+
+    /* Radii */
+
+    --sb-radius-sm: 8px;
+    --sb-radius: 14px;
+    --sb-radius-lg: 20px;
+    --sb-radius-xl: 28px;
+    --sb-radius-pill: 999px;
+
+    /* Motion */
+
+    --sb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --sb-fast: 140ms;
+    --sb-base: 240ms;
+
+    /* Elevation. Deep, soft, never neon. */
+
+    --sb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --sb-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    --sb-shadow-lg: 0 26px 60px rgba(0, 0, 0, 0.60);
+    --sb-shadow-gold: 0 14px 40px rgba(5, 7, 12, 0.55);
+
+    /* Focus ring: gold, always visible, never removed. */
+
+    --sb-ring: 0 0 0 3px rgba(224, 192, 120, 0.45);
+
+    /* Type stacks. System fonts only, so nothing is downloaded. */
+
+    --sb-font: "Segoe UI", Roboto, -apple-system,
+        BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+    --sb-font-display: "Iowan Old Style", "Palatino Linotype",
+        Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+
+    --sb-font-mono: "SFMono-Regular", Consolas,
+        "Liberation Mono", Menlo, monospace;
+}
+
+
+/* Light theme: daylight in the same library. Warm paper,
+   still gold led, still academic rather than bright. */
+
+[data-theme="light"] {
+
+    color-scheme: light;
+
+    --sb-void: #e7ddc7;
+    --sb-night: #efe6d2;
+    --sb-navy: #f6efdd;
+    --sb-navy-2: #fbf6e9;
+    --sb-navy-3: #ffffff;
+    --sb-walnut: #efe3cc;
+    --sb-walnut-2: #e5d5b7;
+
+    --sb-text: #2a2318;
+    --sb-text-soft: #4d4433;
+    --sb-text-mute: #57503f;
+    --sb-text-faint: #645c49;
+    --sb-text-on-dark: #fdf8ec;
+
+    /* Gold leaf on paper has to be read, not just admired, so the
+       ramp is turned over: the pale end becomes the deep end. These
+       are the same golds, aged into bronze, and they carry the
+       headings, eyebrows and borders in this theme. */
+
+    --sb-gold-100: #4a3410;
+    --sb-gold-200: #5c4114;
+    --sb-gold-300: #6b4c17;
+    --sb-gold-400: #75531a;
+    --sb-gold-500: #5b4014;
+    --sb-gold-600: #402c0d;
+
+    /* Accents follow the gold: the mid tone of each becomes the
+       readable one on paper. */
+
+    --sb-burgundy-200: #6d1c19;
+    --sb-burgundy-300: #9c2f2a;
+    --sb-burgundy-400: #9c2f2a;
+    --sb-burgundy-500: #7d211d;
+    --sb-emerald-200: #12513a;
+    --sb-emerald-300: #1a6a43;
+    --sb-emerald-400: #1a6a43;
+    --sb-emerald-500: #14553a;
+    --sb-arcane-200: #3f2b85;
+    --sb-arcane-300: #51389f;
+    --sb-arcane-400: #51389f;
+    --sb-azure-200: #24496f;
+    --sb-azure-300: #2c5f92;
+    --sb-azure-400: #2c5f92;
+    --sb-rose-200: #6f2440;
+    --sb-rose-300: #8f2f4c;
+    --sb-rose-400: #8f2f4c;
+    --sb-indigo-200: #2f3868;
+    --sb-indigo-300: #3f4a8c;
+    --sb-indigo-400: #3f4a8c;
+    --sb-ember-200: #6b3a10;
+    --sb-ember-300: #8a4a15;
+    --sb-ember-400: #8a4a15;
+
+    --sb-glass: rgba(255, 253, 246, 0.86);
+    --sb-glass-2: rgba(255, 252, 243, 0.72);
+    --sb-glass-3: rgba(255, 255, 255, 0.94);
+    --sb-line: rgba(90, 65, 25, 0.16);
+    --sb-line-soft: rgba(90, 65, 25, 0.09);
+    --sb-line-strong: rgba(122, 95, 39, 0.42);
+
+    --sb-wash-burgundy: rgba(156, 47, 42, 0.10);
+    --sb-wash-gold: rgba(117, 83, 26, 0.08);
+
+    --sb-burgundy-400: #9c2f2a;
+    --sb-burgundy-500: #7d211d;
+    --sb-emerald-400: #1f7a4e;
+    --sb-arcane-400: #5a3fb0;
+    --sb-azure-400: #2c5f92;
+
+    --sb-shadow-sm: 0 2px 8px rgba(74, 58, 25, 0.10);
+    --sb-shadow: 0 12px 28px rgba(74, 58, 25, 0.14);
+    --sb-shadow-lg: 0 24px 54px rgba(74, 58, 25, 0.20);
+    --sb-shadow-gold: 0 14px 34px rgba(74, 58, 25, 0.16);
+
+    --sb-ring: 0 0 0 3px rgba(122, 95, 39, 0.38);
+}
+
+
+/* In daylight the gold ramp is bronze, so the controls that are filled
+   with gold have to flip: bronze ground, cream lettering. Light on
+   dark rather than dark on light, which also keeps them the brightest
+   thing on the page and so still the obvious call to action. */
+
+[data-theme="light"] .sb-btn--primary {
+
+    background: linear-gradient(
+        135deg,
+        #6b4c17 0%,
+        #4a3410 100%
+    );
+    color: #fdf6e4;
+    box-shadow: 0 8px 20px rgba(74, 52, 16, 0.22);
+}
+
+[data-theme="light"] .sb-btn--primary:hover {
+
+    background: linear-gradient(
+        135deg,
+        #75531a 0%,
+        #563c12 100%
+    );
+    color: #fffdf7;
+    box-shadow: 0 12px 28px rgba(74, 52, 16, 0.30);
+}
+
+[data-theme="light"] .sb-pager__link.is-current {
+
+    background: linear-gradient(
+        135deg,
+        #6b4c17,
+        #4a3410
+    );
+    color: #fdf6e4;
+}
+
+
+/* =========================================================
+   2. RESET AND BASE
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+
+    box-sizing: border-box;
+}
+
+html {
+
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: var(--sb-font);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--sb-text);
+
+    background-color: var(--sb-void);
+
+    /* Candlelight in a stone hall: two soft warm pools and one
+       cool window light, all fixed so the page never scrolls
+       the artwork. */
+
+    background-image:
+
+        radial-gradient(
+            1100px 620px at 12% -8%,
+            rgba(201, 162, 77, 0.13),
+            transparent 60%
+        ),
+
+        radial-gradient(
+            900px 520px at 92% 4%,
+            rgba(111, 82, 196, 0.11),
+            transparent 62%
+        ),
+
+        radial-gradient(
+            1000px 700px at 50% 108%,
+            rgba(138, 38, 34, 0.10),
+            transparent 60%
+        ),
+
+        linear-gradient(
+            180deg,
+            var(--sb-night) 0%,
+            var(--sb-void) 100%
+        );
+
+    background-attachment: fixed;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] body {
+
+    background-image:
+
+        radial-gradient(
+            1000px 560px at 10% -6%,
+            rgba(201, 162, 77, 0.24),
+            transparent 62%
+        ),
+
+        radial-gradient(
+            820px 480px at 92% 2%,
+            rgba(90, 63, 176, 0.12),
+            transparent 60%
+        ),
+
+        linear-gradient(
+            180deg,
+            #f7efdc 0%,
+            #e9dfc7 100%
+        );
+}
+
+img,
+svg,
+video {
+
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+
+    color: var(--sb-gold-300);
+    text-decoration: none;
+
+    transition: color var(--sb-fast) var(--sb-ease);
+}
+
+a:hover {
+
+    color: var(--sb-gold-200);
+}
+
+button,
+input,
+select,
+textarea {
+
+    font: inherit;
+    color: inherit;
+}
+
+button {
+
+    cursor: pointer;
+}
+
+svg {
+
+    display: block;
+    flex: none;
+}
+
+::selection {
+
+    background: rgba(224, 192, 120, 0.28);
+    color: var(--sb-text);
+}
+
+/* Visible focus everywhere. Never removed, only restyled. */
+
+:focus-visible {
+
+    outline: 2px solid var(--sb-gold-300);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.sb-skip-link {
+
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 200;
+
+    padding: 12px 20px;
+
+    background: var(--sb-gold-300);
+    color: #1a1408;
+    border-radius: var(--sb-radius-sm);
+
+    font-weight: 700;
+}
+
+.sb-skip-link:focus {
+
+    top: 16px;
+}
+
+
+/* =========================================================
+   3. TYPOGRAPHY
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4 {
+
+    margin: 0 0 10px;
+
+    font-family: var(--sb-font-display);
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: 0.01em;
+
+    color: var(--sb-gold-200);
+}
+
+h1 {
+
+    font-size: clamp(1.7rem, 2.6vw, 2.35rem);
+    letter-spacing: 0.015em;
+}
+
+h2 {
+
+    font-size: clamp(1.3rem, 1.9vw, 1.6rem);
+}
+
+h3 {
+
+    font-size: 1.12rem;
+}
+
+h4 {
+
+    font-size: 1rem;
+}
+
+p {
+
+    margin: 0 0 14px;
+}
+
+p:last-child {
+
+    margin-bottom: 0;
+}
+
+strong {
+
+    color: var(--sb-text);
+    font-weight: 650;
+}
+
+hr {
+
+    height: 1px;
+    border: 0;
+    margin: 22px 0;
+
+    background: var(--sb-line);
+}
+
+code {
+
+    font-family: var(--sb-font-mono);
+    font-size: 0.9em;
+
+    padding: 2px 6px;
+
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: 5px;
+}
+
+
+/* =========================================================
+   4. LAYOUT SHELL
+   ========================================================= */
+
+.sb-shell {
+
+    display: flex;
+    min-height: 100vh;
+}
+
+.sb-main {
+
+    flex: 1 1 auto;
+    min-width: 0;
+
+    margin-left: 258px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-content {
+
+    flex: 1 1 auto;
+    width: 100%;
+
+    padding: 30px 34px 64px;
+}
+
+.sb-container {
+
+    max-width: 1560px;
+    margin: 0 auto;
+}
+
+.sb-narrow {
+
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+.sb-narrow--tight {
+
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.sb-page-head {
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid var(--sb-line);
+}
+
+.sb-page-head__eyebrow {
+
+    display: block;
+    margin-bottom: 6px;
+
+    color: var(--sb-gold-400);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+}
+
+.sb-page-head__actions {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sb-backlink {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 14px;
+
+    color: var(--sb-text-mute);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.sb-backlink:hover {
+
+    color: var(--sb-gold-300);
+}
+
+.sb-detail-title {
+
+    margin-bottom: 4px;
+}
+
+
+/* =========================================================
+   5. TOP BAR
+   ========================================================= */
+
+.sb-topbar {
+
+    position: sticky;
+    top: 0;
+    z-index: 60;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 12px 34px;
+
+    background: var(--sb-glass-3);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border-bottom: 1px solid var(--sb-line);
+}
+
+/* The drawer button is hidden until the sidebar collapses into a
+   drawer. It carries .sb-icon-btn as well, so the selector has to
+   outrank that rule or the icon button's display would win. */
+
+.sb-topbar .sb-topbar__menu {
+
+    display: none;
+}
+
+.sb-topbar .sb-topbar__brand {
+
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.sb-topbar__right {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-left: auto;
+}
+
+/* ---- Search ---- */
+
+.sb-search {
+
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 520px;
+}
+
+.sb-search__icon {
+
+    position: absolute;
+    top: 50%;
+    left: 14px;
+
+    transform: translateY(-50%);
+
+    color: var(--sb-text-faint);
+    pointer-events: none;
+}
+
+.sb-search__input {
+
+    width: 100%;
+
+    padding: 11px 16px 11px 42px;
+
+    background: rgba(5, 7, 12, 0.55);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text);
+    font-size: 0.9rem;
+
+    transition: border-color var(--sb-fast) var(--sb-ease),
+        background var(--sb-fast) var(--sb-ease);
+}
+
+[data-theme="light"] .sb-search__input {
+
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.sb-search__input::placeholder {
+
+    color: var(--sb-text-faint);
+}
+
+.sb-search__input:focus {
+
+    border-color: var(--sb-line-strong);
+    background: rgba(5, 7, 12, 0.75);
+    box-shadow: var(--sb-ring);
+    outline: none;
+}
+
+.sb-search__input:focus-visible {
+
+    outline: none;
+}
+
+.sb-search kbd {
+
+    position: absolute;
+    top: 50%;
+    right: 14px;
+
+    transform: translateY(-50%);
+
+    padding: 2px 7px;
+
+    color: var(--sb-text-faint);
+    background: rgba(224, 192, 120, 0.07);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: 5px;
+
+    font-family: var(--sb-font-mono);
+    font-size: 0.68rem;
+    pointer-events: none;
+}
+
+.sb-search__input:focus ~ kbd {
+
+    opacity: 0;
+}
+
+/* ---- Streak chip ---- */
+
+.sb-streak {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 14px 8px 11px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(201, 162, 77, 0.18),
+        rgba(178, 58, 53, 0.12)
+    );
+
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-pill);
+
+    white-space: nowrap;
+}
+
+.sb-streak__flame {
+
+    color: var(--sb-ember-300);
+    filter: drop-shadow(0 0 6px rgba(233, 163, 103, 0.45));
+}
+
+.sb-streak__value {
+
+    font-family: var(--sb-font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--sb-gold-200);
+}
+
+.sb-streak__label {
+
+    color: var(--sb-text-mute);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* ---- Icon buttons ---- */
+
+.sb-icon-btn {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    background: rgba(5, 7, 12, 0.42);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-soft);
+
+    transition: all var(--sb-fast) var(--sb-ease);
+}
+
+[data-theme="light"] .sb-icon-btn {
+
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.sb-icon-btn:hover {
+
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+    transform: translateY(-1px);
+}
+
+.sb-icon-btn--light {
+
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+/* ---- Profile chip ---- */
+
+.sb-user {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 5px 14px 5px 5px;
+
+    background: rgba(5, 7, 12, 0.42);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text);
+}
+
+[data-theme="light"] .sb-user {
+
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.sb-user:hover {
+
+    border-color: var(--sb-line-strong);
+    color: var(--sb-text);
+}
+
+.sb-user__meta {
+
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.sb-user__name {
+
+    font-size: 0.84rem;
+    font-weight: 650;
+}
+
+.sb-user__mail {
+
+    color: var(--sb-text-faint);
+    font-size: 0.71rem;
+}
+
+.sb-profile__name {
+
+    font-family: var(--sb-font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--sb-gold-200);
+}
+
+.sb-profile__sub {
+
+    color: var(--sb-text-mute);
+    font-size: 0.88rem;
+}
+
+
+/* =========================================================
+   6. SIDEBAR
+   ========================================================= */
+
+.sb-sidebar {
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 90;
+
+    width: 258px;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px 14px 16px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            var(--sb-walnut-2) 0%,
+            var(--sb-night) 55%,
+            var(--sb-void) 100%
+        );
+
+    border-right: 1px solid var(--sb-line);
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.sb-sidebar__brand {
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 4px 8px 18px;
+    margin-bottom: 12px;
+
+    border-bottom: 1px solid var(--sb-line);
+}
+
+.sb-logo {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+
+    color: var(--sb-text);
+}
+
+.sb-logo:hover {
+
+    color: var(--sb-text);
+}
+
+.sb-logo__mark {
+
+    display: grid;
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    background: linear-gradient(
+        145deg,
+        var(--sb-gold-300) 0%,
+        var(--sb-gold-500) 100%
+    );
+
+    border-radius: 11px;
+
+    color: #1a1408;
+    box-shadow: 0 6px 18px rgba(201, 162, 77, 0.28);
+}
+
+.sb-logo__text {
+
+    display: flex;
+    flex-direction: column;
+    line-height: 1.16;
+}
+
+.sb-logo__text b {
+
+    font-family: var(--sb-font-display);
+    font-size: 1.16rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--sb-gold-200);
+}
+
+.sb-logo__text span {
+
+    color: var(--sb-text-faint);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.sb-sidebar__close {
+
+    display: none;
+
+    margin-left: auto;
+
+    width: 34px;
+    height: 34px;
+
+    background: transparent;
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-soft);
+}
+
+/* ---- Navigation ---- */
+
+.sb-nav {
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    flex: 1 1 auto;
+}
+
+.sb-nav__label {
+
+    padding: 16px 12px 7px;
+
+    color: var(--sb-text-faint);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.sb-nav__link {
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-text-soft);
+    font-size: 0.91rem;
+    font-weight: 550;
+
+    transition: all var(--sb-fast) var(--sb-ease);
+}
+
+.sb-nav__link:hover {
+
+    background: rgba(224, 192, 120, 0.06);
+    border-color: var(--sb-line-soft);
+    color: var(--sb-gold-200);
+}
+
+.sb-nav__icon {
+
+    color: var(--sb-text-faint);
+    transition: color var(--sb-fast) var(--sb-ease);
+}
+
+.sb-nav__link:hover .sb-nav__icon {
+
+    color: var(--sb-gold-400);
+}
+
+/* Active item: soft burgundy wash, thin gold edge, gold text. */
+
+.sb-nav__link.is-active {
+
+    background: linear-gradient(
+        100deg,
+        var(--sb-wash-burgundy) 0%,
+        var(--sb-wash-gold) 100%
+    );
+
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+    font-weight: 650;
+}
+
+.sb-nav__link.is-active .sb-nav__icon {
+
+    color: var(--sb-gold-300);
+}
+
+/* The label carries its own colour, so the active state has to be
+   restated here or the highlight leaves the words behind. */
+
+.sb-nav__link.is-active .sb-nav__label {
+
+    color: var(--sb-gold-200);
+}
+
+.sb-nav__link.is-active::before {
+
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -14px;
+
+    width: 3px;
+    height: 22px;
+
+    transform: translateY(-50%);
+
+    background: linear-gradient(
+        180deg,
+        var(--sb-gold-200),
+        var(--sb-burgundy-400)
+    );
+    border-radius: 0 3px 3px 0;
+}
+
+/* ---- Sidebar footer ---- */
+
+.sb-sidebar__footer {
+
+    margin-top: 14px;
+    padding-top: 14px;
+
+    border-top: 1px solid var(--sb-line);
+}
+
+.sb-sidebar__tools {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sb-sidebar__tools .sb-btn {
+
+    flex: 1 1 auto;
+}
+
+/* ---- Backdrop for the mobile drawer ---- */
+
+.sb-backdrop {
+
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+
+    background: rgba(3, 5, 9, 0.72);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: opacity var(--sb-base) var(--sb-ease),
+        visibility var(--sb-base) var(--sb-ease);
+}
+
+.sb-nav-open {
+
+    overflow: hidden;
+}
+
+.sb-nav-open .sb-backdrop {
+
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =========================================================
+   7. BUTTONS
+   ========================================================= */
+
+.sb-btn {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 18px;
+
+    background: rgba(224, 192, 120, 0.07);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text);
+    font-size: 0.87rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+
+    transition: all var(--sb-fast) var(--sb-ease);
+}
+
+.sb-btn:hover {
+
+    transform: translateY(-1px);
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+}
+
+.sb-btn:active {
+
+    transform: translateY(0);
+}
+
+.sb-btn[disabled],
+.sb-btn.is-disabled {
+
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* Primary: gold leaf. The one loud button on any page. */
+
+.sb-btn--primary {
+
+    background: linear-gradient(
+        135deg,
+        var(--sb-gold-200) 0%,
+        var(--sb-gold-400) 100%
+    );
+
+    border-color: transparent;
+    color: #1d1608;
+    box-shadow: 0 8px 22px rgba(201, 162, 77, 0.24);
+}
+
+.sb-btn--primary:hover {
+
+    color: #140f04;
+    box-shadow: 0 12px 30px rgba(201, 162, 77, 0.34);
+}
+
+/* Accent: burgundy, for destructive emphasis without shouting. */
+
+.sb-btn--accent {
+
+    background: linear-gradient(
+        135deg,
+        var(--sb-burgundy-400) 0%,
+        var(--sb-burgundy-600) 100%
+    );
+
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(138, 38, 34, 0.30);
+}
+
+.sb-btn--accent:hover {
+
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(138, 38, 34, 0.38);
+}
+
+.sb-btn--outline {
+
+    background: transparent;
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-300);
+}
+
+.sb-btn--tint {
+
+    background: rgba(201, 162, 77, 0.10);
+    border-color: var(--sb-line);
+    color: var(--sb-gold-200);
+}
+
+.sb-btn--tint-success {
+
+    background: rgba(53, 154, 103, 0.12);
+    border-color: rgba(108, 194, 148, 0.30);
+    color: var(--sb-emerald-300);
+}
+
+.sb-btn--tint-danger {
+
+    background: rgba(178, 58, 53, 0.12);
+    border-color: rgba(209, 119, 111, 0.30);
+    color: var(--sb-burgundy-300);
+}
+
+.sb-btn--ghost {
+
+    background: transparent;
+    border-color: transparent;
+    color: var(--sb-text-mute);
+}
+
+.sb-btn--ghost:hover {
+
+    background: rgba(224, 192, 120, 0.07);
+    color: var(--sb-gold-200);
+}
+
+.sb-btn--quiet {
+
+    background: transparent;
+    border-color: transparent;
+    color: var(--sb-text-mute);
+    font-weight: 550;
+}
+
+.sb-btn--quiet:hover {
+
+    background: rgba(224, 192, 120, 0.06);
+    color: var(--sb-gold-200);
+}
+
+.sb-btn--danger {
+
+    background: linear-gradient(
+        135deg,
+        var(--sb-burgundy-400) 0%,
+        var(--sb-burgundy-600) 100%
+    );
+    border-color: transparent;
+    color: #fff;
+}
+
+.sb-btn--sm {
+
+    padding: 7px 13px;
+    font-size: 0.8rem;
+}
+
+.sb-btn--lg {
+
+    padding: 13px 24px;
+    font-size: 0.95rem;
+}
+
+.sb-btn--block {
+
+    display: flex;
+    width: 100%;
+}
+
+.sb-form-actions {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    margin-top: 22px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--sb-line);
+}
+
+
+/* =========================================================
+   8. FORMS
+   ========================================================= */
+
+.sb-field {
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.sb-label {
+
+    color: var(--sb-text-soft);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.sb-required {
+
+    color: var(--sb-burgundy-300);
+}
+
+.sb-input,
+.sb-select,
+.sb-textarea {
+
+    width: 100%;
+
+    padding: 11px 14px;
+
+    background: rgba(5, 7, 12, 0.50);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-text);
+    font-size: 0.92rem;
+
+    transition: border-color var(--sb-fast) var(--sb-ease),
+        box-shadow var(--sb-fast) var(--sb-ease);
+}
+
+[data-theme="light"] .sb-input,
+[data-theme="light"] .sb-select,
+[data-theme="light"] .sb-textarea {
+
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.sb-textarea {
+
+    min-height: 130px;
+    resize: vertical;
+    line-height: 1.65;
+}
+
+.sb-select {
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding-right: 40px;
+
+    background-image:
+        linear-gradient(
+            45deg,
+            transparent 50%,
+            var(--sb-gold-400) 50%
+        ),
+        linear-gradient(
+            135deg,
+            var(--sb-gold-400) 50%,
+            transparent 50%
+        );
+
+    background-position:
+        calc(100% - 20px) calc(50% + 1px),
+        calc(100% - 14px) calc(50% + 1px);
+
+    background-size:
+        6px 6px,
+        6px 6px;
+
+    background-repeat: no-repeat;
+}
+
+.sb-input::placeholder,
+.sb-textarea::placeholder {
+
+    color: var(--sb-text-faint);
+}
+
+.sb-input:focus,
+.sb-select:focus,
+.sb-textarea:focus {
+
+    border-color: var(--sb-line-strong);
+    box-shadow: var(--sb-ring);
+    outline: none;
+}
+
+.sb-input:focus-visible,
+.sb-select:focus-visible,
+.sb-textarea:focus-visible {
+
+    outline: none;
+}
+
+.sb-input.has-error,
+.sb-select.has-error,
+.sb-textarea.has-error {
+
+    border-color: var(--sb-burgundy-400);
+}
+
+.sb-help {
+
+    color: var(--sb-text-faint);
+    font-size: 0.79rem;
+}
+
+.sb-error,
+.sb-error-text,
+.sb-form-error,
+.sb-field ul.errorlist {
+    color: var(--sb-burgundy-300);
+    font-size: 0.8rem;
+}
+
+.sb-field ul.errorlist {
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sb-form-error {
+
+    padding: 11px 15px;
+
+    background: rgba(178, 58, 53, 0.10);
+    border: 1px solid rgba(209, 119, 111, 0.30);
+    border-radius: var(--sb-radius);
+}
+
+
+/* =========================================================
+   9. CARDS AND PANELS
+   ========================================================= */
+
+.sb-card,
+.sb-panel {
+
+    position: relative;
+
+    padding: 22px;
+
+    background: var(--sb-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+
+    box-shadow: var(--sb-shadow);
+}
+
+[data-theme="light"] .sb-card,
+[data-theme="light"] .sb-panel {
+
+    box-shadow: var(--sb-shadow-sm);
+}
+
+/* A hairline of gold light along the top edge, like a gilded
+   frame catching a candle. */
+
+.sb-card::before,
+.sb-panel::before {
+
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 14%;
+    right: 14%;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(224, 192, 120, 0.40),
+        transparent
+    );
+}
+
+.sb-card--pad,
+.sb-card--pad-lg {
+
+    padding: 0;
+}
+
+.sb-card--pad-lg {
+
+    padding: 30px;
+}
+
+.sb-panel--tint {
+
+    background: var(--sb-glass-2);
+    box-shadow: none;
+}
+
+.sb-card__head {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+
+    margin-bottom: 16px;
+    padding-bottom: 13px;
+
+    border-bottom: 1px solid var(--sb-line);
+}
+
+.sb-card__title {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin: 0;
+
+    font-family: var(--sb-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sb-gold-300);
+}
+
+.sb-card__title svg {
+
+    color: var(--sb-gold-400);
+}
+
+
+/* =========================================================
+   10. BADGES AND CHIPS
+   ========================================================= */
+
+.sb-badge {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 3px 10px;
+
+    background: rgba(224, 192, 120, 0.08);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-soft);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.sb-badge--neutral {
+
+    color: var(--sb-text-mute);
+}
+
+.sb-badge--high,
+.sb-badge--danger {
+
+    background: rgba(178, 58, 53, 0.16);
+    border-color: rgba(209, 119, 111, 0.32);
+    color: var(--sb-burgundy-300);
+}
+
+.sb-badge--medium {
+
+    background: rgba(201, 162, 77, 0.16);
+    border-color: rgba(224, 192, 120, 0.32);
+    color: var(--sb-gold-200);
+}
+
+.sb-badge--low,
+.sb-badge--success {
+
+    background: rgba(53, 154, 103, 0.16);
+    border-color: rgba(108, 194, 148, 0.30);
+    color: var(--sb-emerald-300);
+}
+
+.sb-badge--info {
+    background: rgba(61, 117, 173, 0.18);
+    border-color: rgba(111, 163, 216, 0.32);
+    color: var(--sb-azure-300);
+}
+
+.sb-badge--violet {
+    background: rgba(111, 82, 196, 0.20);
+    border-color: rgba(154, 131, 224, 0.34);
+    color: var(--sb-arcane-300);
+}
+
+.sb-badge--progress {
+
+    background: rgba(201, 162, 77, 0.14);
+    border-color: rgba(224, 192, 120, 0.30);
+    color: var(--sb-gold-200);
+}
+
+.sb-badge-row {
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.sb-chips {
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.sb-chip {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 13px;
+
+    background: rgba(5, 7, 12, 0.40);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-mute);
+    font-size: 0.79rem;
+    font-weight: 600;
+}
+
+[data-theme="light"] .sb-chip {
+
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.sb-chip:hover,
+.sb-chip.is-active {
+
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+}
+
+.sb-chip.is-active {
+
+    background: rgba(201, 162, 77, 0.14);
+}
+
+
+/* =========================================================
+   11. ALERTS AND TOASTS
+   ========================================================= */
+
+.sb-toasts {
+
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 120;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: min(390px, calc(100vw - 36px));
+    pointer-events: none;
+}
+
+.sb-alert {
+
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    background: var(--sb-glass-3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid var(--sb-line);
+    border-left: 3px solid var(--sb-gold-400);
+    border-radius: var(--sb-radius);
+
+    box-shadow: var(--sb-shadow-lg);
+
+    color: var(--sb-text-soft);
+    font-size: 0.87rem;
+
+    pointer-events: auto;
+
+    animation: sb-toast-in 320ms var(--sb-ease) both;
+}
+
+@keyframes sb-toast-in {
+
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sb-alert--success {
+
+    border-left-color: var(--sb-emerald-400);
+}
+
+.sb-alert--error {
+
+    border-left-color: var(--sb-burgundy-400);
+}
+
+.sb-alert--info {
+
+    border-left-color: var(--sb-azure-400);
+}
+
+.sb-alert--warning {
+
+    border-left-color: var(--sb-gold-400);
+}
+
+.sb-alert__icon {
+
+    color: var(--sb-gold-300);
+}
+
+.sb-alert--success .sb-alert__icon {
+    color: var(--sb-emerald-300);
+}
+
+.sb-alert--error .sb-alert__icon {
+    color: var(--sb-burgundy-300);
+}
+
+.sb-alert--warning .sb-alert__icon {
+    color: var(--sb-gold-200);
+}
+
+.sb-alert__text {
+
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sb-alert__close {
+
+    flex: none;
+
+    width: 26px;
+    height: 26px;
+    padding: 0;
+
+    background: transparent;
+    border: 0;
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-faint);
+}
+
+.sb-alert__close:hover {
+
+    background: rgba(224, 192, 120, 0.10);
+    color: var(--sb-gold-200);
+}
+
+
+/* =========================================================
+   12. STATS
+   ========================================================= */
+
+.sb-stats {
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+.sb-stat {
+
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 20px 20px 18px;
+
+    background: var(--sb-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+
+    box-shadow: var(--sb-shadow);
+}
+
+.sb-stat::after {
+
+    content: "";
+    position: absolute;
+    top: -30px;
+    right: -30px;
+
+    width: 116px;
+    height: 116px;
+
+    background: radial-gradient(
+        circle,
+        rgba(201, 162, 77, 0.14),
+        transparent 70%
+    );
+    pointer-events: none;
+}
+
+.sb-stat__label {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--sb-text-mute);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+}
+
+.sb-stat__icon {
+
+    color: var(--sb-gold-400);
+}
+
+.sb-stat__value {
+
+    font-family: var(--sb-font-display);
+    font-size: 2.35rem;
+    font-weight: 700;
+    line-height: 1.06;
+
+    color: var(--sb-gold-200);
+}
+
+.sb-stat__foot {
+
+    color: var(--sb-text-mute);
+    font-size: 0.8rem;
+}
+
+.sb-stat--violet .sb-stat__icon {
+    color: var(--sb-arcane-300);
+}
+
+.sb-stat--blue .sb-stat__icon {
+    color: var(--sb-azure-300);
+}
+
+.sb-stat--green .sb-stat__icon {
+    color: var(--sb-emerald-300);
+}
+
+.sb-stat--pink .sb-stat__icon {
+    color: var(--sb-rose-300);
+}
+
+
+/* =========================================================
+   13. PROGRESS
+   ========================================================= */
+
+.sb-progress {
+
+    position: relative;
+    overflow: hidden;
+
+    height: 7px;
+    width: 100%;
+
+    background: rgba(5, 7, 12, 0.55);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius-pill);
+}
+
+[data-theme="light"] .sb-progress {
+
+    background: rgba(74, 58, 25, 0.10);
+}
+
+.sb-progress__bar {
+
+    height: 100%;
+    width: 0;
+
+    background: linear-gradient(
+        90deg,
+        var(--sb-gold-500) 0%,
+        var(--sb-gold-200) 100%
+    );
+
+    border-radius: var(--sb-radius-pill);
+
+    transition: width 700ms var(--sb-ease);
+}
+
+.sb-progress--done .sb-progress__bar {
+
+    background: linear-gradient(
+        90deg,
+        var(--sb-emerald-500) 0%,
+        var(--sb-emerald-300) 100%
+    );
+}
+
+.sb-progress--high .sb-progress__bar {
+
+    background: linear-gradient(
+        90deg,
+        var(--sb-burgundy-500) 0%,
+        var(--sb-burgundy-300) 100%
+    );
+}
+
+
+/* =========================================================
+   14. EMPTY STATES
+   ========================================================= */
+
+.sb-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    padding: 44px 24px;
+
+    text-align: center;
+}
+
+.sb-empty__icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 62px;
+    height: 62px;
+    margin-bottom: 4px;
+
+    background: rgba(201, 162, 77, 0.07);
+    border: 1px solid var(--sb-line);
+    border-radius: 50%;
+
+    color: var(--sb-gold-400);
+}
+
+.sb-empty__icon--danger {
+
+    background: rgba(178, 58, 53, 0.10);
+    border-color: rgba(209, 119, 111, 0.28);
+    color: var(--sb-burgundy-300);
+}
+
+.sb-empty h3 {
+
+    margin: 0;
+}
+
+.sb-empty p {
+
+    max-width: 46ch;
+    color: var(--sb-text-mute);
+    font-size: 0.9rem;
+}
+
+.sb-inline-empty {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 18px 4px;
+
+    color: var(--sb-text-mute);
+    font-size: 0.88rem;
+}
+
+
+/* =========================================================
+   15. PAGINATION
+   ========================================================= */
+
+.sb-pager {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    margin-top: 22px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--sb-line);
+}
+
+.sb-pager__info {
+
+    color: var(--sb-text-mute);
+    font-size: 0.83rem;
+}
+
+.sb-pager__list {
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sb-pager__link {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 36px;
+    height: 36px;
+    padding: 0 11px;
+
+    background: rgba(5, 7, 12, 0.40);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius-sm);
+
+    color: var(--sb-text-soft);
+    font-size: 0.83rem;
+    font-weight: 600;
+}
+
+[data-theme="light"] .sb-pager__link {
+
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.sb-pager__link:hover {
+
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+}
+
+.sb-pager__link.is-current {
+
+    background: linear-gradient(
+        135deg,
+        var(--sb-gold-200),
+        var(--sb-gold-400)
+    );
+    border-color: transparent;
+    color: #1d1608;
+}
+
+
+/* =========================================================
+   16. AVATARS
+   ========================================================= */
+
+.sb-avatar {
+
+    display: grid;
+    place-items: center;
+    flex: none;
+
+    width: 38px;
+    height: 38px;
+
+    background: linear-gradient(
+        140deg,
+        var(--sb-navy-3),
+        var(--sb-navy)
+    );
+
+    border: 1px solid var(--sb-line);
+    border-radius: 50%;
+
+    color: var(--sb-gold-300);
+    font-family: var(--sb-font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.sb-avatar--sm {
+
+    width: 30px;
+    height: 30px;
+    font-size: 0.78rem;
+}
+
+.sb-avatar--lg {
+
+    width: 58px;
+    height: 58px;
+    font-size: 1.4rem;
+}
+
+.sb-avatar--blue {
+    color: var(--sb-azure-300);
+}
+
+.sb-avatar--violet {
+    color: var(--sb-arcane-300);
+}
+
+.sb-avatar--teal {
+    color: var(--sb-emerald-300);
+}
+
+.sb-avatar--amber {
+    color: var(--sb-gold-300);
+}
+
+.sb-avatar--rose {
+    color: var(--sb-rose-300);
+}
+
+
+/* =========================================================
+   17. HERO
+   ========================================================= */
+
+.sb-hero {
+
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 26px;
+    flex-wrap: wrap;
+
+    margin-bottom: 22px;
+    padding: 38px 36px;
+
+    background:
+
+        linear-gradient(
+            115deg,
+            #101a2e 0%,
+            #0b1120 46%,
+            #1a1210 100%
+        );
+
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-xl);
+
+    box-shadow: var(--sb-shadow-gold);
+}
+
+[data-theme="light"] .sb-hero {
+
+    background: linear-gradient(
+        115deg,
+        #fffaf0 0%,
+        #f3e8d0 52%,
+        #ecdcbe 100%
+    );
+}
+
+/* Library light: two warm pools behind the words. */
+
+.sb-hero::before {
+
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+
+    background:
+
+        radial-gradient(
+            520px 300px at 16% 8%,
+            rgba(233, 163, 103, 0.24),
+            transparent 65%
+        ),
+
+        radial-gradient(
+            460px 280px at 88% 96%,
+            rgba(201, 162, 77, 0.18),
+            transparent 66%
+        ),
+
+        radial-gradient(
+            620px 340px at 62% 40%,
+            rgba(111, 82, 196, 0.14),
+            transparent 70%
+        );
+}
+
+/* A distant castle and a shelf of books, drawn with gradients. */
+
+.sb-hero::after {
+
+    content: "";
+    position: absolute;
+    right: -40px;
+    bottom: 0;
+    z-index: -1;
+
+    width: 62%;
+    height: 100%;
+
+    background:
+
+        /* Spires */
+        linear-gradient(
+            to top,
+            rgba(5, 7, 12, 0.55) 0%,
+            transparent 62%
+        ),
+
+        /* Book spines along the bottom */
+        repeating-linear-gradient(
+            90deg,
+            rgba(201, 162, 77, 0.10) 0 3px,
+            transparent 3px 9px
+        );
+
+    -webkit-mask-image:
+        radial-gradient(
+            120% 100% at 100% 100%,
+            #000 0%,
+            transparent 72%
+        );
+    mask-image:
+        radial-gradient(
+            120% 100% at 100% 100%,
+            #000 0%,
+            transparent 72%
+        );
+
+    pointer-events: none;
+}
+
+.sb-hero__text {
+
+    position: relative;
+    z-index: 1;
+
+    flex: 1 1 420px;
+    min-width: 0;
+}
+
+.sb-hero__eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 14px;
+    padding: 5px 14px;
+
+    background: rgba(224, 192, 120, 0.10);
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-gold-200);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.sb-hero__title {
+
+    margin: 0 0 8px;
+
+    font-family: var(--sb-font-display);
+    font-size: clamp(2rem, 3.6vw, 3rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: 0.01em;
+
+    color: var(--sb-gold-100);
+    text-shadow: 0 2px 18px rgba(5, 7, 12, 0.5);
+}
+
+[data-theme="light"] .sb-hero__title {
+
+    color: #2f2617;
+    text-shadow: none;
+}
+
+.sb-hero__name {
+
+    display: block;
+
+    font-size: 0.56em;
+    font-style: italic;
+    letter-spacing: 0.03em;
+    color: var(--sb-gold-300);
+}
+
+[data-theme="light"] .sb-hero__name {
+
+    color: var(--sb-burgundy-500);
+}
+
+.sb-hero__sub {
+
+    max-width: 52ch;
+    margin: 0;
+
+    color: var(--sb-text-soft);
+    font-size: 0.98rem;
+}
+
+.sb-hero__motto {
+
+    display: block;
+    margin-top: 10px;
+
+    color: var(--sb-gold-400);
+    font-family: var(--sb-font-display);
+    font-size: 1rem;
+    font-style: italic;
+}
+
+.sb-hero__actions {
+
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ---- Motes of light. CSS only, and only for browsers that
+        allow motion. ---- */
+
+.sb-motes {
+
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sb-mote {
+
+    position: absolute;
+    bottom: -10px;
+
+    width: 3px;
+    height: 3px;
+
+    background: var(--sb-gold-200);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(224, 192, 120, 0.7);
+    opacity: 0;
+
+    animation: sb-mote-rise 9s linear infinite;
+}
+
+@keyframes sb-mote-rise {
+
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.7);
+    }
+
+    12% {
+        opacity: 0.55;
+    }
+
+    70% {
+        opacity: 0.30;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-260px) scale(1.1);
+    }
+}
+
+
+/* =========================================================
+   18. DASHBOARD GRIDS
+   ========================================================= */
+
+.sb-dash-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+.sb-dash-bottom {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+.sb-dash-grid__wide {
+    min-width: 0;
+}
+
+.sb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.sb-grid--2,
+.sb-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+/* =========================================================
+   19. TASK AND NOTE ROWS
+   ========================================================= */
+
+.sb-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-list-row {
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 13px 2px;
+
+    border-bottom: 1px solid var(--sb-line-soft);
+}
+
+.sb-list-row:last-child {
+
+    border-bottom: 0;
+}
+
+.sb-list-row__marker {
+
+    flex: none;
+
+    width: 10px;
+    height: 34px;
+
+    background: var(--sb-gold-400);
+    border-radius: var(--sb-radius-pill);
+}
+
+.sb-list-row__marker--high {
+    background: var(--sb-burgundy-400);
+}
+
+.sb-list-row__marker--medium {
+    background: var(--sb-gold-400);
+}
+
+.sb-list-row__marker--low {
+    background: var(--sb-emerald-400);
+}
+
+.sb-list-row__body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sb-list-row__title {
+    display: block;
+
+    color: var(--sb-text);
+    font-size: 0.93rem;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+a.sb-list-row__title:hover {
+    color: var(--sb-gold-200);
+}
+
+.sb-list-row__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-top: 3px;
+
+    color: var(--sb-text-faint);
+    font-size: 0.78rem;
+}
+
+.sb-list-row__end {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.sb-done {
+    color: var(--sb-text-faint);
+    text-decoration: line-through;
+    text-decoration-color: rgba(108, 194, 148, 0.5);
+}
+
+/* Tick control used on the dashboard task list. It posts to the
+   real toggle route, so the checkbox is a real form control. */
+
+.sb-tick {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+}
+
+.sb-tick input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.sb-tick__box {
+    display: grid;
+    place-items: center;
+
+    width: 24px;
+    height: 24px;
+
+    background: rgba(5, 7, 12, 0.55);
+    border: 1px solid var(--sb-line-strong);
+    border-radius: 7px;
+
+    color: transparent;
+
+    transition: all var(--sb-fast) var(--sb-ease);
+}
+
+[data-theme="light"] .sb-tick__box {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.sb-tick input:checked + .sb-tick__box {
+    background: linear-gradient(
+        135deg,
+        var(--sb-emerald-400),
+        var(--sb-emerald-500)
+    );
+    border-color: transparent;
+    color: #06120b;
+}
+
+.sb-tick input:focus-visible + .sb-tick__box {
+    box-shadow: var(--sb-ring);
+    outline: none;
+}
+
+
+/* =========================================================
+   20. TASK HEALTH
+   ========================================================= */
+
+.sb-health {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.sb-health__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 11px 14px;
+
+    background: rgba(224, 192, 120, 0.04);
+    border: 1px solid var(--sb-line-soft);
+    border-left: 3px solid var(--sb-gold-400);
+    border-radius: var(--sb-radius);
+}
+
+.sb-health__item--danger {
+    border-left-color: var(--sb-burgundy-400);
+    background: rgba(178, 58, 53, 0.08);
+}
+
+.sb-health__item--warning {
+    border-left-color: var(--sb-gold-400);
+    background: rgba(201, 162, 77, 0.07);
+}
+
+.sb-health__item--info {
+    border-left-color: var(--sb-azure-400);
+    background: rgba(61, 117, 173, 0.08);
+}
+
+.sb-health__value {
+    font-family: var(--sb-font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--sb-gold-200);
+}
+
+.sb-health__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.sb-health__label {
+    color: var(--sb-text-soft);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.sb-health__note {
+    color: var(--sb-text-faint);
+    font-size: 0.76rem;
+}
+
+
+/* =========================================================
+   21. QUICK ACTIONS
+   ========================================================= */
+
+.sb-quick {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.sb-quick__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 15px;
+
+    background: rgba(224, 192, 120, 0.05);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-text-soft);
+    font-size: 0.87rem;
+    font-weight: 650;
+
+    transition: all var(--sb-fast) var(--sb-ease);
+}
+
+.sb-quick__item:hover {
+    transform: translateY(-2px);
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+    box-shadow: var(--sb-shadow);
+}
+
+.sb-quick__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+
+    width: 36px;
+    height: 36px;
+
+    background: rgba(201, 162, 77, 0.10);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: 10px;
+
+    color: var(--sb-gold-300);
+}
+
+.sb-quick__item--teal .sb-quick__icon {
+    background: rgba(53, 154, 103, 0.12);
+    border-color: rgba(108, 194, 148, 0.24);
+    color: var(--sb-emerald-300);
+}
+
+.sb-quick__item--rose .sb-quick__icon {
+    background: rgba(178, 58, 53, 0.12);
+    border-color: rgba(209, 119, 111, 0.24);
+    color: var(--sb-burgundy-300);
+}
+
+.sb-quick__item--amber .sb-quick__icon {
+    background: rgba(201, 162, 77, 0.12);
+    border-color: rgba(224, 192, 120, 0.26);
+    color: var(--sb-gold-200);
+}
+
+.sb-quick__item--violet .sb-quick__icon {
+    background: rgba(111, 82, 196, 0.14);
+    border-color: rgba(154, 131, 224, 0.26);
+    color: var(--sb-arcane-300);
+}
+
+.sb-quick__label {
+    min-width: 0;
+}
+
+
+/* =========================================================
+   22. TILES
+   ========================================================= */
+
+/* One continuous grid. The cards are ordinary grid items and take
+   their position from document order alone: no absolute offsets, no
+   nth-child nudging, no per-card column or row, and no margin hacks
+   to fake spacing. Three across, then two, then one. */
+
+.sb-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.sb-tile {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+    box-sizing: border-box;
+
+    padding: 18px;
+
+    background: var(--sb-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+
+    box-shadow: var(--sb-shadow-sm);
+
+    transition: all var(--sb-base) var(--sb-ease);
+}
+
+.sb-tile::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+
+    background: var(--sb-gold-400);
+    opacity: 0.55;
+}
+
+.sb-tile:hover {
+    transform: translateY(-3px);
+    border-color: var(--sb-line-strong);
+    box-shadow: var(--sb-shadow);
+}
+
+/* One accent for every card on the list pages. The cards used to be
+   dealt a different colour each from a nine-name cycle, which put
+   "violet", "teal" and the rest into the markup as class names for no
+   design reason: the accents said nothing about the task. Gold is the
+   accent everywhere else in the app, so the cards use it too. */
+
+.sb-tile--done {
+    opacity: 0.72;
+}
+
+/* Two tiles on the dashboard are hand written rather than looped, and
+   they ask for a particular accent because they stand for a
+   particular kind of thing. These two rules are the whole of it. */
+
+.sb-tile--violet::after {
+    background: var(--sb-arcane-400);
+}
+
+.sb-tile--teal::after {
+    background: var(--sb-emerald-400);
+}
+
+.sb-tile--violet .sb-tile__icon {
+    color: var(--sb-arcane-300);
+}
+
+.sb-tile--teal .sb-tile__icon {
+    color: var(--sb-emerald-300);
+}
+
+/* The compact pair on the dashboard are links, not list cards, and
+   are sized by their own two column row. */
+
+.sb-tile--compact {
+    min-height: 0;
+}
+
+.sb-tile__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sb-tile__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+
+    width: 40px;
+    height: 40px;
+
+    background: rgba(201, 162, 77, 0.10);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: 11px;
+
+    color: var(--sb-gold-300);
+}
+
+.sb-tile__name {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    margin: 0;
+    color: var(--sb-text);
+    font-size: 0.97rem;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+a.sb-tile__name:hover {
+    color: var(--sb-gold-200);
+}
+
+.sb-tile__body {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    color: var(--sb-text-mute);
+    font-size: 0.85rem;
+}
+
+.sb-tile__foot {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+
+    color: var(--sb-text-faint);
+    font-size: 0.77rem;
+}
+
+.sb-tile__count {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    color: var(--sb-text-mute);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.sb-tile__count--alert {
+    color: var(--sb-burgundy-300);
+}
+
+.sb-tile__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+
+    margin-top: 2px;
+    padding-top: 11px;
+
+    border-top: 1px solid var(--sb-line-soft);
+}
+
+
+/* =========================================================
+   23. TOOLBARS, FILTERS AND TABS
+   ========================================================= */
+
+.sb-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-bottom: 18px;
+    padding: 14px 16px;
+
+    background: var(--sb-glass-2);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+}
+
+.sb-toolbar__search {
+    position: relative;
+    flex: 1 1 240px;
+    min-width: 200px;
+}
+
+.sb-toolbar__search .sb-input {
+    padding-left: 40px;
+}
+
+.sb-toolbar__search svg {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+
+    transform: translateY(-50%);
+
+    color: var(--sb-text-faint);
+    pointer-events: none;
+}
+
+.sb-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sb-filters .sb-field {
+    min-width: 150px;
+    flex: 0 1 190px;
+}
+
+.sb-filters__actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: auto;
+}
+
+.sb-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+    padding: 5px;
+
+    background: rgba(5, 7, 12, 0.42);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius-pill);
+}
+
+[data-theme="light"] .sb-tabs {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.sb-tabs__link {
+    padding: 8px 17px;
+
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--sb-radius-pill);
+
+    color: var(--sb-text-mute);
+    font-size: 0.84rem;
+    font-weight: 650;
+}
+
+.sb-tabs__link:hover {
+    color: var(--sb-gold-200);
+}
+
+.sb-tabs__link.is-active {
+    background: linear-gradient(
+        135deg,
+        rgba(201, 162, 77, 0.20),
+        rgba(138, 38, 34, 0.16)
+    );
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+}
+
+
+/* =========================================================
+   24. KEY / VALUE LISTS
+   ========================================================= */
+
+.sb-kv {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+
+    background: var(--sb-line-soft);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius);
+    overflow: hidden;
+}
+
+.sb-kv__item {
+    padding: 15px 17px;
+    background: var(--sb-glass-2);
+}
+
+.sb-kv__key {
+    display: block;
+    margin-bottom: 4px;
+
+    color: var(--sb-text-faint);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.sb-kv__value {
+    color: var(--sb-text);
+    font-size: 0.93rem;
+    font-weight: 600;
+}
+
+.sb-prose {
+    color: var(--sb-text-soft);
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.sb-prose p {
+    margin-bottom: 14px;
+}
+
+.sb-prose p:last-child {
+    margin-bottom: 0;
+}
+
+.sb-prose pre {
+    overflow-x: auto;
+    padding: 15px 17px;
+
+    background: rgba(5, 7, 12, 0.6);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius);
+}
+
+.sb-divider {
+    height: 1px;
+    margin: 20px 0;
+    background: var(--sb-line);
+}
+
+
+/* =========================================================
+   25. ATTACHMENTS AND VIEWER
+   ========================================================= */
+
+.sb-attachment {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 16px 18px;
+
+    background: rgba(201, 162, 77, 0.05);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius);
+}
+
+.sb-attachment__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+
+    width: 42px;
+    height: 42px;
+
+    background: rgba(201, 162, 77, 0.10);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: 11px;
+
+    color: var(--sb-gold-300);
+}
+
+.sb-attachment__name {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    color: var(--sb-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sb-attachment__bar {
+    margin-top: 14px;
+}
+
+.sb-attachment__fallback {
+    color: var(--sb-text-mute);
+    font-size: 0.87rem;
+}
+
+.sb-viewer {
+    overflow: hidden;
+}
+
+.sb-viewer__panel {
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius);
+    overflow: hidden;
+    background: rgba(5, 7, 12, 0.5);
+}
+
+.sb-viewer__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 10px 14px;
+
+    background: rgba(5, 7, 12, 0.7);
+    border-bottom: 1px solid var(--sb-line);
+}
+
+.sb-viewer__name {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    color: var(--sb-text-soft);
+    font-size: 0.82rem;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sb-viewer__body {
+    display: grid;
+    place-items: center;
+
+    min-height: 320px;
+    max-height: 70vh;
+    padding: 18px;
+}
+
+.sb-viewer__body img,
+.sb-viewer__body iframe,
+.sb-viewer__body embed,
+.sb-viewer__body object {
+    max-width: 100%;
+    max-height: 66vh;
+    border: 0;
+    border-radius: 6px;
+}
+
+
+/* =========================================================
+   26. AUTHENTICATION PAGES
+   ========================================================= */
+
+.sb-guest {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* The guest shell has no sidebar to clear. */
+
+.sb-guest .sb-main {
+    margin-left: 0;
+}
+
+.sb-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+
+    padding: 48px 20px 64px;
+}
+
+.sb-auth__card {
+    width: 100%;
+    max-width: 440px;
+}
+
+.sb-auth--wide .sb-auth__card {
+    max-width: 620px;
+}
+
+.sb-auth__mark {
+    display: grid;
+    place-items: center;
+
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+
+    background: linear-gradient(
+        145deg,
+        var(--sb-gold-200),
+        var(--sb-gold-500)
+    );
+
+    border-radius: 17px;
+
+    color: #1a1408;
+    box-shadow: 0 12px 32px rgba(201, 162, 77, 0.26);
+}
+
+.sb-auth__title {
+    margin: 0 0 6px;
+    text-align: center;
+}
+
+.sb-auth__sub {
+    margin: 0 0 26px;
+    color: var(--sb-text-mute);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.sb-auth__links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-top: 18px;
+    padding-top: 16px;
+
+    border-top: 1px solid var(--sb-line);
+
+    color: var(--sb-text-mute);
+    font-size: 0.85rem;
+}
+
+.sb-auth__foot {
+    margin-top: 26px;
+    color: var(--sb-text-faint);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+
+/* =========================================================
+   27. CONFIRM AND DANGER PANELS
+   ========================================================= */
+
+.sb-confirm__title {
+    margin: 0 0 8px;
+}
+
+.sb-confirm__sub {
+    margin: 0 0 18px;
+    color: var(--sb-text-mute);
+    font-size: 0.92rem;
+}
+
+.sb-confirm__target {
+    display: inline-block;
+
+    margin-bottom: 22px;
+    padding: 9px 18px;
+
+    background: rgba(178, 58, 53, 0.10);
+    border: 1px solid rgba(209, 119, 111, 0.28);
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-burgundy-300);
+    font-family: var(--sb-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.sb-impact {
+    padding: 16px 18px;
+    margin-bottom: 18px;
+
+    background: rgba(201, 162, 77, 0.05);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius);
+}
+
+.sb-impact__title {
+    margin: 0 0 6px;
+    color: var(--sb-gold-300);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   28. CALENDAR  ·  a real month grid on parchment
+   ========================================================= */
+
+.sb-cal {
+    padding: 4px;
+}
+
+.sb-cal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.sb-cal__month {
+    margin: 0;
+
+    font-family: var(--sb-font-display);
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--sb-gold-200);
+}
+
+.sb-cal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 3px;
+}
+
+.sb-cal__dow {
+    padding-bottom: 6px;
+
+    color: var(--sb-text-faint);
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.sb-cal__day {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+
+    aspect-ratio: 1 / 1;
+    min-height: 30px;
+
+    background: rgba(5, 7, 12, 0.32);
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    color: var(--sb-text-soft);
+    font-size: 0.79rem;
+    font-weight: 600;
+}
+
+[data-theme="light"] .sb-cal__day {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.sb-cal__day--out {
+    opacity: 0.32;
+}
+
+.sb-cal__day--weekend {
+    color: var(--sb-text-faint);
+}
+
+.sb-cal__day--marked {
+    border-color: var(--sb-line);
+    background: rgba(201, 162, 77, 0.08);
+    color: var(--sb-gold-200);
+}
+
+.sb-cal__day--today {
+    background: linear-gradient(
+        135deg,
+        var(--sb-gold-200),
+        var(--sb-gold-400)
+    );
+    border-color: transparent;
+    color: #1d1608;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(201, 162, 77, 0.30);
+}
+
+.sb-cal__dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--sb-gold-400);
+}
+
+.sb-cal__day--today .sb-cal__dot {
+    background: #1d1608;
+}
+
+.sb-cal__dot--high {
+    background: var(--sb-burgundy-400);
+}
+
+.sb-cal__day--today .sb-cal__dot--high {
+    background: #3a1410;
+}
+
+.sb-cal__dot--medium {
+    background: var(--sb-gold-400);
+}
+
+.sb-cal__dot--low {
+    background: var(--sb-emerald-400);
+}
+
+.sb-cal__foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-top: 12px;
+    padding: 10px 12px;
+
+    background: rgba(5, 7, 12, 0.32);
+    border: 1px solid var(--sb-line-soft);
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-text-mute);
+    font-size: 0.78rem;
+}
+
+[data-theme="light"] .sb-cal__foot {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   29. PARCHMENT AND QUOTES
+   ========================================================= */
+
+.sb-parch {
+
+    position: relative;
+    overflow: hidden;
+
+    padding: 24px 24px 22px;
+
+    background:
+
+        radial-gradient(
+            120% 90% at 20% 0%,
+            rgba(255, 255, 255, 0.45),
+            transparent 60%
+        ),
+
+        linear-gradient(
+            160deg,
+            var(--sb-parchment) 0%,
+            var(--sb-parchment-2) 100%
+        );
+
+    border: 1px solid rgba(122, 95, 39, 0.30);
+    border-radius: var(--sb-radius-lg);
+
+    color: var(--sb-parchment-ink);
+    box-shadow: var(--sb-shadow);
+}
+
+.sb-parch::after {
+
+    content: "";
+    position: absolute;
+    inset: 6px;
+
+    border: 1px solid rgba(122, 95, 39, 0.18);
+    border-radius: calc(var(--sb-radius-lg) - 6px);
+    pointer-events: none;
+}
+
+.sb-parch__quote {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 14px;
+
+    font-family: var(--sb-font-display);
+    font-size: 1.16rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--sb-parchment-ink);
+}
+
+.sb-parch__mark {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--sb-parchment-ink-soft);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.sb-parch__sign {
+    margin-left: auto;
+    font-family: var(--sb-font-display);
+    font-size: 0.82rem;
+    font-style: italic;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.sb-quill {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+
+    color: rgba(122, 95, 39, 0.22);
+    transform: rotate(-16deg);
+    pointer-events: none;
+}
+
+.sb-books {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 26px;
+    margin-top: 14px;
+}
+
+.sb-books span {
+    display: block;
+    width: 7px;
+    background: rgba(122, 95, 39, 0.45);
+    border-radius: 2px 2px 0 0;
+}
+
+
+/* =========================================================
+   30. NOTIFICATIONS
+   ========================================================= */
+
+.sb-bell {
+    position: relative;
+}
+
+.sb-bell__badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+
+    display: grid;
+    place-items: center;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+
+    background: var(--sb-burgundy-400);
+    border: 2px solid var(--sb-void);
+    border-radius: var(--sb-radius-pill);
+
+    color: #fff;
+    font-size: 0.63rem;
+    font-weight: 800;
+}
+
+.sb-bell__panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 70;
+
+    width: min(330px, calc(100vw - 40px));
+    padding: 8px;
+
+    background: var(--sb-glass-3);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+
+    box-shadow: var(--sb-shadow-lg);
+}
+
+.sb-bell[open] .sb-bell__icon {
+    border-color: var(--sb-line-strong);
+    color: var(--sb-gold-200);
+}
+
+.sb-bell__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 8px 12px 10px;
+    border-bottom: 1px solid var(--sb-line);
+
+    color: var(--sb-gold-300);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+}
+
+.sb-bell__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 0;
+
+    margin: 0;
+    list-style: none;
+}
+
+.sb-bell__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    padding: 10px 12px;
+    border-radius: var(--sb-radius);
+
+    color: var(--sb-text-soft);
+}
+
+.sb-bell__item:hover {
+    background: rgba(224, 192, 120, 0.07);
+    color: var(--sb-gold-200);
+}
+
+.sb-bell__pip {
+    flex: none;
+
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+
+    background: var(--sb-gold-400);
+    border-radius: 50%;
+}
+
+.sb-bell__pip--danger {
+    background: var(--sb-burgundy-400);
+    box-shadow: 0 0 0 3px rgba(178, 58, 53, 0.18);
+}
+
+.sb-bell__pip--burgundy {
+    background: var(--sb-burgundy-500);
+}
+
+.sb-bell__pip--emerald {
+    background: var(--sb-emerald-400);
+}
+
+.sb-bell__count {
+    font-family: var(--sb-font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--sb-gold-200);
+}
+
+.sb-bell__text {
+    color: var(--sb-text-mute);
+    font-size: 0.78rem;
+}
+
+.sb-bell__action {
+    margin-left: auto;
+    align-self: center;
+
+    color: var(--sb-gold-400);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sb-bell__empty {
+    padding: 22px 14px;
+    color: var(--sb-text-mute);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+
+/* =========================================================
+   31. UTILITIES
+   ========================================================= */
+
+/* Visible to screen readers, invisible on screen. Used for labels
+   that the design does not need to show. */
+
+.sb-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+}
+
+.sb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sb-row--wrap {
+    flex-wrap: wrap;
+}
+
+.sb-row--gap-lg {
+    gap: 18px;
+}
+
+.sb-inline-flex {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sb-grow {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sb-dim {
+    color: var(--sb-text-mute);
+}
+
+.sb-small {
+    font-size: 0.84rem;
+}
+
+.sb-sub {
+    color: var(--sb-text-faint);
+    font-size: 0.82rem;
+}
+
+.sb-mt {
+    margin-top: 18px;
+}
+
+.sb-mb-0 {
+    margin-bottom: 0;
+}
+
+.sb-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   32. RESPONSIVE
+   ========================================================= */
+
+/* Wide desktop: let the dashboard breathe a little more. */
+
+@media (min-width: 1800px) {
+
+    .sb-content {
+        padding: 34px 44px 72px;
+    }
+
+    .sb-dash-bottom {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 1400px) {
+
+    .sb-dash-bottom {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1279px) {
+
+    .sb-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1199px) {
+
+    .sb-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sb-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sb-dash-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* The card grid keeps three across for longer than the other grids
+   do, because a task card needs room for a title, two badges, a due
+   date and three buttons. It steps to two at 1100px, not at 1280px,
+   so the cards are never squeezed narrower than about 330px. */
+
+@media (max-width: 1100px) {
+
+    .sb-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+
+    .sb-tiles {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Tablet: sidebar becomes a drawer, columns collapse. */
+
+@media (max-width: 1023px) {
+
+    .sb-main {
+        margin-left: 0;
+    }
+
+    .sb-sidebar {
+        width: min(288px, 84vw);
+        padding-top: 18px;
+
+        transform: translateX(-102%);
+        transition: transform var(--sb-base) var(--sb-ease);
+
+        box-shadow: var(--sb-shadow-lg);
+    }
+
+    .sb-nav-open .sb-sidebar {
+        transform: translateX(0);
+    }
+
+    .sb-sidebar__close {
+        display: grid;
+        place-items: center;
+    }
+
+    .sb-topbar {
+        padding: 12px 18px;
+    }
+
+    .sb-topbar .sb-topbar__menu {
+
+        display: inline-flex;
+    }
+
+    .sb-topbar .sb-topbar__brand {
+
+        display: none;
+    }
+
+    .sb-content {
+        padding: 22px 18px 48px;
+    }
+
+    .sb-hero {
+        padding: 30px 26px;
+    }
+
+    .sb-filters__actions {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* WCAG 2.5.8 asks for a 24 by 24 CSS pixel target. These three
+       land a pixel or two under it on a phone, where there is no
+       cursor to aim with, so they are given a little more height
+       here. Nothing else about them changes. */
+
+    .sb-backlink {
+
+        min-height: 30px;
+    }
+
+    .sb-list-row__title {
+
+        min-height: 28px;
+    }
+
+    input[type='file'] {
+
+        min-height: 40px;
+    }
+
+    .sb-auth__links a,
+    .sb-auth__foot a {
+
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 28px;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .sb-user__meta {
+        display: none;
+    }
+
+    .sb-user {
+        padding: 4px;
+    }
+
+    .sb-streak__label {
+        display: none;
+    }
+
+    .sb-streak {
+        padding: 8px 12px 8px 10px;
+    }
+}
+
+/* Mobile: one column, no horizontal overflow, readable type. */
+
+@media (max-width: 767px) {
+
+    body {
+        font-size: 14.5px;
+    }
+
+    .sb-stats,
+    .sb-grid,
+    .sb-grid--2,
+    .sb-grid-2,
+    .sb-dash-bottom,
+    .sb-quick {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sb-content {
+        padding: 18px 15px 44px;
+    }
+
+    .sb-topbar {
+        gap: 10px;
+        padding: 10px 15px;
+    }
+
+    .sb-search kbd {
+        display: none;
+    }
+
+    .sb-hero {
+        padding: 26px 20px;
+        border-radius: var(--sb-radius-lg);
+    }
+
+    .sb-hero__actions {
+        width: 100%;
+    }
+
+    .sb-hero__actions .sb-btn {
+        flex: 1 1 auto;
+    }
+
+    .sb-card,
+    .sb-panel {
+        padding: 18px 16px;
+    }
+
+    .sb-card--pad-lg {
+        padding: 22px 18px;
+    }
+
+    .sb-btn {
+        padding: 10px 16px;
+    }
+
+    .sb-pager {
+        justify-content: center;
+    }
+
+    .sb-toasts {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+
+    .sb-kv {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sb-bell__panel {
+        right: -60px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .sb-search__input {
+        padding-left: 38px;
+        font-size: 0.84rem;
+    }
+
+    .sb-stat__value {
+        font-size: 2rem;
+    }
+}
+
+
+/* ---- Respect the operating system's motion preference. The
+        drifting motes and the toast slide are the only things
+        that move on their own. ---- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .sb-mote {
+        display: none;
+    }
+}
+
+
+/* ---- Print: hand the page to the printer as clean paper. ---- */
+
+@media print {
+
+    .sb-sidebar,
+    .sb-topbar,
+    .sb-backdrop,
+    .sb-toasts,
+    .sb-hero__actions,
+    .sb-motes {
+        display: none !important;
+    }
+
+    .sb-main {
+        margin-left: 0;
+    }
+
+    body {
+        background: #fff;
+        color: #000;
+    }
+}

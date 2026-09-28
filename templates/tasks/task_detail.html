@@ -1,270 +1,268 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ task.title }} - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
-    .task-detail {
-        max-width: 900px;
-        margin: 0 auto;
-    }
 
-    .task-detail-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 28px;
-    }
-
-    .task-detail-title {
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        word-break: break-word;
-    }
-
-    .task-detail-description {
-        color: #6c757d;
-        line-height: 1.7;
-        white-space: pre-wrap;
-        margin-bottom: 24px;
-    }
-
-    .detail-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #6c757d;
-        margin-bottom: 4px;
-    }
-
-    .detail-value {
-        font-weight: 500;
-        color: #212529;
-    }
-
-    .detail-box {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 14px;
-        height: 100%;
-    }
-
-    .task-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 24px;
-    }
-
-    @media (max-width: 576px) {
-        .task-detail-card {
-            padding: 20px;
-        }
-
-        .task-detail-title {
-            font-size: 24px;
-        }
-
-        .task-actions .btn {
-            flex: 1;
-        }
-    }
-</style>
+<a
+    href="{% url 'tasks' %}"
+    class="sb-backlink"
+>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M11 18l-6-6 6-6"></path></svg>
+    All tasks
+</a>
 
 
-<div class="task-detail">
+<!-- =========================================================
+     TASK HEADER
+========================================================= -->
 
-    <div class="task-detail-card">
+<section class="sb-card sb-card--pad-lg">
 
-        <!-- Header -->
+    <div class="sb-row sb-row--wrap sb-row--gap-lg">
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+        <span
+            class="sb-avatar sb-avatar--lg sb-avatar--{% if task.priority == 'High' %}rose{% elif task.priority == 'Medium' %}amber{% else %}teal{% endif %}"
+            aria-hidden="true"
+        >
+            {% if task.status == 'Completed' %}
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            {% else %}
+                {{ task.title|first|upper }}
+            {% endif %}
+        </span>
 
-            <div>
 
-                <h2 class="task-detail-title">
-                    {{ task.title }}
-                </h2>
+        <div class="sb-grow">
 
-                {% if task.subject %}
-                    <div class="text-muted">
-                        {{ task.subject.name }}
-                    </div>
+            <span class="sb-page-head__eyebrow">
+                Task
+            </span>
+
+            <h1 class="sb-detail-title">
+                {{ task.title }}
+            </h1>
+
+
+            <div class="sb-badge-row">
+
+                {% if task.priority == 'High' %}
+                    <span class="sb-badge sb-badge--high">High priority</span>
+                {% elif task.priority == 'Medium' %}
+                    <span class="sb-badge sb-badge--medium">Medium priority</span>
                 {% else %}
-                    <div class="text-muted">
-                        General
-                    </div>
+                    <span class="sb-badge sb-badge--low">Low priority</span>
+                {% endif %}
+
+                {% if task.status == 'Completed' %}
+                    <span class="sb-badge sb-badge--success">Completed</span>
+                {% elif task.status == 'In Progress' %}
+                    <span class="sb-badge sb-badge--progress">In progress</span>
+                {% else %}
+                    <span class="sb-badge sb-badge--neutral">Pending</span>
+                {% endif %}
+
+                {% if task.is_overdue %}
+                    <span class="sb-badge sb-badge--danger">Overdue</span>
+                {% elif task.due_date == today %}
+                    <span class="sb-badge sb-badge--info">Due today</span>
+                {% elif task.due_date == tomorrow %}
+                    <span class="sb-badge sb-badge--info">Due tomorrow</span>
                 {% endif %}
 
             </div>
 
-
-            <!-- Status -->
-
-            {% if task.status == "Completed" %}
-
-                <span class="badge text-bg-success">
-                    Completed
-                </span>
-
-            {% elif task.status == "In Progress" %}
-
-                <span class="badge text-bg-primary">
-                    In Progress
-                </span>
-
-            {% else %}
-
-                <span class="badge text-bg-secondary">
-                    Pending
-                </span>
-
-            {% endif %}
-
         </div>
 
 
-        <!-- Description -->
+        <div class="sb-row sb-row--wrap">
 
-        <div class="task-detail-description">
+            {% comment %}
+                Marking a task complete writes to the database, so it
+                is a CSRF protected POST instead of a plain link.
+            {% endcomment %}
 
-            {% if task.description %}
-                {{ task.description }}
-            {% else %}
-                No description provided.
-            {% endif %}
+            <form
+                method="post"
+                action="{% url 'task_toggle' task.pk %}"
+                data-sb-confirm="{% if task.status == 'Completed' %}Mark this task as pending again?{% else %}Mark this task as completed?{% endif %}"
+            >
 
-        </div>
+                {% csrf_token %}
 
+                <input
+                    type="hidden"
+                    name="next"
+                    value="{{ request.get_full_path }}"
+                >
 
-        <!-- Details -->
+                <button
+                    type="submit"
+                    class="sb-btn sb-btn--primary"
+                >
+                    {% if task.status == 'Completed' %}
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+                        Reopen task
+                    {% else %}
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                        Mark complete
+                    {% endif %}
+                </button>
 
-        <div class="row g-3">
+            </form>
 
-            <div class="col-12 col-md-6">
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Subject
-                    </div>
-
-                    <div class="detail-value">
-
-                        {% if task.subject %}
-                            {{ task.subject.name }}
-                        {% else %}
-                            General
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-12 col-md-6">
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Priority
-                    </div>
-
-                    <div class="detail-value">
-                        {{ task.priority }}
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-12 col-md-6">
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Status
-                    </div>
-
-                    <div class="detail-value">
-                        {{ task.status }}
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-12 col-md-6">
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Due Date
-                    </div>
-
-                    <div class="detail-value">
-
-                        {% if task.due_date %}
-                            {{ task.due_date|date:"M d, Y" }}
-                        {% else %}
-                            No due date
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Actions -->
-
-        <div class="task-actions">
 
             <a
                 href="{% url 'task_edit' task.pk %}"
-                class="btn btn-outline-primary"
+                class="sb-btn sb-btn--outline"
             >
                 Edit
             </a>
 
 
-            {% if task.status != "Completed" %}
-
-                <a
-                    href="{% url 'task_complete' task.pk %}"
-                    class="btn btn-outline-success"
-                >
-                    Mark as Completed
-                </a>
-
-            {% endif %}
-
-
             <a
                 href="{% url 'task_delete' task.pk %}"
-                class="btn btn-outline-danger"
+                class="sb-btn sb-btn--tint-danger"
             >
                 Delete
-            </a>
-
-
-            <a
-                href="{% url 'tasks' %}"
-                class="btn btn-outline-secondary"
-            >
-                ← Back to Tasks
             </a>
 
         </div>
 
     </div>
 
+</section>
+
+
+<!-- =========================================================
+     DETAILS
+========================================================= -->
+
+<div class="sb-grid sb-grid--2 sb-mt">
+
+
+    <section class="sb-card">
+
+        <div class="sb-card__head">
+
+            <h2 class="sb-card__title">
+                Details
+            </h2>
+
+        </div>
+
+
+        <div class="sb-kv">
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Subject</span>
+
+                <span class="sb-kv__value">
+                    {% if task.subject %}
+                        <a href="{% url 'subject_detail' task.subject.pk %}">
+                            {{ task.subject.name }}
+                        </a>
+                    {% else %}
+                        <span class="sb-dim">General</span>
+                    {% endif %}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Due date</span>
+
+                <span class="sb-kv__value">
+                    {% if task.due_date %}
+                        {{ task.due_date|date:"M d, Y" }}
+                    {% else %}
+                        <span class="sb-dim">No due date</span>
+                    {% endif %}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Priority</span>
+
+                <span class="sb-kv__value">
+                    {{ task.priority }}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Status</span>
+
+                <span class="sb-kv__value">
+                    {{ task.status }}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Created</span>
+
+                <span class="sb-kv__value">
+                    {{ task.created_at|date:"M d, Y" }}
+                </span>
+
+            </div>
+
+
+            <div class="sb-kv__item">
+
+                <span class="sb-kv__key">Last updated</span>
+
+                <span class="sb-kv__value">
+                    {{ task.updated_at|date:"M d, Y" }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="sb-card">
+
+        <div class="sb-card__head">
+
+            <h2 class="sb-card__title">
+                Description
+            </h2>
+
+        </div>
+
+
+        {% if task.description %}
+
+            <div class="sb-prose">
+                {{ task.description }}
+            </div>
+
+        {% else %}
+
+            <div class="sb-inline-empty">
+                No description for this task yet.
+            </div>
+
+        {% endif %}
+
+    </section>
+
 </div>
+
 
 {% endblock %}

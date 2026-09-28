@@ -1,0 +1,157 @@
+{% comment %}
+    Shared pagination control.
+
+    Expects `page_obj` (a Page) and `query_string`, the current
+    filter query string without the page parameter, so active
+    filters survive a page change.
+{% endcomment %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+
+    <nav
+        class="sb-pager"
+        aria-label="Pagination"
+    >
+
+        <p class="sb-pager__info">
+            Page {{ page_obj.number }}
+            of {{ page_obj.paginator.num_pages }}
+            &middot;
+            {{ page_obj.paginator.count }}
+            {% if page_obj.paginator.count == 1 %}
+                result
+            {% else %}
+                results
+            {% endif %}
+        </p>
+
+
+        <ul class="sb-pager__list">
+
+            {% if page_obj.has_previous %}
+
+                <li>
+                    <a
+                        class="sb-pager__link"
+                        href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page=1"
+                        aria-label="First page"
+                    >
+                        &laquo;
+                    </a>
+                </li>
+
+
+                <li>
+                    <a
+                        class="sb-pager__link"
+                        href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ page_obj.previous_page_number }}"
+                        aria-label="Previous page"
+                    >
+                        &lsaquo;
+                    </a>
+                </li>
+
+            {% else %}
+
+                <li>
+                    <span
+                        class="sb-pager__link is-disabled"
+                        aria-hidden="true"
+                    >
+                        &laquo;
+                    </span>
+                </li>
+
+
+                <li>
+                    <span
+                        class="sb-pager__link is-disabled"
+                        aria-hidden="true"
+                    >
+                        &lsaquo;
+                    </span>
+                </li>
+
+            {% endif %}
+
+
+            {% for number in page_obj.paginator.page_range %}
+
+                {% if number == page_obj.number %}
+
+                    <li>
+                        <span
+                            class="sb-pager__link is-current"
+                            aria-current="page"
+                        >
+                            {{ number }}
+                        </span>
+                    </li>
+
+                {% elif number > page_obj.number|add:"-3" and number < page_obj.number|add:"3" %}
+
+                    <li>
+                        <a
+                            class="sb-pager__link"
+                            href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ number }}"
+                        >
+                            {{ number }}
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            {% endfor %}
+
+
+            {% if page_obj.has_next %}
+
+                <li>
+                    <a
+                        class="sb-pager__link"
+                        href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ page_obj.next_page_number }}"
+                        aria-label="Next page"
+                    >
+                        &rsaquo;
+                    </a>
+                </li>
+
+
+                <li>
+                    <a
+                        class="sb-pager__link"
+                        href="?{% if query_string %}{{ query_string }}&amp;{% endif %}page={{ page_obj.paginator.num_pages }}"
+                        aria-label="Last page"
+                    >
+                        &raquo;
+                    </a>
+                </li>
+
+            {% else %}
+
+                <li>
+                    <span
+                        class="sb-pager__link is-disabled"
+                        aria-hidden="true"
+                    >
+                        &rsaquo;
+                    </span>
+                </li>
+
+
+                <li>
+                    <span
+                        class="sb-pager__link is-disabled"
+                        aria-hidden="true"
+                    >
+                        &raquo;
+                    </span>
+                </li>
+
+            {% endif %}
+
+        </ul>
+
+    </nav>
+
+{% endif %}

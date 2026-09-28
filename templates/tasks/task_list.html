@@ -1,226 +1,40 @@
 {% extends 'base.html' %}
 
+{% block title %}Tasks - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
 
-    .task-header {
-        margin-bottom: 24px;
-    }
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
 
-    .task-header h2 {
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
+<div class="sb-page-head">
 
-    .task-header p {
-        color: #6c757d;
-        margin-bottom: 0;
-    }
+    <div>
 
+        <span class="sb-page-head__eyebrow">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"></path><path d="M9 12h11"></path><path d="M9 18h11"></path><path d="M4 6l1 1 2-2"></path></svg>
+            Planner
+        </span>
 
-    .filter-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 18px;
-        margin-bottom: 24px;
-    }
+        <h1>Tasks</h1>
 
-    .filter-card .form-label {
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
+        <p>
+            Track what needs doing and when it is due.
+        </p>
+
+    </div>
 
 
-    .task-card {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .task-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    }
-
-
-    .task-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0;
-        word-break: break-word;
-    }
-
-
-    .task-description {
-        color: #6c757d;
-        font-size: 14px;
-        line-height: 1.6;
-        min-height: 45px;
-        margin-bottom: 14px;
-    }
-
-
-    .task-info {
-        font-size: 13px;
-        color: #6c757d;
-        margin-bottom: 8px;
-    }
-
-    .task-info strong {
-        color: #495057;
-    }
-
-
-    .task-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-
-
-    .task-actions {
-        display: flex;
-        gap: 7px;
-        flex-wrap: wrap;
-    }
-
-
-    .priority-badge,
-    .status-badge,
-    .due-badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        white-space: nowrap;
-    }
-
-
-    .priority-high {
-        background: #ffe5e5;
-        color: #dc3545;
-    }
-
-    .priority-medium {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .priority-low {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-
-    .status-completed {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-    .status-progress {
-        background: #cfe2ff;
-        color: #084298;
-    }
-
-    .status-pending {
-        background: #e9ecef;
-        color: #495057;
-    }
-
-
-    /* Due date badges */
-
-    .due-overdue {
-        background: #ffe5e5;
-        color: #dc3545;
-    }
-
-    .due-today {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .due-tomorrow {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .due-upcoming {
-        background: #cfe2ff;
-        color: #084298;
-    }
-
-    .due-completed {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-
-    .empty-state {
-        border: 1px dashed #ced4da;
-        border-radius: 16px;
-        padding: 45px 20px;
-        text-align: center;
-        color: #6c757d;
-        background: #fff;
-    }
-
-
-    @media (max-width: 576px) {
-
-        .task-header .btn {
-            width: 100%;
-        }
-
-        .filter-card {
-            padding: 14px;
-        }
-
-        .task-card {
-            padding: 18px;
-        }
-
-        .task-actions .btn {
-            flex: 1;
-        }
-
-    }
-
-</style>
-
-
-<!-- Header -->
-
-<div class="task-header">
-
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-
-        <div>
-
-            <h2>
-                My Tasks
-            </h2>
-
-            <p>
-                Manage your academic workload.
-            </p>
-
-        </div>
-
+    <div class="sb-page-head__actions">
 
         <a
             href="{% url 'task_create' %}"
-            class="btn btn-primary"
+            class="sb-btn sb-btn--primary"
         >
-            + Add Task
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            New task
         </a>
 
     </div>
@@ -228,179 +42,171 @@
 </div>
 
 
-<!-- Filters -->
+<!-- =========================================================
+     STATUS TABS
+========================================================= -->
 
-<div class="filter-card">
+<nav class="sb-tabs" aria-label="Filter by status">
 
-    <form method="get">
+    <a
+        href="{% url 'tasks' %}{% if q %}?q={{ q|urlencode }}{% endif %}"
+        class="sb-tabs__link {% if not status %}is-active{% endif %}"
+    >
+        All
+    </a>
 
-        <div class="row g-3 align-items-end">
+
+    <a
+        href="{% url 'tasks' %}?status=Pending"
+        class="sb-tabs__link {% if status == 'Pending' %}is-active{% endif %}"
+    >
+        Pending
+    </a>
 
 
-            <!-- Search -->
+    <a
+        href="{% url 'tasks' %}?status=In+Progress"
+        class="sb-tabs__link {% if status == 'In Progress' %}is-active{% endif %}"
+    >
+        In progress
+    </a>
 
-            <div class="col-12 col-md-4">
 
-                <label class="form-label">
-                    Search
-                </label>
+    <a
+        href="{% url 'tasks' %}?status=Completed"
+        class="sb-tabs__link {% if status == 'Completed' %}is-active{% endif %}"
+    >
+        Completed
+    </a>
 
-                <input
-                    type="text"
-                    name="q"
-                    value="{{ q }}"
-                    class="form-control"
-                    placeholder="Search task title or description"
+</nav>
+
+
+<!-- =========================================================
+     FILTERS
+========================================================= -->
+
+<div class="sb-toolbar">
+
+    <form
+        method="get"
+        action="{% url 'tasks' %}"
+        class="sb-filters"
+    >
+
+        {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+
+        <div class="sb-toolbar__search">
+
+            <label for="task-search">Search</label>
+
+            <input
+                type="search"
+                id="task-search"
+                name="q"
+                value="{{ q }}"
+                class="sb-input"
+                placeholder="Search title or description"
+            >
+
+        </div>
+
+
+        <div>
+
+            <label for="task-subject">Subject</label>
+
+            <select
+                id="task-subject"
+                name="subject"
+                class="sb-select"
+            >
+                <option value="">All subjects</option>
+
+                {% for subject in subjects %}
+                    <option
+                        value="{{ subject.pk }}"
+                        {% if subject_id == subject.pk|stringformat:"s" %}selected{% endif %}
+                    >
+                        {{ subject.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        </div>
+
+
+        <div>
+
+            <label for="task-priority">Priority</label>
+
+            <select
+                id="task-priority"
+                name="priority"
+                class="sb-select"
+            >
+                <option value="">Any priority</option>
+                <option value="High" {% if priority == 'High' %}selected{% endif %}>High</option>
+                <option value="Medium" {% if priority == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="Low" {% if priority == 'Low' %}selected{% endif %}>Low</option>
+            </select>
+
+        </div>
+
+
+        <div>
+
+            <label for="task-due">Due date</label>
+
+            <input
+                type="date"
+                id="task-due"
+                name="due_date"
+                value="{{ due_date|default:'' }}"
+                class="sb-input"
+            >
+
+        </div>
+
+
+        <div>
+
+            <label for="task-sort">Sort</label>
+
+            <select
+                id="task-sort"
+                name="sort"
+                class="sb-select"
+            >
+                <option value="">Due date</option>
+                <option value="due_desc" {% if sort == 'due_desc' %}selected{% endif %}>Latest due date</option>
+                <option value="priority" {% if sort == 'priority' %}selected{% endif %}>Priority</option>
+                <option value="title" {% if sort == 'title' %}selected{% endif %}>Title</option>
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
+            </select>
+
+        </div>
+
+
+        <div class="sb-filters__actions">
+
+            <button
+                type="submit"
+                class="sb-btn sb-btn--primary"
+            >
+                Apply
+            </button>
+
+            {% if q or subject_id or priority or due_date or sort or status %}
+                <a
+                    href="{% url 'tasks' %}"
+                    class="sb-btn sb-btn--ghost"
                 >
-
-            </div>
-
-
-            <!-- Subject -->
-
-            <div class="col-12 col-md-2">
-
-                <label class="form-label">
-                    Subject
-                </label>
-
-                <select
-                    name="subject"
-                    class="form-select"
-                >
-
-                    <option value="">
-                        All
-                    </option>
-
-                    {% for subject in subjects %}
-
-                        <option
-                            value="{{ subject.id }}"
-                            {% if subject_id == subject.id|stringformat:"s" %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ subject.name }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-
-            <!-- Status -->
-
-            <div class="col-12 col-md-2">
-
-                <label class="form-label">
-                    Status
-                </label>
-
-                <select
-                    name="status"
-                    class="form-select"
-                >
-
-                    <option value="">
-                        All
-                    </option>
-
-                    <option
-                        value="Pending"
-                        {% if status == "Pending" %}
-                            selected
-                        {% endif %}
-                    >
-                        Pending
-                    </option>
-
-                    <option
-                        value="In Progress"
-                        {% if status == "In Progress" %}
-                            selected
-                        {% endif %}
-                    >
-                        In Progress
-                    </option>
-
-                    <option
-                        value="Completed"
-                        {% if status == "Completed" %}
-                            selected
-                        {% endif %}
-                    >
-                        Completed
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- Priority -->
-
-            <div class="col-12 col-md-2">
-
-                <label class="form-label">
-                    Priority
-                </label>
-
-                <select
-                    name="priority"
-                    class="form-select"
-                >
-
-                    <option value="">
-                        All
-                    </option>
-
-                    <option
-                        value="Low"
-                        {% if priority == "Low" %}
-                            selected
-                        {% endif %}
-                    >
-                        Low
-                    </option>
-
-                    <option
-                        value="Medium"
-                        {% if priority == "Medium" %}
-                            selected
-                        {% endif %}
-                    >
-                        Medium
-                    </option>
-
-                    <option
-                        value="High"
-                        {% if priority == "High" %}
-                            selected
-                        {% endif %}
-                    >
-                        High
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- Filter -->
-
-            <div class="col-12 col-md-2">
-
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                >
-                    Filter
-                </button>
-
-            </div>
+                    Reset
+                </a>
+            {% endif %}
 
         </div>
 
@@ -409,254 +215,266 @@
 </div>
 
 
-<!-- Tasks -->
+<!-- =========================================================
+     ACTIVE FILTER CHIPS
+========================================================= -->
+
+{% if q or subject_id or priority or due_date or sort %}
+
+    <div class="sb-chips">
+
+        {% if q %}
+            <a href="{% url 'tasks' %}" class="sb-chip">
+                &ldquo;{{ q }}&rdquo;
+                <span aria-hidden="true">&times;</span>
+            </a>
+        {% endif %}
+
+        {% if subject_id %}
+            <a href="{% url 'tasks' %}" class="sb-chip">
+                Subject
+                <span aria-hidden="true">&times;</span>
+            </a>
+        {% endif %}
+
+        {% if priority %}
+            <a href="{% url 'tasks' %}" class="sb-chip">
+                {{ priority }} priority
+                <span aria-hidden="true">&times;</span>
+            </a>
+        {% endif %}
+
+        {% if due_date %}
+            <a href="{% url 'tasks' %}" class="sb-chip">
+                Due {{ due_date }}
+                <span aria-hidden="true">&times;</span>
+            </a>
+        {% endif %}
+
+        {% if sort %}
+            <a href="{% url 'tasks' %}" class="sb-chip">
+                Sorted
+                <span aria-hidden="true">&times;</span>
+            </a>
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+<!-- =========================================================
+     TASKS
+========================================================= -->
 
 {% if tasks %}
 
-    <div class="row g-3">
+    <div class="sb-tiles">
 
         {% for task in tasks %}
 
-            <div class="col-12 col-md-6 col-xl-4">
+            <article class="sb-tile {% if task.status == 'Completed' %}sb-tile--done{% endif %}">
 
-                <div class="task-card">
+                <div class="sb-tile__top">
 
-
-                    <!-- Title + Priority -->
-
-                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
-
-                        <h5 class="task-title">
-                            {{ task.title }}
-                        </h5>
-
-
-                        {% if task.priority == "High" %}
-
-                            <span class="priority-badge priority-high">
-                                High
-                            </span>
-
-                        {% elif task.priority == "Medium" %}
-
-                            <span class="priority-badge priority-medium">
-                                Medium
-                            </span>
-
+                    <span
+                        class="sb-tile__icon"
+                        aria-hidden="true"
+                    >
+                        {% if task.status == 'Completed' %}
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
                         {% else %}
-
-                            <span class="priority-badge priority-low">
-                                Low
-                            </span>
-
+                            {{ task.title|first|upper }}
                         {% endif %}
+                    </span>
 
-                    </div>
-
-
-                    <!-- Description -->
-
-                    <p class="task-description">
-
-                        {% if task.description %}
-
-                            {{ task.description|truncatechars:110 }}
-
-                        {% else %}
-
-                            No description provided.
-
-                        {% endif %}
-
-                    </p>
-
-
-                    <!-- Subject -->
-
-                    <div class="task-info">
-
-                        <strong>
-                            Subject:
-                        </strong>
-
-                        {% if task.subject %}
-
-                            {{ task.subject.name }}
-
-                        {% else %}
-
-                            General
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- Due Date + Status -->
-
-                    <div class="task-meta">
-
-                        <span class="task-info mb-0">
-
-                            <strong>
-                                Due:
-                            </strong>
-
-                            {% if task.due_date %}
-
-                                {{ task.due_date|date:"M d, Y" }}
-
-                            {% else %}
-
-                                No date
-
-                            {% endif %}
-
-                        </span>
-
-
-                        <!-- Due Status -->
-
-                        {% if task.status == "Completed" %}
-
-                            <span class="due-badge due-completed">
-                                Completed
-                            </span>
-
-                        {% elif task.due_date %}
-
-                            {% if task.due_date < today %}
-
-                                <span class="due-badge due-overdue">
-                                    Overdue
-                                </span>
-
-                            {% elif task.due_date == today %}
-
-                                <span class="due-badge due-today">
-                                    Due Today — Last day
-                                </span>
-
-                            {% elif task.due_date == tomorrow %}
-
-                                <span class="due-badge due-tomorrow">
-                                    Due Tomorrow
-                                </span>
-
-                            {% else %}
-
-                                <span class="due-badge due-upcoming">
-                                    Upcoming
-                                </span>
-
-                            {% endif %}
-
-                        {% endif %}
-
-
-                    </div>
-
-
-                    <!-- Status -->
-
-                    <div class="mb-3">
-
-                        {% if task.status == "Completed" %}
-
-                            <span class="status-badge status-completed">
-                                Completed
-                            </span>
-
-                        {% elif task.status == "In Progress" %}
-
-                            <span class="status-badge status-progress">
-                                In Progress
-                            </span>
-
-                        {% else %}
-
-                            <span class="status-badge status-pending">
-                                Pending
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- Actions -->
-
-                    <div class="task-actions">
-
+                    <div class="sb-grow">
 
                         <a
+                            class="sb-tile__name"
                             href="{% url 'task_detail' task.pk %}"
-                            class="btn btn-sm btn-outline-primary"
                         >
-                            View
+                            {{ task.title }}
                         </a>
 
+                        <div class="sb-badge-row">
 
-                        <a
-                            href="{% url 'task_edit' task.pk %}"
-                            class="btn btn-sm btn-outline-secondary"
-                        >
-                            Edit
-                        </a>
+                            {% if task.priority == 'High' %}
+                                <span class="sb-badge sb-badge--high">High</span>
+                            {% elif task.priority == 'Medium' %}
+                                <span class="sb-badge sb-badge--medium">Medium</span>
+                            {% else %}
+                                <span class="sb-badge sb-badge--low">Low</span>
+                            {% endif %}
 
+                            {% if task.status == 'Completed' %}
+                                <span class="sb-badge sb-badge--success">Completed</span>
+                            {% elif task.status == 'In Progress' %}
+                                <span class="sb-badge sb-badge--progress">In progress</span>
+                            {% else %}
+                                <span class="sb-badge sb-badge--neutral">Pending</span>
+                            {% endif %}
 
-                        {% if task.status != "Completed" %}
-
-                            <a
-                                href="{% url 'task_complete' task.pk %}"
-                                class="btn btn-sm btn-outline-success"
-                            >
-                                Done
-                            </a>
-
-                        {% endif %}
-
-
-                        <a
-                            href="{% url 'task_delete' task.pk %}"
-                            class="btn btn-sm btn-outline-danger"
-                        >
-                            Delete
-                        </a>
-
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
+
+                <div class="sb-tile__body">
+                    {% if task.description %}
+                        {{ task.description|truncatechars:110 }}
+                    {% else %}
+                        <span class="sb-dim">No description provided.</span>
+                    {% endif %}
+                </div>
+
+
+                <div class="sb-tile__foot">
+
+                    <span class="sb-tile__count">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"></path><path d="M9 7.5h7"></path></svg>
+                        {% if task.subject %}
+                            {{ task.subject.name }}
+                        {% else %}
+                            General
+                        {% endif %}
+                    </span>
+
+
+                    <span class="sb-tile__count {% if task.is_overdue %}sb-tile__count--alert{% endif %}">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+
+                        {% if not task.due_date %}
+                            No due date
+                        {% elif task.status == 'Completed' %}
+                            {{ task.due_date|date:"M d, Y" }}
+                        {% elif task.is_overdue %}
+                            Overdue &middot; {{ task.due_date|date:"M d" }}
+                        {% elif task.due_date == today %}
+                            Due today
+                        {% elif task.due_date == tomorrow %}
+                            Due tomorrow
+                        {% else %}
+                            {{ task.due_date|date:"M d, Y" }}
+                        {% endif %}
+                    </span>
+
+
+                    <div class="sb-grow"></div>
+
+
+                    <div class="sb-tile__actions">
+
+                        {% comment %}
+                            Completing a task changes stored data, so it
+                            is a CSRF protected POST form rather than
+                            a link.
+                        {% endcomment %}
+
+                        <form
+                            method="post"
+                            action="{% url 'task_toggle' task.pk %}"
+                            data-sb-confirm="{% if task.status == 'Completed' %}Mark this task as pending again?{% else %}Mark this task as completed?{% endif %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="next"
+                                value="{{ request.get_full_path }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="sb-btn sb-btn--sm {% if task.status == 'Completed' %}sb-btn--quiet{% else %}sb-btn--tint-success{% endif %}"
+                            >
+                                {% if task.status == 'Completed' %}Reopen{% else %}Done{% endif %}
+                            </button>
+
+                        </form>
+
+
+                        <a
+                            href="{% url 'task_edit' task.pk %}"
+                            class="sb-btn sb-btn--quiet sb-btn--sm"
+                        >
+                            Edit
+                        </a>
+
+
+                        <a
+                            href="{% url 'task_delete' task.pk %}"
+                            class="sb-btn sb-btn--tint-danger sb-btn--sm"
+                        >
+                            Delete
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
 
         {% endfor %}
 
     </div>
 
 
+    {% include 'includes/pagination.html' %}
+
+
 {% else %}
 
-    <div class="empty-state">
+    <div class="sb-empty">
 
-        <h5 class="mb-2">
-            No tasks found
-        </h5>
-
-        <p class="mb-3">
-            No tasks match your current filters.
-        </p>
-
-        <a
-            href="{% url 'task_create' %}"
-            class="btn btn-primary"
+        <div
+            class="sb-empty__icon"
+            aria-hidden="true"
         >
-            + Add Task
-        </a>
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"></path><path d="M9 12h11"></path><path d="M9 18h11"></path><path d="M4 6l1 1 2-2"></path><path d="M4 12l1 1 2-2"></path><path d="M4 18l1 1 2-2"></path></svg>
+        </div>
+
+        {% if q or subject_id or priority or due_date or status %}
+
+            <h2>No tasks found</h2>
+
+            <p>
+                Nothing matches the current filters. Try
+                clearing them to see everything.
+            </p>
+
+            <a
+                href="{% url 'tasks' %}"
+                class="sb-btn sb-btn--outline"
+            >
+                Reset filters
+            </a>
+
+        {% else %}
+
+            <h2>No tasks yet</h2>
+
+            <p>
+                Add your first task and StudyBuddy will keep
+                track of the due date for you.
+            </p>
+
+            <a
+                href="{% url 'task_create' %}"
+                class="sb-btn sb-btn--primary"
+            >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                New task
+            </a>
+
+        {% endif %}
 
     </div>
 
 {% endif %}
+
 
 {% endblock %}

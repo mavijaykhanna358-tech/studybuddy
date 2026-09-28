@@ -1,322 +1,82 @@
 {% extends 'base.html' %}
 
+{% block title %}Subjects - StudyBuddy{% endblock %}
+
 {% block content %}
 
-<style>
 
-.subjects-page {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 20px 40px;
-    box-sizing: border-box;
-}
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
 
-/* =========================
-   HEADER
-========================= */
+<div class="sb-page-head">
 
-.subjects-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 22px;
-}
+    <div>
 
-.subjects-heading h1 {
-    margin: 0;
-    color: #172033;
-    font-size: 28px;
-    font-weight: 700;
-}
+        <span class="sb-page-head__eyebrow">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"></path><path d="M9 7.5h7"></path></svg>
+            Workspace
+        </span>
 
-.subjects-heading p {
-    margin: 5px 0 0;
-    color: #6b7b91;
-    font-size: 14px;
-}
+        <h1>Subjects</h1>
 
-.add-subject-btn {
-    white-space: nowrap;
-    border-radius: 9px;
-    padding: 10px 18px;
-    font-weight: 600;
-}
-
-/* =========================
-   SEARCH
-========================= */
-
-.subject-search-card {
-    background: #ffffff;
-    border: 1px solid #e6ebf1;
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 22px;
-    box-shadow: 0 2px 10px rgba(30, 60, 100, 0.05);
-}
-
-.subject-search-form {
-    display: flex;
-    gap: 10px;
-}
-
-.subject-search-input {
-    flex: 1;
-    min-width: 0;
-    height: 44px;
-    border: 1px solid #d8e0e8;
-    border-radius: 9px;
-    padding: 0 14px;
-    font-size: 14px;
-    outline: none;
-}
-
-.subject-search-input:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
-}
-
-.search-btn {
-    height: 44px;
-    padding: 0 20px;
-    border-radius: 9px;
-    font-weight: 600;
-}
-
-/* =========================
-   SUBJECT GRID
-========================= */
-
-.subjects-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-}
-
-.subject-card {
-    background: #ffffff;
-    border: 1px solid #e5eaf0;
-    border-radius: 16px;
-    padding: 22px;
-    box-shadow: 0 3px 12px rgba(30, 60, 100, 0.06);
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.subject-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(30, 60, 100, 0.10);
-}
-
-.subject-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #eef5ff;
-    color: #0d6efd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 21px;
-    margin-bottom: 15px;
-}
-
-.subject-name {
-    margin: 0 0 8px;
-    font-size: 20px;
-    font-weight: 700;
-    color: #172033;
-    word-break: break-word;
-}
-
-.subject-description {
-    color: #65758b;
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 45px;
-    margin-bottom: 16px;
-}
-
-.subject-stats {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 18px;
-}
-
-.subject-stat {
-    flex: 1;
-    background: #f7f9fc;
-    border-radius: 9px;
-    padding: 9px 10px;
-    text-align: center;
-}
-
-.subject-stat-number {
-    display: block;
-    color: #172033;
-    font-size: 17px;
-    font-weight: 700;
-}
-
-.subject-stat-label {
-    display: block;
-    color: #7a899b;
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-.subject-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: auto;
-}
-
-.subject-actions .btn {
-    flex: 1;
-    min-width: 0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-/* =========================
-   EMPTY STATE
-========================= */
-
-.empty-subjects {
-    background: #ffffff;
-    border: 1px dashed #cfd8e3;
-    border-radius: 16px;
-    padding: 55px 20px;
-    text-align: center;
-}
-
-.empty-icon {
-    font-size: 42px;
-    margin-bottom: 10px;
-}
-
-.empty-subjects h3 {
-    margin: 0 0 7px;
-    color: #172033;
-    font-size: 21px;
-}
-
-.empty-subjects p {
-    margin: 0 0 20px;
-    color: #718096;
-    font-size: 14px;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 992px) {
-
-    .subjects-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
-
-@media (max-width: 650px) {
-
-    .subjects-page {
-        padding: 16px 14px 30px;
-    }
-
-    .subjects-header {
-        align-items: flex-start;
-        flex-direction: column;
-        margin-bottom: 18px;
-    }
-
-    .subjects-heading h1 {
-        font-size: 25px;
-    }
-
-    .add-subject-btn {
-        width: 100%;
-    }
-
-    .subject-search-form {
-        flex-direction: column;
-    }
-
-    .search-btn {
-        width: 100%;
-    }
-
-    .subjects-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .subject-card {
-        padding: 19px;
-    }
-
-}
-
-</style>
-
-
-<div class="subjects-page">
-
-    <!-- =========================
-         HEADER
-    ========================= -->
-
-    <div class="subjects-header">
-
-        <div class="subjects-heading">
-
-            <h1>Subjects</h1>
-
-            <p>
-                Organize your tasks and notes by subject.
-            </p>
-
-        </div>
-
-
-        <a
-            href="{% url 'subject_create' %}"
-            class="btn btn-primary add-subject-btn"
-        >
-            + Add Subject
-        </a>
+        <p>
+            Group your tasks and notes by subject.
+        </p>
 
     </div>
 
 
-    <!-- =========================
-         SEARCH
-    ========================= -->
+    <div class="sb-page-head__actions">
 
-    <div class="subject-search-card">
-
-        <form
-            method="get"
-            action="{% url 'subjects' %}"
-            class="subject-search-form"
+        <a
+            href="{% url 'subject_create' %}"
+            class="sb-btn sb-btn--primary"
         >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Add subject
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SEARCH
+========================================================= -->
+
+<div class="sb-toolbar">
+
+    <form
+        method="get"
+        action="{% url 'subjects' %}"
+        class="sb-filters"
+    >
+
+        <div class="sb-toolbar__search">
+
+            <label for="subject-search">
+                Search
+            </label>
 
             <input
-                type="text"
+                type="search"
+                id="subject-search"
                 name="q"
                 value="{{ q }}"
-                class="subject-search-input"
-                placeholder="Search subjects..."
+                class="sb-input"
+                placeholder="Search subjects by name..."
             >
+
+        </div>
+
+
+        <div class="sb-filters__actions">
 
             <button
                 type="submit"
-                class="btn btn-primary search-btn"
+                class="sb-btn sb-btn--primary"
             >
                 Search
             </button>
@@ -325,102 +85,90 @@
 
                 <a
                     href="{% url 'subjects' %}"
-                    class="btn btn-outline-secondary search-btn"
+                    class="sb-btn sb-btn--ghost"
                 >
                     Clear
                 </a>
 
             {% endif %}
 
-        </form>
+        </div>
 
-    </div>
+    </form>
 
-
-    <!-- =========================
-         SUBJECTS
-    ========================= -->
-
-    {% if subjects %}
-
-        <div class="subjects-grid">
-
-            {% for subject in subjects %}
-
-                <div class="subject-card">
-
-                    <div class="subject-icon">
-                        📚
-                    </div>
+</div>
 
 
-                    <h2 class="subject-name">
-                        {{ subject.name }}
-                    </h2>
+<!-- =========================================================
+     SUBJECTS
+========================================================= -->
 
+{% if subjects %}
 
-                    <p class="subject-description">
+    <div class="sb-tiles">
 
-                        {% if subject.description %}
+        {% for subject in subjects %}
 
-                            {{ subject.description|truncatechars:100 }}
+            <article class="sb-tile">
 
-                        {% else %}
+                <div class="sb-tile__top">
 
-                            No description provided.
+                    <span
+                        class="sb-tile__icon"
+                        aria-hidden="true"
+                    >
+                        {{ subject.name|first|upper }}
+                    </span>
 
-                        {% endif %}
-
-                    </p>
-
-
-                    <!-- Stats -->
-
-                    <div class="subject-stats">
-
-                        <div class="subject-stat">
-
-                            <span class="subject-stat-number">
-                                {{ subject.tasks.count }}
-                            </span>
-
-                            <span class="subject-stat-label">
-                                Tasks
-                            </span>
-
-                        </div>
-
-
-                        <div class="subject-stat">
-
-                            <span class="subject-stat-number">
-                                {{ subject.notes.count }}
-                            </span>
-
-                            <span class="subject-stat-label">
-                                Notes
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Actions -->
-
-                    <div class="subject-actions">
+                    <div class="sb-grow">
 
                         <a
+                            class="sb-tile__name"
                             href="{% url 'subject_detail' subject.pk %}"
-                            class="btn btn-outline-primary"
                         >
-                            View
+                            {{ subject.name }}
                         </a>
 
+                    </div>
+
+                </div>
+
+
+                <div class="sb-tile__body">
+                    {% if subject.description %}
+                        {{ subject.description|truncatechars:110 }}
+                    {% else %}
+                        <span class="sb-dim">
+                            No description yet.
+                        </span>
+                    {% endif %}
+                </div>
+
+
+                <div class="sb-tile__foot">
+
+                    <span class="sb-tile__count">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"></path><path d="M9 12h11"></path><path d="M9 18h11"></path><path d="M4 6l1 1 2-2"></path><path d="M4 12l1 1 2-2"></path><path d="M4 18l1 1 2-2"></path></svg>
+                        <strong>{{ subject.task_count }}</strong>
+                        {% if subject.task_count == 1 %}task{% else %}tasks{% endif %}
+                    </span>
+
+
+                    <span class="sb-tile__count">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"></path><path d="M14 4v5h5"></path></svg>
+                        <strong>{{ subject.note_count }}</strong>
+                        {% if subject.note_count == 1 %}note{% else %}notes{% endif %}
+                    </span>
+
+
+                    <div class="sb-grow"></div>
+
+
+                    <div class="sb-tile__actions">
 
                         <a
                             href="{% url 'subject_edit' subject.pk %}"
-                            class="btn btn-outline-secondary"
+                            class="sb-btn sb-btn--quiet sb-btn--sm"
                         >
                             Edit
                         </a>
@@ -428,7 +176,7 @@
 
                         <a
                             href="{% url 'subject_delete' subject.pk %}"
-                            class="btn btn-outline-danger"
+                            class="sb-btn sb-btn--tint-danger sb-btn--sm"
                         >
                             Delete
                         </a>
@@ -437,62 +185,65 @@
 
                 </div>
 
-            {% endfor %}
+            </article>
 
+        {% endfor %}
+
+    </div>
+
+
+    {% include 'includes/pagination.html' %}
+
+
+{% else %}
+
+    <div class="sb-empty">
+
+        <div
+            class="sb-empty__icon"
+            aria-hidden="true"
+        >
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"></path><path d="M9 7.5h7"></path></svg>
         </div>
 
-    {% else %}
+        {% if q %}
 
-        <!-- =========================
-             EMPTY
-        ========================= -->
+            <h2>No subjects found</h2>
 
-        <div class="empty-subjects">
+            <p>
+                Nothing matches &ldquo;{{ q }}&rdquo;. Try a
+                different search or clear the filter.
+            </p>
 
-            <div class="empty-icon">
-                📚
-            </div>
+            <a
+                href="{% url 'subjects' %}"
+                class="sb-btn sb-btn--outline"
+            >
+                Clear search
+            </a>
 
-            {% if q %}
+        {% else %}
 
-                <h3>
-                    No subjects found
-                </h3>
+            <h2>No subjects yet</h2>
 
-                <p>
-                    No subjects match "{{ q }}".
-                </p>
+            <p>
+                Create your first subject to start organising
+                tasks and notes in one place.
+            </p>
 
-                <a
-                    href="{% url 'subjects' %}"
-                    class="btn btn-outline-primary"
-                >
-                    Clear Search
-                </a>
+            <a
+                href="{% url 'subject_create' %}"
+                class="sb-btn sb-btn--primary"
+            >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                Add subject
+            </a>
 
-            {% else %}
+        {% endif %}
 
-                <h3>
-                    No subjects yet
-                </h3>
+    </div>
 
-                <p>
-                    Create your first subject to start organizing your study work.
-                </p>
+{% endif %}
 
-                <a
-                    href="{% url 'subject_create' %}"
-                    class="btn btn-primary"
-                >
-                    + Add Subject
-                </a>
-
-            {% endif %}
-
-        </div>
-
-    {% endif %}
-
-</div>
 
 {% endblock %}

@@ -2,7 +2,10 @@ name: Send Task Reminders
 
 on:
   schedule:
+    # 03:30 UTC every day.
     - cron: '30 3 * * *'
+
+  # Allows a manual run from the Actions tab.
   workflow_dispatch:
 
 jobs:
@@ -11,9 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+
+      # This is a batch job, not a web request, so it runs with
+      # DEBUG off. Django then requires a SECRET_KEY of at least
+      # 50 characters and turns on the HTTPS-only cookie flags.
+      DJANGO_ENV: production
+
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}
 
     steps:
 
@@ -24,6 +34,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
 
       - name: Install dependencies
         run: |

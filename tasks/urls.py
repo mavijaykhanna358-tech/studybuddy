@@ -69,9 +69,9 @@ urlpatterns = [
     ),
 
     path(
-        'tasks/<int:pk>/complete/',
-        views.task_complete,
-        name='task_complete'
+        'tasks/<int:pk>/toggle/',
+        views.task_toggle,
+        name='task_toggle'
     ),
 
     path(
@@ -119,6 +119,17 @@ urlpatterns = [
         'notes/<int:pk>/delete/',
         views.note_delete,
         name='note_delete'
+    ),
+
+
+    # =====================================================
+    # GLOBAL SEARCH
+    # =====================================================
+
+    path(
+        'search/',
+        views.search,
+        name='search'
     ),
 
 ]

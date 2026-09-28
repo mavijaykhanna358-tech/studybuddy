@@ -10,6 +10,20 @@ from .models import Note, Subject, Task
 
 class SubjectForm(forms.ModelForm):
 
+    def __init__(
+        self,
+        *args,
+        user=None,
+        **kwargs
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs
+        )
+
+        self.user = user
+
     class Meta:
         model = Subject
 
@@ -21,16 +35,19 @@ class SubjectForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(
                 attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g. Mathematics'
+                    'class': 'sb-input',
+                    'placeholder': 'e.g. Mathematics',
+                    'autocomplete': 'off',
+                    'maxlength': 100,
                 }
             ),
 
             'description': forms.Textarea(
                 attrs={
-                    'class': 'form-control',
+                    'class': 'sb-textarea',
                     'rows': 3,
-                    'placeholder': 'Optional description'
+                    'placeholder': 'Optional description',
+                    'maxlength': 1000,
                 }
             ),
         }
@@ -45,6 +62,40 @@ class SubjectForm(forms.ModelForm):
         if not name:
             raise forms.ValidationError(
                 'Subject name is required.'
+            )
+
+        if len(name) > 100:
+            raise forms.ValidationError(
+                'Subject name must be 100 characters or fewer.'
+            )
+
+        # A unique constraint on (user, name) exists at the database
+        # level. Checking here turns a possible IntegrityError into
+        # a readable message.
+
+        duplicates = Subject.objects.filter(
+            name__iexact=name
+        )
+
+        # Only the current user's subjects matter, so another
+        # student using the same subject name is not blocked.
+
+        if self.user is not None:
+
+            duplicates = duplicates.filter(
+                user=self.user
+            )
+
+        if self.instance.pk:
+
+            duplicates = duplicates.exclude(
+                pk=self.instance.pk
+            )
+
+        if duplicates.exists():
+
+            raise forms.ValidationError(
+                'You already have a subject with this name.'
             )
 
         return name
@@ -72,41 +123,43 @@ class TaskForm(forms.ModelForm):
 
             'subject': forms.Select(
                 attrs={
-                    'class': 'form-select'
+                    'class': 'sb-select'
                 }
             ),
 
             'title': forms.TextInput(
                 attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Task title'
+                    'class': 'sb-input',
+                    'placeholder': 'Task title',
+                    'maxlength': 200,
                 }
             ),
 
             'description': forms.Textarea(
                 attrs={
-                    'class': 'form-control',
+                    'class': 'sb-textarea',
                     'rows': 4,
-                    'placeholder': 'Add details'
+                    'placeholder': 'Add details',
+                    'maxlength': 2000,
                 }
             ),
 
             'due_date': forms.DateInput(
                 attrs={
-                    'class': 'form-control',
+                    'class': 'sb-input',
                     'type': 'date'
                 }
             ),
 
             'priority': forms.Select(
                 attrs={
-                    'class': 'form-select'
+                    'class': 'sb-select'
                 }
             ),
 
             'status': forms.Select(
                 attrs={
-                    'class': 'form-select'
+                    'class': 'sb-select'
                 }
             ),
         }
@@ -161,6 +214,12 @@ class TaskForm(forms.ModelForm):
                 'Title is required.'
             )
 
+        if len(title) > 200:
+
+            raise forms.ValidationError(
+                'Title must be 200 characters or fewer.'
+            )
+
         return title
 
     def clean(self):
@@ -209,6 +268,45 @@ class TaskForm(forms.ModelForm):
 
 class NoteForm(forms.ModelForm):
 
+    # 25 MB. Large enough for scanned notes and slide decks,
+    # small enough to reject accidental video uploads.
+
+    MAX_ATTACHMENT_SIZE = (
+        25 * 1024 * 1024
+    )
+
+    ALLOWED_ATTACHMENT_EXTENSIONS = [
+        # Images
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'bmp',
+        'svg',
+
+        # Documents
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'ppt',
+        'pptx',
+        'txt',
+        'csv',
+        'md',
+        'rtf',
+    ]
+
+    attachment = forms.FileField(
+        required=False,
+        help_text=(
+            'Optional. PDF, Word, Excel, PowerPoint, text or '
+            'image files up to 25 MB.'
+        ),
+    )
+
     class Meta:
         model = Note
 
@@ -223,34 +321,38 @@ class NoteForm(forms.ModelForm):
 
             'subject': forms.Select(
                 attrs={
-                    'class': 'form-select'
+                    'class': 'sb-select'
                 }
             ),
 
             'title': forms.TextInput(
                 attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Note title'
+                    'class': 'sb-input',
+                    'placeholder': 'Note title',
+                    'maxlength': 200,
                 }
             ),
 
             'content': forms.Textarea(
                 attrs={
-                    'class': 'form-control',
+                    'class': 'sb-textarea',
                     'rows': 6,
-                    'placeholder': 'Write your note here...'
+                    'placeholder': 'Write your note here...',
                 }
             ),
 
             'attachment': forms.ClearableFileInput(
                 attrs={
-                    'class': 'form-control',
+                    'class': 'sb-input',
                     'accept': (
                         'image/*,'
                         '.pdf,'
                         '.doc,'
                         '.docx,'
                         '.txt,'
+                        '.md,'
+                        '.csv,'
+                        '.rtf,'
                         '.ppt,'
                         '.pptx,'
                         '.xls,'
@@ -285,6 +387,50 @@ class NoteForm(forms.ModelForm):
                 .order_by('name')
             )
 
+    def clean_attachment(self):
+
+        attachment = self.cleaned_data.get(
+            'attachment'
+        )
+
+        if not attachment:
+            return attachment
+
+        name_parts = attachment.name.rsplit(
+            '.',
+            1
+        )
+
+        extension = (
+            name_parts[-1].lower()
+            if len(name_parts) == 2
+            else ''
+        )
+
+        if extension not in self.ALLOWED_ATTACHMENT_EXTENSIONS:
+
+            allowed = ', '.join(
+                sorted(
+                    set(
+                        self.ALLOWED_ATTACHMENT_EXTENSIONS
+                    )
+                )
+            )
+
+            raise forms.ValidationError(
+                f'That file type is not supported. '
+                f'Allowed types: {allowed}.'
+            )
+
+        if attachment.size > self.MAX_ATTACHMENT_SIZE:
+
+            raise forms.ValidationError(
+                'File is too large. '
+                'Maximum size is 25 MB.'
+            )
+
+        return attachment
+
     def clean_title(self):
 
         title = self.cleaned_data.get(
@@ -296,6 +442,12 @@ class NoteForm(forms.ModelForm):
 
             raise forms.ValidationError(
                 'Title is required.'
+            )
+
+        if len(title) > 200:
+
+            raise forms.ValidationError(
+                'Title must be 200 characters or fewer.'
             )
 
         return title

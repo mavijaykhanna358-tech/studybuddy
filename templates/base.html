@@ -1,1203 +1,581 @@
+{% url 'set_language' as set_language_url %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html
+    lang="en"
+    data-theme="dark"
+>
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>StudyBuddy</title>
-
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
     >
 
-    <style>
-
-        /* =====================================================
-           GLOBAL
-        ===================================================== */
-
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --background: #f4f7fb;
-            --white: #ffffff;
-            --text: #172033;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --sidebar-width: 300px;
-            --radius: 16px;
-            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 100%;
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: var(--background);
-            color: var(--text);
-        }
-
-        body.mobile-nav-open {
-            overflow: hidden;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-
-
-        /* =====================================================
-           AUTHENTICATED APP
-        ===================================================== */
-
-        .app-layout {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-        }
-
-
-        /* =====================================================
-           SIDEBAR
-        ===================================================== */
-
-        .sidebar {
-            position: fixed;
-
-            top: 0;
-            left: 0;
-            bottom: 0;
-
-            width: var(--sidebar-width);
-
-            background: linear-gradient(
-                180deg,
-                #0f1f4d 0%,
-                #173b91 100%
-            );
-
-            color: white;
-
-            padding: 24px 16px;
-
-            display: flex;
-            flex-direction: column;
-
-            z-index: 1000;
-
-            box-shadow:
-                8px 0 25px rgba(15, 23, 42, 0.12);
-
-            transition:
-                transform 0.3s ease;
-        }
-
-
-        /* Sidebar brand */
-
-        .sidebar-header {
-            padding: 4px 8px 20px;
-        }
-
-        .sidebar-brand {
-            color: white;
-
-            font-size: 30px;
-
-            font-weight: 800;
-
-            letter-spacing: -1px;
-        }
-
-        .sidebar-brand:hover {
-            color: white;
-        }
-
-
-        /* Sidebar navigation */
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-
-            gap: 6px;
-
-            flex: 1;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-
-            min-height: 48px;
-
-            padding: 12px 14px;
-
-            border-radius: 12px;
-
-            color: rgba(255, 255, 255, 0.82);
-
-            font-size: 15px;
-
-            font-weight: 600;
-
-            transition:
-                background 0.2s ease,
-                color 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .sidebar-link:hover {
-            color: white;
-
-            background:
-                rgba(255, 255, 255, 0.12);
-
-            transform: translateX(3px);
-        }
-
-        .sidebar-link.active {
-            color: white;
-
-            background:
-                rgba(255, 255, 255, 0.16);
-        }
-
-
-        /* Logout */
-
-        .logout-box {
-            padding-top: 16px;
-
-            border-top:
-                1px solid rgba(255, 255, 255, 0.12);
-        }
-
-
-        /* =====================================================
-           MAIN AREA
-        ===================================================== */
-
-        .main-area {
-            width: calc(100% - var(--sidebar-width));
-
-            min-height: 100vh;
-
-            margin-left: var(--sidebar-width);
-
-            display: flex;
-            flex-direction: column;
-        }
-
-
-        /* =====================================================
-           MAIN CONTENT
-        ===================================================== */
-
-        .main-content {
-            width: 100%;
-
-            min-height: 100vh;
-
-            padding: 32px 40px 40px;
-        }
-
-        .content-shell {
-            width: 100%;
-
-            max-width: 1200px;
-
-            margin: 0 auto;
-        }
-
-
-        /* =====================================================
-           MOBILE TOP BAR
-        ===================================================== */
-
-        .mobile-topbar {
-            display: none;
-
-            width: 100%;
-
-            height: 64px;
-
-            padding: 0 16px;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--primary-dark),
-                    var(--primary)
-                );
-
-            color: white;
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 900;
-
-            box-shadow:
-                0 5px 20px rgba(37, 99, 235, 0.18);
-        }
-
-        .mobile-brand {
-            color: white;
-
-            font-size: 23px;
-
-            font-weight: 800;
-
-            letter-spacing: -0.5px;
-        }
-
-        .mobile-menu-toggle {
-            width: 42px;
-
-            height: 42px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            background: transparent;
-
-            color: white;
-
-            font-size: 26px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            cursor: pointer;
-        }
-
-        .mobile-menu-toggle:hover {
-            background:
-                rgba(255, 255, 255, 0.12);
-        }
-
-
-        /* =====================================================
-           MOBILE BACKDROP
-        ===================================================== */
-
-        .mobile-backdrop {
-            display: none;
-
-            position: fixed;
-
-            inset: 0;
-
-            background:
-                rgba(15, 23, 42, 0.50);
-
-            z-index: 950;
-
-            opacity: 0;
-
-            visibility: hidden;
-
-            transition:
-                opacity 0.25s ease,
-                visibility 0.25s ease;
-        }
-
-        body.mobile-nav-open .mobile-backdrop {
-            opacity: 1;
-
-            visibility: visible;
-        }
-
-
-        /* =====================================================
-           PAGE HEADER
-        ===================================================== */
-
-        .page-header {
-            width: 100%;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            gap: 16px;
-
-            margin-bottom: 24px;
-
-            flex-wrap: wrap;
-        }
-
-        .page-header h1,
-        .page-header h2,
-        .page-header h3,
-        .page-header h4 {
-            margin: 0;
-        }
-
-        .page-subtitle {
-            margin-top: 5px;
-
-            color: var(--muted);
-        }
-
-
-        /* =====================================================
-           CARDS
-        ===================================================== */
-
-        .card {
-            width: 100%;
-
-            background: var(--white);
-
-            border:
-                1px solid rgba(148, 163, 184, 0.18);
-
-            border-radius: var(--radius);
-
-            box-shadow: var(--shadow);
-
-            padding: 20px;
-
-            overflow-wrap: anywhere;
-        }
-
-
-        /* =====================================================
-           STATISTICS
-        ===================================================== */
-
-        .stat-grid {
-            width: 100%;
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 16px;
-
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            min-width: 0;
-
-            min-height: 140px;
-
-            padding: 20px;
-
-            background: white;
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 8px 22px
-                rgba(15, 23, 42, 0.06);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 14px 30px
-                rgba(15, 23, 42, 0.10);
-        }
-
-        .stat-card-label {
-            margin: 0;
-
-            color: var(--muted);
-
-            font-size: 14px;
-
-            font-weight: 600;
-        }
-
-        .stat-card-value {
-            margin: 8px 0 0;
-
-            font-size: 32px;
-
-            font-weight: 800;
-
-            color: var(--text);
-        }
-
-
-        /* =====================================================
-           BUTTONS
-        ===================================================== */
-
-        .btn {
-            border-radius: 10px;
-
-            font-weight: 600;
-        }
-
-
-        /* =====================================================
-           FORMS
-        ===================================================== */
-
-        .form-control,
-        .form-select,
-        textarea {
-            width: 100%;
-
-            max-width: 100%;
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 10px;
-
-            padding: 10px 12px;
-        }
-
-        .form-control:focus,
-        .form-select:focus,
-        textarea:focus {
-            border-color: var(--primary);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(37, 99, 235, 0.12);
-        }
-
-        .form-label {
-            font-weight: 600;
-        }
-
-
-        /* =====================================================
-           TABLE
-        ===================================================== */
-
-        .table-responsive {
-            width: 100%;
-
-            max-width: 100%;
-
-            overflow-x: auto;
-        }
-
-        .table {
-            min-width: 600px;
-        }
-
-
-        /* =====================================================
-           GUEST PAGES
-           LOGIN / REGISTER / FORGOT PASSWORD
-        ===================================================== */
-
-        .guest-layout {
-            width: 100%;
-
-            min-height: 100vh;
-        }
-
-        .main-content.is-guest {
-            width: 100%;
-
-            min-height: 100vh;
-
-            padding: 0;
-        }
-
-        .main-content.is-guest
-        .content-shell {
-            width: 100%;
-
-            max-width: 100%;
-
-            min-height: 100vh;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 30px 20px;
-        }
-
-
-        /* Login/register cards if used */
-
-        .auth-card {
-            width: 100%;
-
-            max-width: 500px;
-
-            margin: 0 auto;
-
-            background: white;
-
-            border-radius: 18px;
-
-            padding: 30px;
-
-            box-shadow:
-                0 15px 40px
-                rgba(15, 23, 42, 0.10);
-        }
-
-
-        /* =====================================================
-           MOBILE / TABLET
-        ===================================================== */
-
-        @media (max-width: 1023px) {
-
-            .sidebar {
-                width: min(300px, 82vw);
-
-                transform:
-                    translateX(-110%);
+    <title>{% block title %}StudyBuddy{% endblock %}</title>
+
+    <meta
+        name="description"
+        content="{% block description %}StudyBuddy keeps your subjects, tasks and notes in one place.{% endblock %}"
+    >
+
+{% load static %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/app.css' %}"
+    >
+
+    {% block styles %}{% endblock %}
+
+    <script>
+        /* Apply the saved theme before first paint so the page
+           never flashes the wrong palette. The library is dark by
+           default; "daylight" is the light alternative. */
+        (function () {
+            try {
+                var saved = localStorage.getItem('sb-theme');
+                if (saved === 'light' || saved === 'dark') {
+                    document.documentElement.dataset.theme = saved;
+                }
+            } catch (e) {
+                /* Storage can be blocked. Dark stays the default. */
             }
-
-            body.mobile-nav-open .sidebar {
-                transform:
-                    translateX(0);
-            }
-
-            .main-area {
-                width: 100%;
-
-                margin-left: 0;
-            }
-
-            .mobile-topbar {
-                display: flex;
-            }
-
-            .mobile-backdrop {
-                display: block;
-            }
-
-            .main-content {
-                width: 100%;
-
-                padding:
-                    24px 20px 32px;
-            }
-
-            .content-shell {
-                max-width: 100%;
-            }
-
-        }
-
-
-        /* =====================================================
-           TABLET
-        ===================================================== */
-
-        @media
-        (min-width: 768px)
-        and
-        (max-width: 1023px) {
-
-            .stat-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }
-
-        }
-
-
-        /* =====================================================
-           MOBILE
-        ===================================================== */
-
-        @media (max-width: 767px) {
-
-            .main-content {
-                padding:
-                    20px 16px 32px;
-            }
-
-            .stat-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-
-                gap: 10px;
-            }
-
-            .stat-card {
-                min-height: 115px;
-
-                padding: 14px;
-            }
-
-            .stat-card-value {
-                font-size: 25px;
-            }
-
-            .stat-card-label {
-                font-size: 12px;
-            }
-
-            .page-header {
-                align-items: flex-start;
-
-                flex-direction: column;
-            }
-
-            .page-header .btn {
-                width: 100%;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .auth-card {
-                padding: 22px 18px;
-            }
-
-            .main-content.is-guest
-            .content-shell {
-                padding:
-                    20px 12px;
-            }
-
-        }
-
-
-        /* =====================================================
-           VERY SMALL MOBILE
-        ===================================================== */
-
-        @media (max-width: 380px) {
-
-            .stat-grid {
-                grid-template-columns:
-                    1fr 1fr;
-            }
-
-            .stat-card {
-                padding: 11px;
-            }
-
-            .stat-card-value {
-                font-size: 22px;
-            }
-
-            .mobile-brand {
-                font-size: 20px;
-            }
-
-        }
-
-
-        /* =====================================================
-           DESKTOP
-        ===================================================== */
-
-        @media (min-width: 1024px) {
-
-            .sidebar {
-                transform:
-                    translateX(0);
-            }
-
-            .mobile-topbar,
-            .mobile-backdrop {
-                display: none;
-            }
-
-        }
-
-    </style>
+        })();
+    </script>
 
 </head>
 
-
 <body>
 
+<a
+    href="#sb-main"
+    class="sb-skip-link"
+>
+    Skip to content
+</a>
 
-<!-- =========================================================
-     MAIN APPLICATION WRAPPER
-========================================================= -->
-
-<div class="{% if user.is_authenticated %}app-layout{% else %}guest-layout{% endif %}">
-
-
-    <!-- =====================================================
-         AUTHENTICATED USER
-    ===================================================== -->
-
-    {% if user.is_authenticated %}
+{% include "includes/toasts.html" %}
 
 
-        <!-- =================================================
-             SIDEBAR
-        ================================================= -->
+<div class="{% if user.is_authenticated %}sb-shell{% else %}sb-guest{% endif %}">
 
-        <aside class="sidebar">
+{% if user.is_authenticated %}
 
-            <div class="sidebar-header">
+    <!-- =================================================
+         SIDEBAR
+    ================================================= -->
 
-                <a
-                    href="{% url 'dashboard' %}"
-                    class="sidebar-brand"
-                >
-                    StudyBuddy
-                </a>
+    <aside
+        class="sb-sidebar"
+        id="sbSidebar"
+    >
 
+        <div class="sb-sidebar__brand">
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="sb-logo"
+                aria-label="StudyBuddy home"
+            >
+                <span class="sb-logo__mark" aria-hidden="true">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 3.2 7.4 12 11.8l8.8-4.4L12 3Z"/>
+                        <path d="M6.4 9.2v5.1c0 1.6 2.5 3.1 5.6 3.1s5.6-1.5 5.6-3.1V9.2"/>
+                        <path d="M20.8 7.4v6.1"/>
+                    </svg>
+                </span>
+
+                <span class="sb-logo__text">
+                    <b>StudyBuddy</b>
+                    <span>The Study Sanctum</span>
+                </span>
+            </a>
+
+            <button
+                type="button"
+                class="sb-sidebar__close"
+                data-sb-close-nav
+                aria-label="Close navigation"
+            >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                    <path d="M6 6 18 18M18 6 6 18"/>
+                </svg>
+            </button>
+
+        </div>
+
+
+        <nav
+            class="sb-nav"
+            aria-label="Main"
+        >
+
+            <span class="sb-nav__label">Study Hall</span>
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="sb-nav__link {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}"
+            >
+                <svg class="sb-nav__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3.5 10.4 12 3.6l8.5 6.8"/>
+                    <path d="M5.6 9.2V19a1.4 1.4 0 0 0 1.4 1.4h10a1.4 1.4 0 0 0 1.4-1.4V9.2"/>
+                    <path d="M9.8 20.4v-5.6h4.4v5.6"/>
+                </svg>
+                <span class="sb-nav__label">Dashboard</span>
+            </a>
+
+            <a
+                href="{% url 'subjects' %}"
+                class="sb-nav__link {% if request.resolver_match.url_name == 'subjects' or request.resolver_match.url_name == 'subject_detail' or request.resolver_match.url_name == 'subject_create' or request.resolver_match.url_name == 'subject_edit' %}is-active{% endif %}"
+            >
+                <svg class="sb-nav__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 4.6A1.6 1.6 0 0 1 5.6 3H10a2.4 2.4 0 0 1 2 1.1A2.4 2.4 0 0 1 14 3h4.4A1.6 1.6 0 0 1 20 4.6v13a1.6 1.6 0 0 1-1.6 1.6H14a2.4 2.4 0 0 0-2 1.1 2.4 2.4 0 0 0-2-1.1H5.6A1.6 1.6 0 0 1 4 17.6Z"/>
+                    <path d="M12 4.1v16.2"/>
+                </svg>
+                <span class="sb-nav__label">Subjects</span>
+            </a>
+
+            <a
+                href="{% url 'tasks' %}"
+                class="sb-nav__link {% if request.resolver_match.url_name == 'tasks' or request.resolver_match.url_name == 'task_detail' or request.resolver_match.url_name == 'task_create' or request.resolver_match.url_name == 'task_edit' %}is-active{% endif %}"
+            >
+                <svg class="sb-nav__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3"/>
+                    <path d="m8 12.2 2.6 2.6L16.4 9"/>
+                </svg>
+                <span class="sb-nav__label">Tasks</span>
+            </a>
+
+            <a
+                href="{% url 'notes' %}"
+                class="sb-nav__link {% if request.resolver_match.url_name == 'notes' or request.resolver_match.url_name == 'note_detail' or request.resolver_match.url_name == 'note_create' or request.resolver_match.url_name == 'note_edit' %}is-active{% endif %}"
+            >
+                <svg class="sb-nav__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 3.2h8.4L19 7.8V20.8H6Z"/>
+                    <path d="M14 3.2v4.6h5"/>
+                    <path d="M9 12.6h6M9 16.2h4.4"/>
+                </svg>
+                <span class="sb-nav__label">Notes</span>
+            </a>
+
+            <a
+                href="{% url 'profile' %}"
+                class="sb-nav__link {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}"
+            >
+                <svg class="sb-nav__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8.4" r="3.9"/>
+                    <path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"/>
+                </svg>
+                <span class="sb-nav__label">Profile</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sb-sidebar__footer">
+
+            <div class="sb-badge-row">
+                <span class="sb-badge sb-badge--progress">
+                    {% if sb_streak > 0 %}
+                        {{ sb_streak }} day streak
+                    {% else %}
+                        Start a streak today
+                    {% endif %}
+                </span>
             </div>
 
+            <div class="sb-sidebar__tools">
 
-            <nav class="sidebar-nav">
-
-
-                <!-- Dashboard -->
-
-                <a
-                    href="{% url 'dashboard' %}"
-                    class="sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}"
+                <button
+                    type="button"
+                    class="sb-btn sb-btn--sm sb-btn--quiet"
+                    data-sb-theme-toggle
+                    aria-label="Switch between the dark library and daylight theme"
                 >
-                    Dashboard
-                </a>
-
-
-                <!-- Subjects -->
-
-                <a
-                    href="{% url 'subjects' %}"
-                    class="sidebar-link {% if '/subjects/' in request.path %}active{% endif %}"
-                >
-                    Subjects
-                </a>
-
-
-                <!-- Tasks -->
-
-                <a
-                    href="{% url 'tasks' %}"
-                    class="sidebar-link {% if '/tasks/' in request.path %}active{% endif %}"
-                >
-                    Tasks
-                </a>
-
-
-                <!-- Notes -->
-
-                <a
-                    href="{% url 'notes' %}"
-                    class="sidebar-link {% if '/notes/' in request.path %}active{% endif %}"
-                >
-                    Notes
-                </a>
-
-
-                <!-- Profile -->
-
-                <a
-                    href="{% url 'profile' %}"
-                    class="sidebar-link {% if '/profile/' in request.path %}active{% endif %}"
-                >
-                    Profile
-                </a>
-
-
-            </nav>
-
-
-            <!-- Logout -->
-
-            <div class="logout-box">
+                    <svg class="sb-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M5.6 5.6 4 4M20 20l-1.6-1.6M5.6 18.4 4 20M20 4l-1.6 1.6"/>
+                    </svg>
+                    <svg class="sb-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20.4 14.4A8.6 8.6 0 0 1 9.6 3.6a8.8 8.8 0 1 0 10.8 10.8Z"/>
+                    </svg>
+                    <span data-sb-theme-label>Daylight</span>
+                </button>
 
                 <form
                     method="post"
                     action="{% url 'logout' %}"
                 >
-
                     {% csrf_token %}
-
                     <button
                         type="submit"
-                        class="btn btn-light w-100"
+                        class="sb-btn sb-btn--sm sb-btn--quiet"
                     >
-                        Logout
+                        Sign out
                     </button>
-
                 </form>
 
             </div>
 
-        </aside>
+        </div>
 
+    </aside>
+
+    <div
+        class="sb-backdrop"
+        data-sb-close-nav
+        hidden="true"
+    ></div>
+
+
+    <div class="sb-main">
 
         <!-- =================================================
-             MAIN AREA
+             TOP BAR
         ================================================= -->
 
-        <div class="main-area">
+        <header class="sb-topbar">
+
+            <button
+                type="button"
+                class="sb-icon-btn sb-topbar__menu"
+                data-sb-open-nav
+                aria-label="Open navigation"
+                aria-controls="sbSidebar"
+            >
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                    <path d="M3.6 6.6h16.8M3.6 12h16.8M3.6 17.4h16.8"/>
+                </svg>
+            </button>
 
 
-            <!-- Mobile navbar -->
+            <form
+                class="sb-search"
+                method="get"
+                action="{% url 'search' %}"
+                role="search"
+            >
+                <label class="sb-sr" for="sbGlobalSearch">Search your subjects, tasks and notes</label>
 
-            <div class="mobile-topbar">
+                <svg class="sb-search__icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="6.6"/>
+                    <path d="m16 16 4.4 4.4"/>
+                </svg>
 
-                <button
-                    type="button"
-                    class="mobile-menu-toggle"
-                    aria-label="Open menu"
-                    aria-expanded="false"
+                <input
+                    id="sbGlobalSearch"
+                    class="sb-search__input"
+                    type="search"
+                    name="q"
+                    value="{{ request.GET.q|default:'' }}"
+                    placeholder="Search subjects, tasks, notes..."
+                    autocomplete="off"
                 >
-                    ☰
-                </button>
+
+                <kbd aria-hidden="true">/</kbd>
+            </form>
 
 
-                <div class="mobile-brand">
-                    StudyBuddy
-                </div>
+            <div class="sb-topbar__right">
+
+                <span
+                    class="sb-streak"
+                    title="{% if sb_streak > 0 %}You completed at least one task on {{ sb_streak }} consecutive day{{ sb_streak|pluralize }}{% else %}Complete a task today to start a streak{% endif %}"
+                >
+                    <svg class="sb-streak__flame" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 2.8s5.6 4.2 5.6 9.4a5.6 5.6 0 0 1-11.2 0c0-1.9 1-3.5 1-3.5s.9 1.6 2 1.6c1.3 0 .6-4.2 2.6-7.5Z"/>
+                    </svg>
+
+                    <span class="sb-streak__value">{{ sb_streak }}</span>
+                    <span class="sb-streak__label">day streak</span>
+                </span>
 
 
-                <div style="width:42px;"></div>
+                <details class="sb-bell">
 
-            </div>
-
-
-            <!-- Mobile background overlay -->
-
-            <div class="mobile-backdrop"></div>
-
-
-    {% endif %}
-
-
-    <!-- =====================================================
-         MAIN CONTENT
-
-         IMPORTANT:
-         THERE IS ONLY ONE BLOCK CONTENT
-    ===================================================== -->
-
-    <main
-        class="main-content {% if not user.is_authenticated %}is-guest{% endif %}"
-    >
-
-        <div class="content-shell">
-
-
-            <!-- Django messages -->
-
-            {% if messages %}
-
-                {% for message in messages %}
-
-                    <div
-                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
-                        role="alert"
+                    <summary
+                        class="sb-icon-btn sb-bell__icon"
+                        aria-label="{% if sb_alert_count %}{{ sb_alert_count }} open task{{ sb_alert_count|pluralize }} need{{ sb_alert_count|pluralize:"s," }} attention{% else %}Notifications{% endif %}"
                     >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-2 6.6-2 6.6h16s-2-1.4-2-6.6Z"/>
+                            <path d="M13.7 19a2 2 0 0 1-3.4 0"/>
+                        </svg>
 
-                        {{ message }}
+                        {% if sb_alert_count %}
+                            <span class="sb-bell__badge">{{ sb_alert_count }}</span>
+                        {% endif %}
+                    </summary>
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"
-                        ></button>
+                    <div class="sb-bell__panel">
+
+                        <p class="sb-bell__head">
+                            <span>Alerts</span>
+                            <span>{{ sb_alert_count }} open</span>
+                        </p>
+
+                        {% if sb_notifications %}
+
+                            <ul class="sb-bell__list">
+
+                                {% for note in sb_notifications %}
+                                    <li>
+                                        <a
+                                            class="sb-bell__item"
+                                            href="{{ note.url }}"
+                                        >
+                                            <span
+                                                class="sb-bell__pip sb-bell__pip--{{ note.tone }}"
+                                                aria-hidden="true"
+                                            ></span>
+
+                                            <span>
+                                                <span class="sb-bell__count">
+                                                    {{ note.count }}
+                                                </span>
+                                                <span class="sb-bell__text">
+                                                    {{ note.title }}
+                                                    &middot;
+                                                    {{ note.detail }}
+                                                </span>
+                                            </span>
+
+                                            <span class="sb-bell__action">
+                                                {{ note.action }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+
+                            </ul>
+
+                        {% else %}
+
+                            <p class="sb-bell__empty">
+                                Nothing needs you right now.
+                            </p>
+
+                        {% endif %}
 
                     </div>
 
-                {% endfor %}
-
-            {% endif %}
+                </details>
 
 
-            <!-- =================================================
-                 CHILD PAGE CONTENT
+                <a
+                    href="{% url 'profile' %}"
+                    class="sb-user"
+                >
+                    <span class="sb-avatar sb-avatar--sm" aria-hidden="true">
+                        {{ user.get_short_name|default:user.username|slice:":1" }}
+                    </span>
+                    <span class="sb-user__meta">
+                        <span class="sb-user__name">
+                            {{ user.get_short_name|default:user.username }}
+                        </span>
+                        <span class="sb-user__mail">
+                            {{ user.email|default:user.username }}
+                        </span>
+                    </span>
+                </a>
 
-                 DO NOT ADD ANOTHER BLOCK ANYWHERE
-            ================================================== -->
+            </div>
 
-            {% block content %}
-            {% endblock %}
+        </header>
+
+{% else %}
+
+    <!-- =================================================
+         GUEST LAYOUT: no sidebar and no top bar, so the
+         sign in and sign up pages own the whole screen.
+    ================================================= -->
+
+    <div class="sb-main">
+
+{% endif %}
 
 
-        </div>
+        <main
+            class="sb-content"
+            id="sb-main"
+        >
+            <div class="sb-container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
 
-    </main>
-
-
-    <!-- =====================================================
-         CLOSE AUTHENTICATED MAIN AREA
-    ===================================================== -->
-
-    {% if user.is_authenticated %}
-
-        </div>
-
-    {% endif %}
-
+    </div>
 
 </div>
 
-
-<!-- =========================================================
-     BOOTSTRAP JS
-========================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
-
-
-<!-- =========================================================
-     MOBILE MENU JAVASCRIPT
-========================================================= -->
-
 <script>
+    /* Small, dependency free behaviour only: the mobile drawer,
+       the theme switch, dismissing a toast, and the "/" shortcut
+       for the search box. */
+    (function () {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+        var root = document.documentElement;
+        var body = document.body;
 
+        /* ---- Theme ---- */
 
-        const menuButton =
-            document.querySelector(
-                ".mobile-menu-toggle"
-            );
+        var themeButtons = document.querySelectorAll(
+            '[data-sb-theme-toggle]'
+        );
 
+        function syncThemeButton() {
 
-        const backdrop =
-            document.querySelector(
-                ".mobile-backdrop"
-            );
+            var light = root.dataset.theme === 'light';
 
+            themeButtons.forEach(function (button) {
 
-        const sidebar =
-            document.querySelector(
-                ".sidebar"
-            );
-
-
-        const sidebarLinks =
-            document.querySelectorAll(
-                ".sidebar-link"
-            );
-
-
-        /* ================================================
-           OPEN / CLOSE MOBILE MENU
-        ================================================= */
-
-        if (menuButton) {
-
-            menuButton.addEventListener(
-                "click",
-                function () {
-
-
-                    const isOpen =
-                        document.body.classList.toggle(
-                            "mobile-nav-open"
-                        );
-
-
-                    menuButton.setAttribute(
-                        "aria-expanded",
-                        String(isOpen)
-                    );
-
-
-                }
-            );
-
-        }
-
-
-        /* ================================================
-           CLICK OUTSIDE SIDEBAR
-        ================================================= */
-
-        if (backdrop) {
-
-            backdrop.addEventListener(
-                "click",
-                function () {
-
-
-                    document.body.classList.remove(
-                        "mobile-nav-open"
-                    );
-
-
-                    if (menuButton) {
-
-                        menuButton.setAttribute(
-                            "aria-expanded",
-                            "false"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        /* ================================================
-           CLOSE MENU AFTER CLICKING LINK
-        ================================================= */
-
-        sidebarLinks.forEach(
-            function (link) {
-
-                link.addEventListener(
-                    "click",
-                    function () {
-
-
-                        if (
-                            window.innerWidth <= 1023
-                        ) {
-
-                            document.body.classList.remove(
-                                "mobile-nav-open"
-                            );
-
-
-                            if (menuButton) {
-
-                                menuButton.setAttribute(
-                                    "aria-expanded",
-                                    "false"
-                                );
-
-                            }
-
-                        }
-
-                    }
+                var label = button.querySelector(
+                    '[data-sb-theme-label]'
                 );
 
-            }
-        );
+                button.querySelector('.sb-icon-sun').hidden = light;
+                button.querySelector('.sb-icon-moon').hidden = !light;
 
+                if (label) {
+                    label.textContent = light ? 'Lantern' : 'Daylight';
+                }
+            });
+        }
 
-        /* ================================================
-           CLOSE MENU WITH ESC
-        ================================================= */
+        themeButtons.forEach(function (button) {
 
-        document.addEventListener(
-            "keydown",
-            function (event) {
+            button.addEventListener('click', function () {
 
+                var next = root.dataset.theme === 'light'
+                    ? 'dark'
+                    : 'light';
 
-                if (
-                    event.key === "Escape"
-                ) {
+                root.dataset.theme = next;
 
-
-                    document.body.classList.remove(
-                        "mobile-nav-open"
-                    );
-
-
-                    if (menuButton) {
-
-                        menuButton.setAttribute(
-                            "aria-expanded",
-                            "false"
-                        );
-
-                    }
-
+                try {
+                    localStorage.setItem('sb-theme', next);
+                } catch (e) {
+                    /* Private mode. The theme still applies. */
                 }
 
+                syncThemeButton();
+            });
+        });
+
+        syncThemeButton();
+
+        /* ---- Mobile drawer ---- */
+
+        var backdrop = document.querySelector('.sb-backdrop');
+
+        function setNav(open) {
+
+            body.classList.toggle('sb-nav-open', open);
+
+            if (backdrop) {
+                backdrop.hidden = !open;
             }
-        );
+        }
 
-
-        /* ================================================
-           RESET MOBILE MENU ON DESKTOP
-        ================================================= */
-
-        window.addEventListener(
-            "resize",
-            function () {
-
-
-                if (
-                    window.innerWidth >= 1024
-                ) {
-
-
-                    document.body.classList.remove(
-                        "mobile-nav-open"
-                    );
-
-
-                    if (menuButton) {
-
-                        menuButton.setAttribute(
-                            "aria-expanded",
-                            "false"
-                        );
-
+        document.querySelectorAll('[data-sb-open-nav]').forEach(
+            function (button) {
+                button.addEventListener(
+                    'click',
+                    function () {
+                        setNav(true);
                     }
-
-                }
-
+                );
             }
         );
 
+        document.querySelectorAll('[data-sb-close-nav]').forEach(
+            function (button) {
+                button.addEventListener(
+                    'click',
+                    function () {
+                        setNav(false);
+                    }
+                );
+            }
+        );
 
-    }
-);
+        document.addEventListener('keydown', function (event) {
 
+            if (event.key === 'Escape') {
+                setNav(false);
+            }
+        });
+
+        /* ---- Close the alert panel on an outside click ---- */
+
+        var bell = document.querySelector('.sb-bell');
+
+        if (bell) {
+
+            document.addEventListener('click', function (event) {
+
+                if (bell.open && !bell.contains(event.target)) {
+                    bell.open = false;
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+
+                if (event.key === 'Escape' && bell.open) {
+                    bell.open = false;
+                    bell.querySelector('summary').focus();
+                }
+            });
+        }
+
+        /* ---- Dismiss toasts ---- */
+
+        document.querySelectorAll('.sb-alert__close').forEach(
+            function (button) {
+
+                button.addEventListener('click', function () {
+
+                    var alert = button.closest('.sb-alert');
+
+                    if (alert) {
+                        alert.remove();
+                    }
+                });
+            }
+        );
+
+        /* ---- "/" focuses search ---- */
+
+        var searchInput = document.getElementById('sbGlobalSearch');
+
+        document.addEventListener('keydown', function (event) {
+
+            var tag = (event.target.tagName || '').toLowerCase();
+
+            if (event.key !== '/' || event.metaKey || event.ctrlKey) {
+                return;
+            }
+
+            if (tag === 'input' || tag === 'textarea' ||
+                tag === 'select') {
+                return;
+            }
+
+            if (!searchInput) {
+                return;
+            }
+
+            event.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        });
+
+    })();
 </script>
 
+{% block scripts %}{% endblock %}
 
 </body>
-
 </html>

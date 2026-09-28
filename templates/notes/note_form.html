@@ -1,180 +1,107 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {% if note %}Edit {{ note.title }}{% else %}New note{% endif %} - StudyBuddy
+{% endblock %}
+
 {% block content %}
 
-<style>
 
-.note-form-page {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px 0 40px;
-}
-
-.note-form-card {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 32px;
-    box-shadow: 0 4px 18px rgba(50, 90, 140, 0.08);
-}
-
-.note-form-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #172033;
-    margin-bottom: 6px;
-}
-
-.note-form-subtitle {
-    color: #64748b;
-    font-size: 14px;
-    margin-bottom: 28px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #334155;
-    margin-bottom: 7px;
-}
-
-.form-control,
-.form-select {
-    width: 100%;
-    border-radius: 10px;
-}
-
-.attachment-help {
-    margin-top: 7px;
-    color: #64748b;
-    font-size: 13px;
-}
-
-.current-attachment {
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #475569;
-    font-size: 14px;
-    word-break: break-word;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 28px;
-    flex-wrap: wrap;
-}
-
-.form-actions .btn {
-    min-width: 110px;
-}
-
-.error-message {
-    color: #dc3545;
-    font-size: 13px;
-    margin-top: 5px;
-}
-
-@media (max-width: 576px) {
-
-    .note-form-page {
-        padding: 10px 0 30px;
-    }
-
-    .note-form-card {
-        padding: 22px 18px;
-    }
-
-    .note-form-title {
-        font-size: 25px;
-    }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .form-actions .btn {
-        width: 100%;
-    }
-
-}
-
-</style>
+<a
+    href="{% if note %}{% url 'note_detail' note.pk %}{% else %}{% url 'notes' %}{% endif %}"
+    class="sb-backlink"
+>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M11 18l-6-6 6-6"></path></svg>
+    {% if note %}Back to note{% else %}Back to notes{% endif %}
+</a>
 
 
-<div class="note-form-page">
-
-    <div class="note-form-card">
+<div class="sb-narrow">
 
 
-        {% if note %}
+    <div class="sb-page-head">
 
-            <h1 class="note-form-title">
-                Edit Note
+        <div>
+
+            <span class="sb-page-head__eyebrow">
+                {% if note %}Editing{% else %}New{% endif %}
+            </span>
+
+            <h1>
+                {% if note %}
+                    Edit note
+                {% else %}
+                    Create a note
+                {% endif %}
             </h1>
 
-            <p class="note-form-subtitle">
-                Update your note or replace its attachment.
+            <p>
+                Write it out and attach the slides to go with it.
             </p>
 
-        {% else %}
+        </div>
 
-            <h1 class="note-form-title">
-                Add Note
-            </h1>
-
-            <p class="note-form-subtitle">
-                Create a note and optionally attach a file.
-            </p>
-
-        {% endif %}
+    </div>
 
 
-        <!-- =================================================
-             IMPORTANT:
-             enctype is required for file uploads
-        ================================================== -->
+    <section class="sb-card sb-card--pad-lg">
 
         <form
             method="post"
             enctype="multipart/form-data"
+            novalidate
         >
 
             {% csrf_token %}
 
 
-            <!-- =================================================
-                 FORM ERRORS
-            ================================================== -->
-
             {% if form.non_field_errors %}
 
-                <div class="alert alert-danger">
+                <div class="sb-form-error" role="alert">
 
-                    {{ form.non_field_errors }}
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
 
                 </div>
 
             {% endif %}
 
 
-            <!-- =================================================
-                 SUBJECT
-            ================================================== -->
+            <!-- =============================================
+                 TITLE
+            ============================================= -->
 
-            <div class="form-group">
+            <div class="sb-field {% if form.title.errors %}has-error{% endif %}">
 
                 <label
+                    class="sb-label"
+                    for="{{ form.title.id_for_label }}"
+                >
+                    Title
+                    <span class="sb-required">*</span>
+                </label>
+
+                {{ form.title }}
+
+                {% for error in form.title.errors %}
+                    <p class="sb-error-text">{{ error }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <!-- =============================================
+                 SUBJECT
+            ============================================= -->
+
+            <div class="sb-field {% if form.subject.errors %}has-error{% endif %}">
+
+                <label
+                    class="sb-label"
                     for="{{ form.subject.id_for_label }}"
-                    class="form-label"
                 >
                     Subject
                 </label>
@@ -182,160 +109,99 @@
                 {{ form.subject }}
 
                 {% for error in form.subject.errors %}
-
-                    <div class="error-message">
-                        {{ error }}
-                    </div>
-
+                    <p class="sb-error-text">{{ error }}</p>
                 {% endfor %}
 
             </div>
 
 
-            <!-- =================================================
-                 TITLE
-            ================================================== -->
-
-            <div class="form-group">
-
-                <label
-                    for="{{ form.title.id_for_label }}"
-                    class="form-label"
-                >
-                    Note Title
-                </label>
-
-                {{ form.title }}
-
-                {% for error in form.title.errors %}
-
-                    <div class="error-message">
-                        {{ error }}
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-
-            <!-- =================================================
+            <!-- =============================================
                  CONTENT
-            ================================================== -->
+            ============================================= -->
 
-            <div class="form-group">
+            <div class="sb-field {% if form.content.errors %}has-error{% endif %}">
 
                 <label
+                    class="sb-label"
                     for="{{ form.content.id_for_label }}"
-                    class="form-label"
                 >
-                    Note Content
+                    Content
+                    <span class="sb-required">*</span>
                 </label>
 
                 {{ form.content }}
 
                 {% for error in form.content.errors %}
-
-                    <div class="error-message">
-                        {{ error }}
-                    </div>
-
+                    <p class="sb-error-text">{{ error }}</p>
                 {% endfor %}
 
             </div>
 
 
-            <!-- =================================================
+            <!-- =============================================
                  ATTACHMENT
-            ================================================== -->
+            ============================================= -->
 
-            <div class="form-group">
+            <div class="sb-field {% if form.attachment.errors %}has-error{% endif %}">
 
                 <label
+                    class="sb-label"
                     for="{{ form.attachment.id_for_label }}"
-                    class="form-label"
                 >
                     Attachment
                 </label>
 
-                {{ form.attachment }}
-
-                <div class="attachment-help">
-                    You can upload images, PDF files, Word documents,
-                    Excel files, PowerPoint files, text files and other documents.
-                </div>
-
-
-                {% if note and note.attachment %}
-
-                    <div class="current-attachment">
-
-                        <strong>
-                            Current file:
-                        </strong>
-
-                        {{ note.attachment.name }}
-
-                    </div>
-
+                {% if note.attachment %}
+                    <p class="sb-help sb-mb-0">
+                        Current file:
+                        <strong>{{ note.attachment.name|cut:"notes/" }}</strong>.
+                        Uploading a new file replaces it.
+                    </p>
                 {% endif %}
 
+                {{ form.attachment }}
 
                 {% for error in form.attachment.errors %}
-
-                    <div class="error-message">
-                        {{ error }}
-                    </div>
-
+                    <p class="sb-error-text">{{ error }}</p>
                 {% endfor %}
+
+                {% if form.attachment.help_text %}
+                    <p class="sb-help">
+                        {{ form.attachment.help_text }}
+                    </p>
+                {% endif %}
 
             </div>
 
 
-            <!-- =================================================
-                 BUTTONS
-            ================================================== -->
-
-            <div class="form-actions">
+            <div class="sb-form-actions">
 
                 <button
                     type="submit"
-                    class="btn btn-primary"
+                    class="sb-btn sb-btn--primary sb-btn--lg"
                 >
                     {% if note %}
-                        Update Note
+                        Save changes
                     {% else %}
-                        Save Note
+                        Create note
                     {% endif %}
                 </button>
 
 
-                {% if note %}
-
-                    <a
-                        href="{% url 'note_detail' note.pk %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'notes' %}"
-                        class="btn btn-outline-secondary"
-                    >
-                        Cancel
-                    </a>
-
-                {% endif %}
+                <a
+                    href="{% if note %}{% url 'note_detail' note.pk %}{% else %}{% url 'notes' %}{% endif %}"
+                    class="sb-btn sb-btn--ghost sb-btn--lg"
+                >
+                    Cancel
+                </a>
 
             </div>
 
-
         </form>
 
-    </div>
+    </section>
 
 </div>
+
 
 {% endblock %}

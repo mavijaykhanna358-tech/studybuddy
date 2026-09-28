@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if q %}Search: {{ q }} - {% endif %}StudyBuddy
+{% endblock %}
+
+{% block content %}
+
+
+<div class="sb-narrow">
+
+    <div class="sb-page-head">
+        <div>
+            <span class="sb-page-head__eyebrow">The Archive</span>
+            <h1>
+                {% if q %}
+                    Results for &ldquo;{{ q }}&rdquo;
+                {% else %}
+                    Search
+                {% endif %}
+            </h1>
+        </div>
+
+        <div class="sb-page-head__actions">
+            <a href="{% url 'dashboard' %}" class="sb-btn sb-btn--quiet">Dashboard</a>
+        </div>
+    </div>
+
+
+    <form
+        method="get"
+        role="search"
+        class="sb-toolbar"
+    >
+        <div class="sb-toolbar__search">
+            <label class="sb-sr" for="sbSearchInput">Search subjects, tasks and notes</label>
+
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.6"/>
+                <path d="m16 16 4.4 4.4"/>
+            </svg>
+
+            <input
+                id="sbSearchInput"
+                class="sb-input"
+                type="search"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search subjects, tasks, notes..."
+                autocomplete="off"
+                autofocus
+            >
+        </div>
+
+        <button type="submit" class="sb-btn sb-btn--primary">Search</button>
+
+        {% if q %}
+            <a href="{% url 'search' %}" class="sb-btn sb-btn--quiet">Clear</a>
+        {% endif %}
+    </form>
+
+
+    {% if q %}
+
+        <p class="sb-sub" style="margin-bottom:18px">
+            {% if total %}
+                {{ total }} match{{ total|pluralize:"es" }} across your subjects,
+                tasks and notes. The five most recent of each kind are listed.
+            {% else %}
+                Nothing in your library matches &ldquo;{{ q }}&rdquo;.
+            {% endif %}
+        </p>
+
+
+        <!-- ---------- Subjects ---------- -->
+
+        <section class="sb-card" style="margin-bottom:18px">
+
+            <header class="sb-card__head">
+                <h2 class="sb-card__title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 4.6A1.6 1.6 0 0 1 5.6 3H10a2.4 2.4 0 0 1 2 1.1A2.4 2.4 0 0 1 14 3h4.4A1.6 1.6 0 0 1 20 4.6v13a1.6 1.6 0 0 1-1.6 1.6H14a2.4 2.4 0 0 0-2 1.1 2.4 2.4 0 0 0-2-1.1H5.6A1.6 1.6 0 0 1 4 17.6Z"/>
+                        <path d="M12 4.1v16.2"/>
+                    </svg>
+                    Subjects
+                </h2>
+                <span class="sb-badge">{{ results.subjects.count }}</span>
+            </header>
+
+            {% if results.subjects %}
+
+                <div class="sb-list">
+                    {% for subject in results.subjects %}
+                        <div class="sb-list-row">
+                            <div class="sb-list-row__body">
+                                <a
+                                    href="{% url 'subject_detail' subject.pk %}"
+                                    class="sb-list-row__title"
+                                >
+                                    {{ subject.name }}
+                                </a>
+                                {% if subject.description %}
+                                    <div class="sb-list-row__meta sb-clamp-1">
+                                        {{ subject.description }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="sb-list-row__end">
+                                <a
+                                    href="{% url 'subject_detail' subject.pk %}"
+                                    class="sb-btn sb-btn--sm sb-btn--ghost"
+                                >
+                                    Open
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <p class="sb-inline-empty">No subject matches.</p>
+            {% endif %}
+
+        </section>
+
+
+        <!-- ---------- Tasks ---------- -->
+
+        <section class="sb-card" style="margin-bottom:18px">
+
+            <header class="sb-card__head">
+                <h2 class="sb-card__title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3"/>
+                        <path d="m8 12.2 2.6 2.6L16.4 9"/>
+                    </svg>
+                    Tasks
+                </h2>
+                <span class="sb-badge">{{ results.tasks.count }}</span>
+            </header>
+
+            {% if results.tasks %}
+
+                <div class="sb-list">
+                    {% for task in results.tasks %}
+                        <div class="sb-list-row">
+                            <span
+                                class="sb-list-row__marker sb-list-row__marker--{{ task.priority|lower }}"
+                                aria-hidden="true"
+                            ></span>
+
+                            <div class="sb-list-row__body">
+                                <a
+                                    href="{% url 'task_detail' task.pk %}"
+                                    class="sb-list-row__title"
+                                >
+                                    {{ task.title }}
+                                </a>
+                                <div class="sb-list-row__meta">
+                                    <span>{{ task.subject.name|default:"No subject" }}</span>
+                                    <span>&middot;</span>
+                                    <span>{{ task.get_status_display }}</span>
+                                    {% if task.due_date %}
+                                        <span>&middot;</span>
+                                        <span>{{ task.due_date|date:"j M Y" }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="sb-list-row__end">
+                                <span class="sb-badge sb-badge--{{ task.priority|lower }}">
+                                    {{ task.priority }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <p class="sb-inline-empty">No task matches.</p>
+            {% endif %}
+
+        </section>
+
+
+        <!-- ---------- Notes ---------- -->
+
+        <section class="sb-card">
+
+            <header class="sb-card__head">
+                <h2 class="sb-card__title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 3.2h8.4L19 7.8V20.8H6Z"/>
+                        <path d="M14 3.2v4.6h5"/>
+                    </svg>
+                    Notes
+                </h2>
+                <span class="sb-badge">{{ results.notes.count }}</span>
+            </header>
+
+            {% if results.notes %}
+
+                <div class="sb-list">
+                    {% for note in results.notes %}
+                        <div class="sb-list-row">
+                            <div class="sb-list-row__body">
+                                <a
+                                    href="{% url 'note_detail' note.pk %}"
+                                    class="sb-list-row__title"
+                                >
+                                    {{ note.title }}
+                                </a>
+                                <div class="sb-list-row__meta">
+                                    <span>{{ note.subject.name|default:"No subject" }}</span>
+                                    <span>&middot;</span>
+                                    <span>{{ note.updated_at|date:"j M Y" }}</span>
+                                </div>
+                            </div>
+                            <div class="sb-list-row__end">
+                                <a
+                                    href="{% url 'note_detail' note.pk %}"
+                                    class="sb-btn sb-btn--sm sb-btn--ghost"
+                                >
+                                    Open
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <p class="sb-inline-empty">No note matches.</p>
+            {% endif %}
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
