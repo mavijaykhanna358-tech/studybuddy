@@ -1,0 +1,5 @@
+# A CRLF shebang is not executable on Linux, so the Render build
+# script has to keep LF endings even when it is committed from
+# Windows, where core.autocrlf would otherwise rewrite it.
+build.sh text eol=lf
+*.sh text eol=lf
