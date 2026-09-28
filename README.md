@@ -86,7 +86,7 @@ file.
 | `ALLOWED_HOSTS` | `127.0.0.1,localhost,...` | Comma separated. |
 | `CSRF_TRUSTED_ORIGINS` | the deployed domains | Needed for HTTPS domains. |
 | `DATABASE_URL` | unset (SQLite) in development, required in production | Any `dj-database-url` URL. |
-| `DATABASE_SSL_REQUIRE` | `True` | Set `False` for a local database without TLS. |
+| `DATABASE_SSL_REQUIRE` | `False` | Set `True` only for a managed database that demands encryption. A `?sslmode=require` in `DATABASE_URL` is always honoured either way. |
 | `RESEND_API_KEY` | unset | Without it, email prints to the console. |
 | `DEFAULT_FROM_EMAIL` | `onboarding@resend.dev` | Sender address. |
 | `FRONTEND_BASE_URL` | `http://localhost:8000` | Public address; password reset links are built from it. |
@@ -151,7 +151,7 @@ migrations, in that order:
 
 ```bash
 pip install -r requirements.txt
-python manage.py collectstatic --noinput
+python manage.py collectstatic --no-input
 python manage.py migrate --noinput
 ```
 
@@ -172,9 +172,32 @@ A PostgreSQL database is **not** declared in this repository, so
 applying a Blueprint will not create or replace one. Link the
 existing database to the service in the Render dashboard.
 
-If `DATABASE_URL` is missing or malformed, the process refuses to
-start and prints the reason, instead of failing later with
-`Please supply the ENGINE value`.
+If `DATABASE_URL` is missing or malformed, or `SECRET_KEY` is
+missing or shorter than 50 characters, the build stops there and
+names the variable, instead of failing later with
+`Please supply the ENGINE value` or with the far less useful
+`Unknown command: 'collectstatic'`.
+
+That second message is worth explaining, because it is misleading.
+`collectstatic` is contributed by `django.contrib.staticfiles`, and
+Django only finds it through the app registry. When the settings
+module fails to import, `get_commands` returns just Django's core
+commands instead, so the build reports an unknown command and the
+real reason never appears. `project/settings.py` therefore always
+imports: a problem is recorded in `DEPLOYMENT_ERRORS` and reported
+from two places, both of which see the reason.
+
+* `project/deployment.py` registers a system check for it. Django
+  runs that check before `collectstatic`, `migrate`, `runserver` and
+  `check` do any work, so each of those stops with the variable named,
+  for example `(studybuddy.database_url) DATABASE_URL is not set`.
+* `project/wsgi.py` and `project/asgi.py` refuse to boot. Gunicorn
+  runs no system checks, so without this a broken deployment would
+  come up and only fail on the first request.
+
+`collectstatic` needs the settings module but never a database
+connection, which is why it can now be used to diagnose a deployment
+whose database settings are still wrong.
 
 ### Other hosts
 
@@ -194,7 +217,7 @@ deployed stylesheet is the stale one.
 ## Project layout
 
 ```
-project/     settings, urls, wsgi/asgi
+project/     settings, deployment checks, urls, wsgi/asgi
 users/       auth, registration, profile, Resend backend
 tasks/       Subject, Task, Note models, forms, views, urls
 dashboard/   dashboard view and stats
@@ -209,9 +232,10 @@ media/       attachments when Cloudinary is not configured
 python manage.py test
 ```
 
-122 tests cover the models, forms, views, ownership isolation
+215 tests cover the models, forms, views, ownership isolation
 between accounts, login requirements, the dashboard statistics,
-the reminder command and the Resend backend.
+the reminder command, the Resend backend, and the deployment
+configuration of the settings module.
 
 ## Interface
 

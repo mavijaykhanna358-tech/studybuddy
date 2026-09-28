@@ -1,10 +1,13 @@
 import importlib.util
+import io
 import os
+from contextlib import redirect_stderr
 from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core import mail
+from django.core import checks, mail
+from django.core.checks import Tags
 from django.core.exceptions import ImproperlyConfigured
 from django.test import (
     SimpleTestCase,
@@ -15,6 +18,10 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from project.deployment import (
+    deployment_configuration,
+    refuse_to_start,
+)
 from project.settings import BASE_DIR
 
 
@@ -24,11 +31,12 @@ STRONG_SECRET_KEY = 'unit-test-secret-key-that-is-long-enough-to-pass-checks-012
 
 CONSOLE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# A production settings load refuses to run without a DATABASE_URL,
-# because a deployment with no database would fall back to SQLite on
-# an ephemeral disk. The tests below simulate a production environment
-# to check DEBUG and email behaviour, so they need a syntactically
-# valid URL. Nothing ever connects to it.
+# A production settings load records a problem when there is no
+# DATABASE_URL, because a deployment with no database would fall back
+# to SQLite on an ephemeral disk. The tests below simulate a production
+# environment to check DEBUG and email behaviour, so they need a
+# syntactically valid URL and must not report anything. Nothing ever
+# connects to it.
 PRODUCTION_DATABASE_URL = (
     'postgresql://unit-test:unit-test@db.example.invalid:5432/studybuddy'
 )
@@ -160,6 +168,21 @@ class DebugSettingsTest(SimpleTestCase):
 class DatabaseSettingsTest(SimpleTestCase):
     """The deployment must resolve to a real database, never to nothing."""
 
+    def problems(self, settings):
+        """Return the identifiers of the problems a load recorded."""
+        return [
+            identifier
+            for identifier, _ in settings.DEPLOYMENT_ERRORS
+        ]
+
+    def details(self, settings, identifier):
+        """Return the recorded explanation for one problem."""
+        return ' '.join(
+            detail
+            for name, detail in settings.DEPLOYMENT_ERRORS
+            if name == identifier
+        )
+
     def test_production_url_resolves_to_postgresql(self):
         settings = load_settings(
             DJANGO_ENV='production',
@@ -184,26 +207,81 @@ class DatabaseSettingsTest(SimpleTestCase):
         self.assertEqual(default['CONN_MAX_AGE'], 600)
         self.assertTrue(default['CONN_HEALTH_CHECKS'])
 
-    def test_production_without_a_url_is_refused(self):
-        with self.assertRaises(ImproperlyConfigured) as caught:
-            load_settings(
-                DJANGO_ENV='production',
-                SECRET_KEY=STRONG_SECRET_KEY,
-                DATABASE_URL=None,
-                DATABASE_FALLBACK_ENGINE=None,
-            )
+    def test_production_without_a_url_is_reported(self):
+        """A missing URL is reported, not raised.
 
-        self.assertIn('DATABASE_URL', str(caught.exception))
+        The settings must still import, otherwise Django cannot find
+        `collectstatic` and the build fails with
+        "Unknown command: 'collectstatic'".
+        """
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=None,
+            DATABASE_FALLBACK_ENGINE=None,
+        )
 
-    def test_production_with_a_malformed_url_is_refused(self):
-        with self.assertRaises(ImproperlyConfigured) as caught:
-            load_settings(
-                DJANGO_ENV='production',
-                SECRET_KEY=STRONG_SECRET_KEY,
-                DATABASE_URL='not-a-url',
-            )
+        self.assertEqual(
+            self.problems(settings),
+            ['DATABASE_URL'],
+        )
 
-        self.assertIn('could not be parsed', str(caught.exception))
+    def test_production_without_a_url_never_uses_sqlite(self):
+        """Render's disk is ephemeral, so SQLite must not be the answer.
+
+        A real deployment with no database would look healthy and then
+        lose every row on the next deploy, so the dummy backend stands
+        in and the system check stops the command instead.
+        """
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=None,
+            DATABASE_FALLBACK_ENGINE=None,
+        )
+
+        self.assertEqual(
+            settings.DATABASES['default']['ENGINE'],
+            'django.db.backends.dummy',
+        )
+
+    def test_production_with_a_malformed_url_is_reported(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL='not-a-url',
+        )
+
+        self.assertEqual(
+            self.problems(settings),
+            ['DATABASE_URL'],
+        )
+
+        self.assertIn(
+            'could not be parsed',
+            self.details(settings, 'DATABASE_URL'),
+        )
+
+    def test_production_with_a_malformed_url_never_uses_sqlite(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL='not-a-url',
+        )
+
+        self.assertEqual(
+            settings.DATABASES['default']['ENGINE'],
+            'django.db.backends.dummy',
+        )
+
+    def test_a_correct_production_load_records_nothing(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            SECRET_KEY=STRONG_SECRET_KEY,
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
+        )
+
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
 
     def test_development_falls_back_to_sqlite(self):
         settings = load_settings(
@@ -266,14 +344,28 @@ class DatabaseSettingsTest(SimpleTestCase):
 
 
 class ProductionSecretsTest(SimpleTestCase):
-    def test_weak_secret_key_is_rejected_when_debug_is_off(self):
-        with self.assertRaises(ImproperlyConfigured):
-            load_settings(
-                DJANGO_ENV='production',
-                DEBUG=None,
-                SECRET_KEY='insecure',
-                DATABASE_URL=PRODUCTION_DATABASE_URL,
-            )
+    def test_weak_secret_key_is_reported_when_debug_is_off(self):
+        """A short key must not abort the import.
+
+        Raising here is what made a Render build stop with
+        "Unknown command: 'collectstatic'": Django swallows the error
+        from the settings, `get_commands` then returns only the core
+        command list, and the real reason never reached the log.
+        """
+        settings = load_settings(
+            DJANGO_ENV='production',
+            DEBUG=None,
+            SECRET_KEY='insecure',
+            DATABASE_URL=PRODUCTION_DATABASE_URL,
+        )
+
+        self.assertIn(
+            'SECRET_KEY',
+            [
+                identifier
+                for identifier, _ in settings.DEPLOYMENT_ERRORS
+            ],
+        )
 
     def test_weak_secret_key_is_allowed_while_debug_is_on(self):
         settings = load_settings(
@@ -283,6 +375,108 @@ class ProductionSecretsTest(SimpleTestCase):
         )
 
         self.assertTrue(settings.DEBUG)
+        self.assertEqual(settings.DEPLOYMENT_ERRORS, [])
+
+
+class DeploymentReportTest(SimpleTestCase):
+    """A broken deployment must say what is wrong.
+
+    The failure this guards against is precise: when the settings
+    module refused to import, Django reported
+    "Unknown command: 'collectstatic'" and the actual reason was
+    nowhere in the build log.
+    """
+
+    def test_a_broken_production_load_still_imports(self):
+        settings = load_settings(
+            DJANGO_ENV='production',
+            DEBUG=None,
+            SECRET_KEY='insecure',
+            DATABASE_URL=None,
+            DATABASE_FALLBACK_ENGINE=None,
+        )
+
+        self.assertEqual(
+            sorted(
+                identifier
+                for identifier, _ in settings.DEPLOYMENT_ERRORS
+            ),
+            ['DATABASE_URL', 'SECRET_KEY'],
+        )
+
+    def test_the_check_is_registered(self):
+        """Without registration no command would ever report the problem."""
+        self.assertIn(
+            deployment_configuration,
+            checks.registry.registry.get_checks(),
+        )
+
+    def test_the_check_is_tagged_for_collectstatic(self):
+        """`collectstatic` runs only checks carrying this tag.
+
+        Its `requires_system_checks` is `[Tags.staticfiles]`, and a
+        check without that tag is filtered out, so the error would
+        never reach the build log.
+        """
+        self.assertIn(Tags.staticfiles, deployment_configuration.tags)
+
+    def test_a_recorded_problem_becomes_a_check_error(self):
+        with override_settings(
+            DEPLOYMENT_ERRORS=[('DATABASE_URL', 'is not set')],
+        ):
+            reported = deployment_configuration(app_configs=None)
+
+        self.assertEqual(len(reported), 1)
+
+        self.assertEqual(reported[0].id, 'studybuddy.database_url')
+        self.assertIn('DATABASE_URL is not set', reported[0].msg)
+
+    def test_every_problem_is_reported_separately(self):
+        with override_settings(
+            DEPLOYMENT_ERRORS=[
+                ('DATABASE_URL', 'is not set'),
+                ('SECRET_KEY', 'is too short'),
+            ],
+        ):
+            reported = deployment_configuration(app_configs=None)
+
+        self.assertEqual(
+            [error.id for error in reported],
+            [
+                'studybuddy.database_url',
+                'studybuddy.secret_key',
+            ],
+        )
+
+    def test_a_correct_configuration_reports_nothing(self):
+        with override_settings(DEPLOYMENT_ERRORS=[]):
+            self.assertEqual(
+                deployment_configuration(app_configs=None),
+                [],
+            )
+
+    def test_the_web_server_refuses_to_start(self):
+        """Gunicorn runs no system checks, so wsgi must fail on its own."""
+        captured = io.StringIO()
+
+        with override_settings(
+            DEPLOYMENT_ERRORS=[('DATABASE_URL', 'is not set')],
+        ):
+            with redirect_stderr(captured):
+                with self.assertRaises(ImproperlyConfigured) as caught:
+                    refuse_to_start()
+
+        self.assertIn('DATABASE_URL', str(caught.exception))
+        self.assertIn('DATABASE_URL is not set', captured.getvalue())
+
+    def test_the_web_server_starts_when_configured(self):
+        captured = io.StringIO()
+
+        with override_settings(DEPLOYMENT_ERRORS=[]):
+            with redirect_stderr(captured):
+                refuse_to_start()
+
+        self.assertEqual(captured.getvalue(), '')
 
 
 class AuthFlowTest(TestCase):
